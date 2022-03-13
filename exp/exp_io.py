@@ -1,7 +1,8 @@
 import os
 
 from arekit.contrib.experiment_rusentrel.model_io.tf_networks import RuSentRelExperimentNetworkIOUtils
-from examples.network.args.const import DATA_DIR
+
+from network.args.const import DATA_DIR
 
 
 class InferIOUtils(RuSentRelExperimentNetworkIOUtils):

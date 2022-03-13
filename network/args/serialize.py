@@ -1,5 +1,6 @@
 from arekit.contrib.experiment_rusentrel.entities.types import EntityFormattersService
-from examples.network.args.base import BaseArg
+
+from network.args.base import BaseArg
 
 
 class EntityFormatterTypesArg(BaseArg):
@@ -7,7 +8,7 @@ class EntityFormatterTypesArg(BaseArg):
     @staticmethod
     def read_argument(args):
         name = args.entity_fmt
-        return EntityFormattersService.get_type_by_name(name)
+        return EntityFormattersService.name_to_type(name)
 
     @staticmethod
     def add_argument(parser, default):
@@ -15,7 +16,7 @@ class EntityFormatterTypesArg(BaseArg):
         parser.add_argument('--entity-fmt',
                             dest='entity_fmt',
                             type=str,
-                            choices=list(EntityFormattersService.iter_supported_names()),
+                            choices=list(EntityFormattersService.iter_names()),
                             default='simple',
                             nargs=1,
                             help='Entity formatter type')

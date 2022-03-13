@@ -16,13 +16,14 @@ from arekit.contrib.source.ruattitudes.io_utils import RuAttitudesVersions
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.processing.lemmatization.mystem import MystemWrapper
 from arekit.processing.pos.mystem_wrap import POSMystemWrapper
-from examples.network.args import const
-from examples.network.args.serialize import EntityFormatterTypesArg
-from examples.network.args.common import ExperimentTypeArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, \
-    TermsPerContextArg, StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg
-from examples.network.serialization_data import CustomSerializationContext
-from examples.rusentrel.common import Common
-from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
+
+from network.args import const
+from network.args.common import ExperimentTypeArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
+    StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg
+from network.args.serialize import EntityFormatterTypesArg
+from network.serialization_data import CustomSerializationContext
+from rusentrel.common import Common
+from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
 if __name__ == '__main__':
 

@@ -15,21 +15,20 @@ from arekit.contrib.networks.core.callback.train_limiter import TrainingLimiterC
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
-from examples.input import EXAMPLES
-from examples.network.args import const
-from examples.network.args.const import NEURAL_NETWORKS_TARGET_DIR
-from examples.network.args.serialize import EntityFormatterTypesArg
-from examples.network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, ModelNameTagArg
-from examples.network.common import create_bags_collection_type, create_network_model_io
-from examples.network.args.common import RusVectoresEmbeddingFilepathArg, LabelsCountArg, TermsPerContextArg, \
-    ModelNameArg, ModelLoadDirArg, VocabFilepathArg, StemmerArg, InputTextArg, PredictOutputFilepathArg, \
-    EmbeddingMatrixFilepathArg, EntitiesParserArg, SynonymsCollectionArg
-from examples.pipelines.backend import BratBackendPipelineItem
-from examples.pipelines.inference import TensorflowNetworkInferencePipelineItem
-from examples.pipelines.serialize import TextSerializationPipelineItem
 
-from examples.rusentrel.common import Common
-
+from input import EXAMPLES
+from network.args import const
+from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, SynonymsCollectionArg, \
+    InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
+    StemmerArg, PredictOutputFilepathArg
+from network.args.const import NEURAL_NETWORKS_TARGET_DIR
+from network.args.serialize import EntityFormatterTypesArg
+from network.args.train import ModelNameTagArg, ModelInputTypeArg, BagsPerMinibatchArg
+from network.common import create_network_model_io, create_bags_collection_type
+from pipelines.backend import BratBackendPipelineItem
+from pipelines.inference import TensorflowNetworkInferencePipelineItem
+from pipelines.serialize import TextSerializationPipelineItem
+from rusentrel.common import Common
 
 if __name__ == '__main__':
 

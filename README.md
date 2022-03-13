@@ -1,6 +1,6 @@
-# REmarker 
+# ARElight
 
-Is a demo project which allows to perform relations annotation (and classification), 
+This is a demonstraction project of relations annotation with sentiment classification, 
 powered by [AREkit](https://github.com/nicolay-r/AREkit).
 
 <p align="center">

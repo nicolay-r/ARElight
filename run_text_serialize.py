@@ -9,13 +9,13 @@ from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
-from examples.input import EXAMPLES
-from examples.network.args import const
-from examples.network.args.common import RusVectoresEmbeddingFilepathArg, TermsPerContextArg, StemmerArg, InputTextArg, \
-    EntitiesParserArg, SynonymsCollectionArg
-from examples.network.args.serialize import EntityFormatterTypesArg
-from examples.pipelines.serialize import TextSerializationPipelineItem
 
+from input import EXAMPLES
+from network.args import const
+from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
+    StemmerArg, SynonymsCollectionArg
+from network.args.serialize import EntityFormatterTypesArg
+from pipelines.serialize import TextSerializationPipelineItem
 
 if __name__ == '__main__':
 

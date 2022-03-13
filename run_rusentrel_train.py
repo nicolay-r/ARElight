@@ -18,19 +18,18 @@ from arekit.contrib.networks.handlers.training import NetworksTrainingIterationH
 from arekit.contrib.source.ruattitudes.io_utils import RuAttitudesVersions
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
-from examples.network.args import const
 
-from examples.network.args.common import DistanceInTermsBetweenAttitudeEndsArg, ExperimentTypeArg, LabelsCountArg, \
-    StemmerArg, TermsPerContextArg, ModelNameArg, VocabFilepathArg, ModelLoadDirArg, UseBalancingArg, \
-    EmbeddingMatrixFilepathArg
-from examples.network.args.const import BAG_SIZE, NEURAL_NETWORKS_TARGET_DIR
-from examples.network.args.train import BagsPerMinibatchArg, DropoutKeepProbArg, EpochsCountArg, LearningRateArg, \
-    ModelInputTypeArg, ModelNameTagArg
-from examples.network.common import create_bags_collection_type, create_network_model_io
-from examples.rusentrel.common import Common
-from examples.rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
-from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
-
+from network.args import const
+from network.args.common import LabelsCountArg, ExperimentTypeArg, StemmerArg, TermsPerContextArg, \
+    DistanceInTermsBetweenAttitudeEndsArg, ModelNameArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, \
+    UseBalancingArg
+from network.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
+from network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, ModelNameTagArg, DropoutKeepProbArg, \
+    LearningRateArg, EpochsCountArg
+from network.common import create_bags_collection_type, create_network_model_io
+from rusentrel.common import Common
+from rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
+from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
 if __name__ == '__main__':
 

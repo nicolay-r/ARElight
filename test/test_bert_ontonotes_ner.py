@@ -1,7 +1,8 @@
 import unittest
 
 from arekit.processing.entities.obj_desc import NerObjectDescriptor
-from examples.text.ner_ontonotes import BertOntonotesNER
+
+from text.ner_ontonotes import BertOntonotesNER
 
 
 class BertOntonotesTest(unittest.TestCase):

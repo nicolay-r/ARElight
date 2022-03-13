@@ -3,7 +3,8 @@ from arekit.common.entities.base import Entity
 from arekit.common.news.objects_parser import SentenceObjectsParserPipelineItem
 from arekit.common.text.partitioning.terms import TermsPartitioning
 from arekit.processing.entities.obj_desc import NerObjectDescriptor
-from examples.text.ner_ontonotes import BertOntonotesNER
+
+from text.ner_ontonotes import BertOntonotesNER
 
 
 class BertOntonotesNERPipelineItem(SentenceObjectsParserPipelineItem):

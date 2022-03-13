@@ -3,7 +3,8 @@ from os.path import join, dirname, realpath
 
 from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
 from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNegativeLabel, ExperimentPositiveLabel
-from examples.brat_backend import BratBackend
+
+from brat_backend import BratBackend
 
 
 class TestBratEmbedding(unittest.TestCase):

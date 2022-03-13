@@ -6,9 +6,10 @@ from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsServi
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
 from arekit.processing.lemmatization.mystem import MystemWrapper
-from examples.network.args.base import BaseArg
-from examples.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
-from examples.text.pipeline_entities_default import TextEntitiesParser
+
+from network.args.base import BaseArg
+from text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from text.pipeline_entities_default import TextEntitiesParser
 
 
 class InputTextArg(BaseArg):
@@ -135,7 +136,7 @@ class ExperimentTypeArg(BaseArg):
     @staticmethod
     def read_argument(args):
         exp_name = args.exp_type
-        return ExperimentTypesService.get_type_by_name(exp_name)
+        return ExperimentTypesService.name_to_type(exp_name)
 
     @staticmethod
     def add_argument(parser, default):
@@ -144,7 +145,7 @@ class ExperimentTypeArg(BaseArg):
         parser.add_argument('--experiment',
                             dest='exp_type',
                             type=str,
-                            choices=list(ExperimentTypesService.iter_supported_names()),
+                            choices=list(ExperimentTypesService.iter_names()),
                             default=default,
                             nargs=1,
                             help='Experiment type')

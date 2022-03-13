@@ -10,7 +10,8 @@ from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.ruattitudes.io_utils import RuAttitudesVersions
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelIOUtils
-from examples.network.embedding import RusvectoresEmbedding
+
+from network.embedding import RusvectoresEmbedding
 
 
 class Common:

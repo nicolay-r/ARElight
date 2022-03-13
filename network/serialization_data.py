@@ -4,7 +4,8 @@ from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelS
 from arekit.contrib.networks.core.input.ctx_serialization import NetworkSerializationContext
 from arekit.contrib.networks.embeddings.base import Embedding
 from arekit.processing.pos.base import POSTagger
-from examples.network.common import create_frames_collection, create_and_fill_variant_collection
+
+from network.common import create_and_fill_variant_collection, create_frames_collection
 
 
 class CustomSerializationContext(NetworkSerializationContext):

@@ -1,5 +1,6 @@
 from arekit.contrib.networks.multi.configurations.base import BaseMultiInstanceConfig
-from examples.network.args.const import BAGS_PER_MINIBATCH
+
+from network.args.const import BAGS_PER_MINIBATCH
 
 MI_CONTEXTS_PER_OPINION = 3
 

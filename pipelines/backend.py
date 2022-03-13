@@ -3,8 +3,9 @@ from os.path import join
 
 from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.items.base import BasePipelineItem
-from examples.brat_backend import BratBackend
-from examples.exp.exp_io import InferIOUtils
+
+from brat_backend import BratBackend
+from exp.exp_io import InferIOUtils
 
 
 class BratBackendPipelineItem(BasePipelineItem):
