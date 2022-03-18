@@ -185,10 +185,10 @@ List of the parameters related to embeddings:
 
 AREkit [github](https://github.com/nicolay-r/AREkit):
 <p align="centered">
-    <img src="arekit_logo.png"/>
+    <img src="docs/arekit_logo.png"/>
 </p>
 
 DeepPavlov [github](https://github.com/deepmipt/DeepPavlov):
 <p align="centered">
-    <img src="deeppavlov.png"/>
+    <img src="docs/deeppavlov_logo.png"/>
 </p>
