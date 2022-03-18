@@ -31,6 +31,7 @@ from rusentrel.common import Common
 from rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
 from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Training script for obtaining Tensorflow based states, "

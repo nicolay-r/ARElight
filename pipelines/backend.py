@@ -33,7 +33,7 @@ class BratBackendPipelineItem(BasePipelineItem):
         if template_fp is None:
             exp_root = os.path.join(input_data._get_experiment_sources_dir(),
                                     input_data.get_experiment_folder_name())
-            template_fp = join(exp_root, "brat_output.tsv.gz")
+            template_fp = join(exp_root, "brat_output.html")
 
         # Save results.
         with open(template_fp, "w") as output:
