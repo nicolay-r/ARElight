@@ -37,6 +37,7 @@ python standalone.py
 <p align="center">
     <img src="docs/inference.png"/>
 </p>
+> Figure: Named Entities annotation and sentiment attitudes between mentioned named entities.
 
 In order to infer sentiment attitudes, use the `run_test_infer.py` script as follows:
 ```bash
@@ -79,6 +80,7 @@ List of the supported parameters is as follows:
 <p align="center">
     <img src="docs/samples.png"/>
 </p>
+> Figure: The result of samples that might be utilized for ML training in further.
 
 In order to infer sentiment attitudes, use the `run_text_serialize.py` script as follows:
 ```bash
@@ -183,12 +185,12 @@ List of the parameters related to embeddings:
 
 # Powered by
 
-AREkit [github](https://github.com/nicolay-r/AREkit):
-<p align="centered">
+AREkit [[github]](https://github.com/nicolay-r/AREkit)
+<p align="left">
     <img src="docs/arekit_logo.png"/>
 </p>
 
-DeepPavlov [github](https://github.com/deepmipt/DeepPavlov):
-<p align="centered">
+DeepPavlov [[github]](https://github.com/deepmipt/DeepPavlov)
+<p align="left">
     <img src="docs/deeppavlov_logo.png"/>
 </p>
