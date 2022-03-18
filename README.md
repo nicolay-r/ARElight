@@ -21,7 +21,7 @@ for Named Entity Recognition in text sentences (BertOntoNotes model).
 
 * Install python related dependencies:
 ```python
-pip install -r dependencies
+pip install -r dependencies.txt
 ```
 
 * [Download](https://github.com/nlplab/brat/releases/tag/v1.3_Crunchy_Frog) 
