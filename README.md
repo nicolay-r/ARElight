@@ -1,11 +1,12 @@
 # ARElight
 
-This is a demonstraction project of relations annotation with sentiment classification, 
-powered by [AREkit](https://github.com/nicolay-r/AREkit).
+This is a DEMO project of sentiment relations annotation, 
+commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
 
 <p align="center">
     <img src="logo.png"/>
 </p>
+
 
 ## Dependencies
 
@@ -179,3 +180,15 @@ List of the parameters related to embeddings:
 --vocab-filepath    [VOCAB_FILEPATH]            Custom vocabulary filepath
 --emb-npz-filepath  EMBEDDING_MATRIX_FILEPATH   RusVectores embedding filepath
 ```
+
+# Powered by
+
+AREkit [github](https://github.com/nicolay-r/AREkit):
+<p align="centered">
+    <img src="arekit_logo.png"/>
+</p>
+
+DeepPavlov [github](https://github.com/deepmipt/DeepPavlov):
+<p align="centered">
+    <img src="deeppavlov.png"/>
+</p>
