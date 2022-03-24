@@ -42,12 +42,12 @@ python standalone.py
 
 In order to infer sentiment attitudes, use the `run_test_infer.py` script as follows:
 ```bash
-python3.6 run_text_infer.py
+python3.6 run_text_infer.py --sentences "США намерена ввести санкции против Роccии" "... При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
 ```
 
 List of the input/output files and directories parameters:
 ```
---text              [INPUT_TEXT]                Input text for processing
+--sentences         INPUT_TEXT [INPUT_TEXT ...] Input text for processing
 --emb-filepath      EMBEDDING_FILEPATH          RusVectores embedding filepath
 --synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
 --vocab-filepath    [VOCAB_FILEPATH]            Custom vocabulary filepath
@@ -93,25 +93,24 @@ List of the supported parameters is as follows:
 
 In order to infer sentiment attitudes, use the `run_text_serialize.py` script as follows:
 ```bash
-python3.6 run_text_serialize.py
+python3.6 run_text_serialize.py --sentences "США намерена ввести санкции против Роccии" "... При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
 ```
 
 List of the supported parameters is as follows:
 ```
---text              [INPUT_TEXT]            Input text for processing
---entities-parser   {no,bert-ontonotes}     Adopt entities parser in text processing (default: bert-ontonotes)
---emb-filepath      EMBEDDING_FILEPATH       RusVectores embedding filepath
---terms-per-context [TERMS_PER_CONTEXT]     The max possible length of an input context in terms
-                                            (Default: 50) NOTE: Use greater or equal value for
-                                            this parameter during experimentprocess; otherwise you
-                                            may encounter with exception during sample creation
-                                            process!
+--sentences         INPUT_TEXT [INPUT_TEXT ...] Input text for processing
+--entities-parser   {no,bert-ontonotes}         Adopt entities parser in text processing (default: bert-ontonotes)
+--emb-filepath      EMBEDDING_FILEPATH          RusVectores embedding filepath
+--terms-per-context [TERMS_PER_CONTEXT]         The max possible length of an input context in terms
+                                                (Default: 50) NOTE: Use greater or equal value for
+                                                this parameter during experimentprocess; otherwise you
+                                                may encounter with exception during sample creation
+                                                process!
 --entity-fmt        {rus-cased-fmt,rus-simple,simple-uppercase,simple,sharp-simple}
-                    Entity formatter type
---stemmer           [{mystem}]              Stemmer (Default: mystem)
---synonyms-filepath SYNONYMS_FILEPATH       List of synonyms provided in lines of the source text
-                    file.
---frames            [FRAMES]                Collection for frames annotation in text (Default: ruattitudes-20)
+                                                Entity formatter type
+--stemmer           [{mystem}]                  Stemmer (Default: mystem)
+--synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
+--frames            [FRAMES]                    Collection for frames annotation in text (Default: ruattitudes-20)
 ```
 
 # Large Data Serialization 
