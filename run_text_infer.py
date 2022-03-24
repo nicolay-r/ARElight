@@ -20,7 +20,7 @@ from input import EXAMPLES
 from network.args import const
 from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, SynonymsCollectionArg, \
     InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
-    StemmerArg, PredictOutputFilepathArg
+    StemmerArg, PredictOutputFilepathArg, FramesColectionArg
 from network.args.const import NEURAL_NETWORKS_TARGET_DIR
 from network.args.serialize import EntityFormatterTypesArg
 from network.args.train import ModelNameTagArg, ModelInputTypeArg, BagsPerMinibatchArg
@@ -51,6 +51,7 @@ if __name__ == '__main__':
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     StemmerArg.add_argument(parser, default="mystem")
     PredictOutputFilepathArg.add_argument(parser, default=None)
+    FramesColectionArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -59,6 +60,7 @@ if __name__ == '__main__':
     model_name = ModelNameArg.read_argument(args)
     model_input_type = ModelInputTypeArg.read_argument(args)
     model_load_dir = ModelLoadDirArg.read_argument(args)
+    frames_collection = FramesColectionArg.read_argument(args)
 
     # Implement extra structures.
     labels_scaler = Common.create_labels_scaler(LabelsCountArg.read_argument(args))
@@ -84,6 +86,7 @@ if __name__ == '__main__':
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[
         TextSerializationPipelineItem(
+            frames_collection=frames_collection,
             synonyms=SynonymsCollectionArg.read_argument(args),
             terms_per_context=TermsPerContextArg.read_argument(args),
             embedding_path=RusVectoresEmbeddingFilepathArg.read_argument(args),

@@ -19,8 +19,9 @@ from arekit.processing.pos.mystem_wrap import POSMystemWrapper
 
 from network.args import const
 from network.args.common import ExperimentTypeArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg
+    StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg, FramesColectionArg
 from network.args.serialize import EntityFormatterTypesArg
+from network.common import create_and_fill_variant_collection
 from network.serialization_data import CustomSerializationContext
 from rusentrel.common import Common
 from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
@@ -38,6 +39,7 @@ if __name__ == '__main__':
     StemmerArg.add_argument(parser, default="mystem")
     UseBalancingArg.add_argument(parser, default=True)
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
+    FramesColectionArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -51,6 +53,7 @@ if __name__ == '__main__':
     stemmer = StemmerArg.read_argument(args)
     use_balancing = UseBalancingArg.read_argument(args)
     dist_in_terms_between_attitude_ends = DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
+    frames_collection = FramesColectionArg.read_argument(args)
     pos_tagger = POSMystemWrapper(MystemWrapper().MystemInstance)
 
     # Default parameters
@@ -87,6 +90,8 @@ if __name__ == '__main__':
         pos_tagger=pos_tagger,
         annotator=DefaultAnnotator(annot_algo=annot_algo),
         name_provider=ExperimentNameProvider(name=exp_name, suffix=extra_name_suffix),
+        frames_collection=frames_collection,
+        frame_variant_collection=create_and_fill_variant_collection(frames_collection),
         data_folding=data_folding)
 
     experiment = create_experiment(

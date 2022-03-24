@@ -1,4 +1,4 @@
-# ARElight
+# ARElight 0.22.0
 
 This is a DEMO project of sentiment relations annotation, 
 commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
@@ -21,7 +21,7 @@ for Named Entity Recognition in text sentences (BertOntoNotes model).
 # Installation
 
 * Install python related dependencies:
-```python
+```bash
 pip install -r dependencies.txt
 ```
 
@@ -42,24 +42,31 @@ python standalone.py
 
 In order to infer sentiment attitudes, use the `run_test_infer.py` script as follows:
 ```bash
-python3.6 run_test_infer.py
+python3.6 run_text_infer.py
 ```
 
 List of the input/output files and directories parameters:
 ```
 --text              [INPUT_TEXT]                Input text for processing
---emb-filepath      EMBEDDING_FILEPATH RusVectores embedding filepath
+--emb-filepath      EMBEDDING_FILEPATH          RusVectores embedding filepath
 --synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
 --vocab-filepath    [VOCAB_FILEPATH]            Custom vocabulary filepath
 --emb-npz-filepath  EMBEDDING_MATRIX_FILEPATH   RusVectores embedding filepath
 --model-state-dir   [MODEL_LOAD_DIR]            Use pretrained state as initial
+--frames            [FRAMES]                    Collection for frames annotation in text (Default: ruattitudes-20)
 -o                  [INFERENCE_OUTPUT_FILEPATH] Inference output filepath
 ```
 
 List of the supported parameters is as follows:
 ```
---model-name {cnn,att-cnn,att-ef-cnn,att-se-cnn,att-se-pcnn,att-se-bilstm,att-sef-cnn,att-sef-pcnn,att-sef-bilstm,att-ef-pcnn,att-ef-bilstm,att-pcnn,att-frames-cnn,att-frames-pcnn,self-att-bilstm,bilstm,ian,ian-ends,ian-ef,ian-se,ian-sef,pcnn,rnn,rcnn,rcnn-att-p-zhou,rcnn-att-z-yang,att-frames-bilstm,att-bilstm-z-yang,att-bilstm}
-                    Name of a model to be utilized in experiment
+--model-name {cnn,att-cnn,att-ef-cnn,att-se-cnn,att-se-pcnn,
+              att-se-bilstm,att-sef-cnn,att-sef-pcnn,att-sef-bilstm,
+              att-ef-pcnn,att-ef-bilstm,att-pcnn,att-frames-cnn,
+              att-frames-pcnn,self-att-bilstm,bilstm,ian,ian-ends,ian-ef,
+              ian-se,ian-sef,pcnn,rnn,rcnn,rcnn-att-p-zhou,rcnn-att-z-yang,
+              att-frames-bilstm,att-bilstm-z-yang,att-bilstm} 
+              Name of a model to be utilized in experiment
+
 --labels-count      LABELS_COUNT                Labels count in an output classifier
 --bags-per-minibatch [BAGS_PER_MINIBATCH]       Bags per minibatch count (Default: 2)
 --model-tag         [MODEL_TAG]                 Optional and additional custom model name suffix. (Default: )
@@ -91,24 +98,20 @@ python3.6 run_text_serialize.py
 
 List of the supported parameters is as follows:
 ```
---text [INPUT_TEXT]   Input text for processing
---entities-parser {no,bert-ontonotes}
-                    Adopt entities parser in text processing (default:
-                    bert-ontonotes)
---emb-filepath EMBEDDING_FILEPATH
-                    RusVectores embedding filepath
---terms-per-context [TERMS_PER_CONTEXT]
-                    The max possible length of an input context in terms
-                    (Default: 50) NOTE: Use greater or equal value for
-                    this parameter during experimentprocess; otherwise you
-                    may encounter with exception during sample creation
-                    process!
---entity-fmt {rus-cased-fmt,rus-simple,simple-uppercase,simple,sharp-simple}
+--text              [INPUT_TEXT]            Input text for processing
+--entities-parser   {no,bert-ontonotes}     Adopt entities parser in text processing (default: bert-ontonotes)
+--emb-filepath      EMBEDDING_FILEPATH       RusVectores embedding filepath
+--terms-per-context [TERMS_PER_CONTEXT]     The max possible length of an input context in terms
+                                            (Default: 50) NOTE: Use greater or equal value for
+                                            this parameter during experimentprocess; otherwise you
+                                            may encounter with exception during sample creation
+                                            process!
+--entity-fmt        {rus-cased-fmt,rus-simple,simple-uppercase,simple,sharp-simple}
                     Entity formatter type
---stemmer [{mystem}]  Stemmer (Default: mystem)
---synonyms-filepath SYNONYMS_FILEPATH
-                    List of synonyms provided in lines of the source text
+--stemmer           [{mystem}]              Stemmer (Default: mystem)
+--synonyms-filepath SYNONYMS_FILEPATH       List of synonyms provided in lines of the source text
                     file.
+--frames            [FRAMES]                Collection for frames annotation in text (Default: ruattitudes-20)
 ```
 
 # Large Data Serialization 

@@ -12,6 +12,7 @@ from arekit.common.synonyms import SynonymsCollection
 from arekit.common.text.parser import BaseTextParser
 from arekit.common.text.stemmer import Stemmer
 from arekit.contrib.networks.core.input.helper import NetworkInputHelper
+from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.processing.lemmatization.mystem import MystemWrapper
 from arekit.processing.pos.mystem_wrap import POSMystemWrapper
 from arekit.processing.text.pipeline_frames import FrameVariantsParser
@@ -23,7 +24,7 @@ from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
 from exp.doc_ops import SingleDocOperations
 from exp.exp import CustomExperiment
 from exp.exp_io import InferIOUtils
-from network.common import create_frames_collection, create_and_fill_variant_collection
+from network.common import create_and_fill_variant_collection
 from network.embedding import RusvectoresEmbedding
 from network.serialization_data import CustomSerializationContext
 
@@ -31,7 +32,8 @@ from network.serialization_data import CustomSerializationContext
 class TextSerializationPipelineItem(BasePipelineItem):
 
     def __init__(self, terms_per_context, entities_parser, synonyms, opin_annot, name_provider,
-                 embedding_path, entity_fmt, stemmer, data_folding):
+                 embedding_path, frames_collection, entity_fmt, stemmer, data_folding):
+        assert(isinstance(frames_collection, RuSentiFramesCollection))
         assert(isinstance(entities_parser, BasePipelineItem))
         assert(isinstance(entity_fmt, StringEntitiesFormatter))
         assert(isinstance(synonyms, SynonymsCollection))
@@ -53,7 +55,6 @@ class TextSerializationPipelineItem(BasePipelineItem):
         self.__labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
 
         # Initialize text parser with the related dependencies.
-        frames_collection = create_frames_collection()
         frame_variants_collection = create_and_fill_variant_collection(frames_collection)
         self.__text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
@@ -75,6 +76,8 @@ class TextSerializationPipelineItem(BasePipelineItem):
             str_entity_formatter=entity_fmt,
             pos_tagger=pos_tagger,
             name_provider=name_provider,
+            frames_collection=frames_collection,
+            frame_variant_collection=frame_variants_collection,
             data_folding=data_folding)
         self.__exp_io = InferIOUtils(self.__exp_ctx)
 

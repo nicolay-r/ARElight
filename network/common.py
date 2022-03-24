@@ -1,22 +1,8 @@
-from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.frames.variants.collection import FrameVariantsCollection
-from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
 from arekit.contrib.networks.core.feeding.bags.collection.multi import MultiInstanceBagsCollection
 from arekit.contrib.networks.core.feeding.bags.collection.single import SingleBagsCollection
 from arekit.contrib.networks.core.model_io import NeuralNetworkModelIO
 from arekit.contrib.networks.enum_input_types import ModelInputType
-from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
-from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
-
-
-def create_infer_experiment_name_provider():
-    return ExperimentNameProvider(name="example", suffix="infer")
-
-
-def create_frames_collection():
-    return RuSentiFramesCollection.read_collection(
-        version=RuSentiFramesVersions.V20,
-        labels_fmt=ExperimentRuSentiFramesLabelsFormatter())
 
 
 def create_and_fill_variant_collection(frames_collection):

@@ -13,7 +13,7 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 from input import EXAMPLES
 from network.args import const
 from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, SynonymsCollectionArg
+    StemmerArg, SynonymsCollectionArg, FramesColectionArg
 from network.args.serialize import EntityFormatterTypesArg
 from pipelines.serialize import TextSerializationPipelineItem
 
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     EntityFormatterTypesArg.add_argument(parser, default="simple")
     StemmerArg.add_argument(parser, default="mystem")
     SynonymsCollectionArg.add_argument(parser, default=None)
+    FramesColectionArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -46,6 +47,7 @@ if __name__ == '__main__':
                 dist_in_terms_bound=None,
                 label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             stemmer=StemmerArg.read_argument(args),
+            frames_collection=FramesColectionArg.read_argument(args),
             data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]))
     ])
 
