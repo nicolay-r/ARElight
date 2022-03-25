@@ -35,7 +35,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    InputTextArg.add_argument(parser, default=EXAMPLES["no_entities"])
+    InputTextArg.add_argument(parser, default=EXAMPLES["no_entities"][0])
     SynonymsCollectionArg.add_argument(parser, default=None)
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)

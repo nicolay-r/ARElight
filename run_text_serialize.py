@@ -23,7 +23,7 @@ if __name__ == '__main__':
                                                  "required for inference and training.")
 
     # Provide arguments.
-    InputTextArg.add_argument(parser, default=EXAMPLES["no_entities"])
+    InputTextArg.add_argument(parser, default=EXAMPLES["no_entities"][0])
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)

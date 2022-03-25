@@ -22,11 +22,11 @@ class InputTextArg(BaseArg):
 
     @staticmethod
     def add_argument(parser, default):
-        parser.add_argument('--sentences',
+        parser.add_argument('--text',
                             dest='input_text',
                             type=str,
                             default=default,
-                            nargs='+',
+                            nargs='?',
                             help='Input text for processing')
 
 

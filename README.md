@@ -13,6 +13,7 @@ commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
 * arekit == 0.22.0
 * gensim == 3.2.0
 * deeppavlov == 1.11.0
+* rusenttokenize
 * brat-v1.3 [[github]](https://github.com/nlplab/brat)
 
 We adopt [DeepPavlov](https://github.com/deepmipt/DeepPavlov) 
@@ -42,7 +43,7 @@ python standalone.py
 
 In order to infer sentiment attitudes, use the `run_test_infer.py` script as follows:
 ```bash
-python3.6 run_text_infer.py --sentences "США намерена ввести санкции против Роccии" "... При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
+python3.6 run_text_infer.py --text "США намерена ввести санкции против Роccии. При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
 ```
 
 List of the input/output files and directories parameters:
@@ -93,7 +94,7 @@ List of the supported parameters is as follows:
 
 In order to infer sentiment attitudes, use the `run_text_serialize.py` script as follows:
 ```bash
-python3.6 run_text_serialize.py --sentences "США намерена ввести санкции против Роccии" "... При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
+python3.6 run_text_serialize.py --text "США намерена ввести санкции против Роccии. При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
 ```
 
 List of the supported parameters is as follows:

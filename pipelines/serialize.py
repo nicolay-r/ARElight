@@ -21,6 +21,8 @@ from arekit.processing.text.pipeline_frames_negation import FrameVariantsSentime
 from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
 from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
 
+from rusenttokenize import ru_sent_tokenize
+
 from exp.doc_ops import SingleDocOperations
 from exp.exp import CustomExperiment
 from exp.exp_io import InferIOUtils
@@ -82,12 +84,10 @@ class TextSerializationPipelineItem(BasePipelineItem):
         self.__exp_io = InferIOUtils(self.__exp_ctx)
 
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, list) or isinstance(input_data, str))
+        assert(isinstance(input_data, str))
 
         # setup input data.
-        sentences = input_data
-        if isinstance(sentences, str):
-            sentences = [sentences]
+        sentences = ru_sent_tokenize(input_data)
         sentences = list(map(lambda text: BaseNewsSentence(text), sentences))
 
         # Parse text.
