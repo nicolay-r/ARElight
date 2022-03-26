@@ -202,7 +202,6 @@ class LabelsCountArg(BaseArg):
                             dest="labels_count",
                             type=int,
                             default=default,
-                            nargs=1,
                             help="Labels count in an output classifier")
 
 
@@ -297,7 +296,6 @@ class EntitiesParserArg(BaseArg):
                             type=str,
                             choices=['no', 'bert-ontonotes'],
                             default=default,
-                            nargs=1,
                             help='Adopt entities parser in text processing (default: {})'.format(default))
 
 
