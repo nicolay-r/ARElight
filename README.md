@@ -123,7 +123,6 @@ python3.6 run_rusentrel_serialize.py
 
 List of the parameters is as follows:
 ```
---experiment        {rsr,ra,rsr+ra} Experiment type
 --emb-filepath      EMBEDDING_FILEPATH RusVectores embedding filepath
 --terms-per-context [TERMS_PER_CONTEXT]
                     The max possible length of an input context in terms
@@ -156,8 +155,6 @@ python3.6 run_rusentrel_train.py
 List of the parameters related to models:
 ```bash
 --labels-count      LABELS_COUNT            Labels count in an output classifier
---experiment        {rsr,ra,rsr+ra}         Experiment type
---stemmer           [{mystem}]              Stemmer (Default: mystem)
 --bags-per-minibatch [BAGS_PER_MINIBATCH]   Bags per minibatch count (Default: 2)
 --model-name        {cnn,att-cnn,att-ef-cnn,att-se-cnn,att-se-pcnn,att-se-bilstm,att-sef-cnn,att-sef-pcnn,att-sef-bilstm,att-ef-pcnn,att-ef-bilstm,att-pcnn,att-frames-cnn,att-frames-pcnn,self-att-bilstm,bilstm,ian,ian-ends,ian-ef,ian-se,ian-sef,pcnn,rnn,rcnn,rcnn-att-p-zhou,rcnn-att-z-yang,att-frames-bilstm,att-bilstm-z-yang,att-bilstm}
                     Name of a model to be utilized in experiment

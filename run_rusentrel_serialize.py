@@ -12,13 +12,12 @@ from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNeutralLa
 from arekit.contrib.experiment_rusentrel.synonyms.provider import RuSentRelSynonymsCollectionProvider
 from arekit.contrib.experiment_rusentrel.types import ExperimentTypes
 from arekit.contrib.networks.handlers.serializer import NetworksInputSerializerExperimentIteration
-from arekit.contrib.source.ruattitudes.io_utils import RuAttitudesVersions
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.processing.lemmatization.mystem import MystemWrapper
 from arekit.processing.pos.mystem_wrap import POSMystemWrapper
 
 from network.args import const
-from network.args.common import ExperimentTypeArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
+from network.args.common import LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
     StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg, FramesColectionArg
 from network.args.serialize import EntityFormatterTypesArg
 from network.common import create_and_fill_variant_collection
@@ -31,7 +30,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="RuSentRel dataset serialization script")
 
     # Provide arguments.
-    ExperimentTypeArg.add_argument(parser, default="rsr")
     LabelsCountArg.add_argument(parser, default=3)
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
@@ -46,7 +44,6 @@ if __name__ == '__main__':
 
     # Reading arguments.
     embedding_filepath = RusVectoresEmbeddingFilepathArg.read_argument(args)
-    exp_type = ExperimentTypeArg.read_argument(args)
     labels_count = LabelsCountArg.read_argument(args)
     terms_per_context = TermsPerContextArg.read_argument(args)
     entity_fmt = EntityFormatterTypesArg.read_argument(args)
@@ -58,7 +55,6 @@ if __name__ == '__main__':
 
     # Default parameters
     rusentrel_version = RuSentRelVersions.V11
-    ra_version = None if exp_type == ExperimentTypes.RuSentRel else RuAttitudesVersions.V20LargeNeut
     folding_type = FoldingType.Fixed
 
     synonyms_collection = RuSentRelSynonymsCollectionProvider.load_collection(stemmer=stemmer)
@@ -68,7 +64,7 @@ if __name__ == '__main__':
         label_provider=ConstantLabelProvider(label_instance=ExperimentNeutralLabel()))
 
     exp_name = Common.create_exp_name(rusentrel_version=rusentrel_version,
-                                      ra_version=ra_version,
+                                      ra_version=None,
                                       folding_type=folding_type)
 
     extra_name_suffix = Common.create_exp_name_suffix(
@@ -78,7 +74,7 @@ if __name__ == '__main__':
 
     data_folding = Common.create_folding(
         rusentrel_version=rusentrel_version,
-        ruattitudes_version=ra_version,
+        ruattitudes_version=None,
         doc_id_func=lambda doc_id: Common.ra_doc_id_func(doc_id=doc_id))
 
     # Preparing necessary structures for further initializations.
@@ -95,12 +91,12 @@ if __name__ == '__main__':
         data_folding=data_folding)
 
     experiment = create_experiment(
-        exp_type=exp_type,
+        exp_type=ExperimentTypes.RuSentRel,
         exp_ctx=exp_ctx,
         exp_io=CustomRuSentRelNetworkExperimentIO(exp_ctx),
         folding_type=folding_type,
         rusentrel_version=rusentrel_version,
-        ruattitudes_version=ra_version,
+        ruattitudes_version=None,
         load_ruattitude_docs=True,
         ra_doc_id_func=lambda doc_id: Common.ra_doc_id_func(doc_id=doc_id))
 

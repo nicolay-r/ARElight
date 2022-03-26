@@ -15,14 +15,13 @@ from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.networks.factory import create_network_and_network_config_funcs
 from arekit.contrib.networks.np_utils.writer import NpzDataWriter
 from arekit.contrib.networks.handlers.training import NetworksTrainingIterationHandler
-from arekit.contrib.source.ruattitudes.io_utils import RuAttitudesVersions
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
 
 from network.args import const
-from network.args.common import LabelsCountArg, ExperimentTypeArg, StemmerArg, TermsPerContextArg, \
-    DistanceInTermsBetweenAttitudeEndsArg, ModelNameArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, \
-    UseBalancingArg
+from network.args.common import LabelsCountArg, TermsPerContextArg, \
+    DistanceInTermsBetweenAttitudeEndsArg, ModelNameArg, VocabFilepathArg, \
+    EmbeddingMatrixFilepathArg, ModelLoadDirArg
 from network.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
 from network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, ModelNameTagArg, DropoutKeepProbArg, \
     LearningRateArg, EpochsCountArg
@@ -39,8 +38,6 @@ if __name__ == '__main__':
 
     # Composing cmd arguments.
     LabelsCountArg.add_argument(parser, default=3)
-    ExperimentTypeArg.add_argument(parser, default="rsr")
-    StemmerArg.add_argument(parser, default="mystem")
     BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
@@ -53,15 +50,12 @@ if __name__ == '__main__':
     VocabFilepathArg.add_argument(parser, default=None)
     EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
     ModelLoadDirArg.add_argument(parser, default=None)
-    UseBalancingArg.add_argument(parser, default=True)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading arguments.
-    exp_type = ExperimentTypeArg.read_argument(args)
     labels_count = LabelsCountArg.read_argument(args)
-    stemmer = StemmerArg.read_argument(args)
     model_input_type = ModelInputTypeArg.read_argument(args)
     model_name = ModelNameArg.read_argument(args)
     embedding_matrix_filepath = EmbeddingMatrixFilepathArg.read_argument(args)
@@ -74,11 +68,10 @@ if __name__ == '__main__':
     model_name_tag = ModelNameTagArg.read_argument(args)
     epochs_count = EpochsCountArg.read_argument(args)
     model_load_dir = ModelLoadDirArg.read_argument(args)
-    use_balancing = UseBalancingArg.read_argument(args)
 
     # Utilize predefined versions and folding format.
+    exp_type = ExperimentTypes.RuSentRel
     rusentrel_version = RuSentRelVersions.V11
-    ra_version = None if exp_type == ExperimentTypes.RuSentRel else RuAttitudesVersions.V20LargeNeut
     folding_type = FoldingType.Fixed
     model_target_dir = NEURAL_NETWORKS_TARGET_DIR
 
@@ -91,17 +84,17 @@ if __name__ == '__main__':
     labels_scaler = Common.create_labels_scaler(labels_count)
 
     exp_name = Common.create_exp_name(rusentrel_version=rusentrel_version,
-                                      ra_version=ra_version,
+                                      ra_version=None,
                                       folding_type=folding_type)
 
     extra_name_suffix = Common.create_exp_name_suffix(
-        use_balancing=use_balancing,
+        use_balancing=True,
         terms_per_context=terms_per_context,
         dist_in_terms_between_att_ends=dist_in_terms_between_attitude_ends)
 
     data_folding = Common.create_folding(
         rusentrel_version=rusentrel_version,
-        ruattitudes_version=ra_version,
+        ruattitudes_version=None,
         doc_id_func=lambda doc_id: Common.ra_doc_id_func(doc_id=doc_id))
 
     # Creating experiment
