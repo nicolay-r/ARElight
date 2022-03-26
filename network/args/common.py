@@ -314,7 +314,6 @@ class ModelNameArg(BaseArg):
                             type=str,
                             choices=list(ModelNamesService.iter_supported_names()),
                             default=default,
-                            nargs=1,
                             help='Name of a model to be utilized in experiment')
 
 

@@ -41,9 +41,11 @@ python standalone.py
 
 > Figure: Named Entities annotation and sentiment attitudes between mentioned named entities.
 
-In order to infer sentiment attitudes, use the `run_test_infer.py` script as follows:
+In order to infer sentiment attitudes, use the `run_test_infer.py` script with the pretrained `PCNN` model:
 ```bash
-python3.6 run_text_infer.py --text "США намерена ввести санкции против Роccии. При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
+python3.6 run_text_infer.py --text "США намерена ввести санкции против Роccии. При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..." \
+    --model-name pcnn \
+    --model-state-dir models/ 
 ```
 
 List of the input/output files and directories parameters:
