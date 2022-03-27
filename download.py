@@ -1,6 +1,6 @@
 from os.path import join
 from arekit.contrib.source import utils
-from network.args.const import EMBEDDING_FILEPATH
+from network.args.const import EMBEDDING_FILEPATH, SYNONYMS_FILEPATH
 
 
 def download_examples_data():
@@ -8,6 +8,7 @@ def download_examples_data():
 
     data = {
         EMBEDDING_FILEPATH: "http://rusvectores.org/static/models/rusvectores2/news_mystem_skipgram_1000_20_2015.bin.gz",
+        SYNONYMS_FILEPATH: "https://github.com/nicolay-r/RuSentRel/blob/v1.1/synonyms.txt"
     }
 
     # Perform downloading ...
