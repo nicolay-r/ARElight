@@ -1,7 +1,6 @@
-from arekit.common.synonyms import SynonymsCollection
 from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
+from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
 from arekit.contrib.experiment_rusentrel.synonyms.provider import RuSentRelSynonymsCollectionProvider
-from arekit.contrib.experiment_rusentrel.types import ExperimentTypesService
 from arekit.contrib.networks.enum_name_types import ModelNamesService
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
@@ -147,7 +146,6 @@ class EmbeddingMatrixFilepathArg(BaseArg):
                             dest='embedding_matrix_filepath',
                             type=str,
                             default=default,
-                            nargs=1,
                             help='RusVectores embedding filepath')
 
 
@@ -239,15 +237,17 @@ class SynonymsCollectionArg(BaseArg):
     @staticmethod
     def read_argument(args):
         filepath = args.synonyms_filepath
+        stemmer = MystemWrapper()
         if filepath is None:
             # Provide RuSentRel collection by default.
-            return RuSentRelSynonymsCollectionProvider.load_collection(stemmer=MystemWrapper(),
+            return RuSentRelSynonymsCollectionProvider.load_collection(stemmer=stemmer,
                                                                        version=RuSentRelVersions.V11)
         else:
             # Provide collection from file.
-            return SynonymsCollection(iter_group_values_lists=SynonymsCollectionArg.__iter_groups(filepath),
-                                      is_read_only=True,
-                                      debug=False)
+            return StemmerBasedSynonymCollection(iter_group_values_lists=SynonymsCollectionArg.__iter_groups(filepath),
+                                                 stemmer=stemmer,
+                                                 is_read_only=True,
+                                                 debug=False)
 
     @staticmethod
     def add_argument(parser, default):

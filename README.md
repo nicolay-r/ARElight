@@ -60,12 +60,8 @@ python3.6 run_text_infer.py --text "США намерена ввести сан�
     --model-input-type ctx \
     --entity-fmt hidden-simple-eng \
     --emb-filepath models/news_mystem_skipgram_1000_20_2015.bin.gz \
+    --synonyms-filepath models/synonyms.txt \
     -o data/brat_inference_output.html
-```
-
-List of the other input/output files and directories parameters:
-```
---synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
 ```
 
 # Serialization 
@@ -83,12 +79,8 @@ python3.6 run_text_serialize.py --text "США намерена ввести с�
     --stemmer mystem \
     --terms-per-context 50 \
     --emb-filepath models/news_mystem_skipgram_1000_20_2015.bin.gz \
+    --synonyms-filepath models/synonyms.txt \
     --frames ruattitudes-20 
-```
-
-List of other supported parameters is as follows:
-```
---synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
 ```
 
 # Training other models
