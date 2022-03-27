@@ -66,13 +66,6 @@ python3.6 run_text_infer.py --text "США намерена ввести сан�
 List of the other input/output files and directories parameters:
 ```
 --synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
---vocab-filepath    [VOCAB_FILEPATH]            Custom vocabulary filepath
---emb-npz-filepath  EMBEDDING_MATRIX_FILEPATH   RusVectores embedding filepath
-```
-
-List of the other supported parameters is as follows:
-```
---model-tag         [MODEL_TAG]                 Optional and additional custom model name suffix. (Default: )
 ```
 
 # Serialization 

@@ -48,7 +48,6 @@ List of the parameters related to models:
 --model-name        {cnn,att-cnn,att-ef-cnn,att-se-cnn,att-se-pcnn,att-se-bilstm,att-sef-cnn,att-sef-pcnn,att-sef-bilstm,att-ef-pcnn,att-ef-bilstm,att-pcnn,att-frames-cnn,att-frames-pcnn,self-att-bilstm,bilstm,ian,ian-ends,ian-ef,ian-se,ian-sef,pcnn,rnn,rcnn,rcnn-att-p-zhou,rcnn-att-z-yang,att-frames-bilstm,att-bilstm-z-yang,att-bilstm}
                     Name of a model to be utilized in experiment
 --model-input-type [{ctx,mi-mp,mi-self-att}] Input format type (Default: ModelInputType.SingleInstance)
---model-tag         [MODEL_TAG]             Optional and additional custom model name suffix. (Default: )
 --dropout-keep-prob [DROPOUT_KEEP_PROB]     Dropout keep prob (Default: 0.5)
 --learning-rate     [LEARNING_RATE]         Learning Rate (Default: 0.1) 
 --epochs            [EPOCHS]                Epochs count (Default: 150)

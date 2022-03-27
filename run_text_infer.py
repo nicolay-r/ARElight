@@ -23,7 +23,7 @@ from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddi
     StemmerArg, PredictOutputFilepathArg, FramesColectionArg
 from network.args.const import NEURAL_NETWORKS_TARGET_DIR
 from network.args.serialize import EntityFormatterTypesArg
-from network.args.train import ModelNameTagArg, ModelInputTypeArg, BagsPerMinibatchArg
+from network.args.train import ModelInputTypeArg, BagsPerMinibatchArg
 from network.common import create_network_model_io, create_bags_collection_type
 from pipelines.backend import BratBackendPipelineItem
 from pipelines.inference import TensorflowNetworkInferencePipelineItem
@@ -41,7 +41,6 @@ if __name__ == '__main__':
     BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
     LabelsCountArg.add_argument(parser, default=3)
     ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
-    ModelNameTagArg.add_argument(parser, default=ModelNameTagArg.NO_TAG)
     ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
@@ -81,7 +80,7 @@ if __name__ == '__main__':
         source_dir=model_load_dir,
         target_dir=model_load_dir,
         vocab_filepath=VocabFilepathArg.read_argument(args),
-        model_name_tag=ModelNameTagArg.read_argument(args))
+        model_name_tag=u'')
 
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[

@@ -151,26 +151,6 @@ class EmbeddingMatrixFilepathArg(BaseArg):
                             help='RusVectores embedding filepath')
 
 
-class ExperimentTypeArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        exp_name = args.exp_type
-        return ExperimentTypesService.name_to_type(exp_name)
-
-    @staticmethod
-    def add_argument(parser, default):
-        assert(isinstance(default, str))
-
-        parser.add_argument('--experiment',
-                            dest='exp_type',
-                            type=str,
-                            choices=list(ExperimentTypesService.iter_names()),
-                            default=default,
-                            nargs=1,
-                            help='Experiment type')
-
-
 class RuSentiFramesVersionArg(BaseArg):
 
     @staticmethod

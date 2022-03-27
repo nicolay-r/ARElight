@@ -23,7 +23,7 @@ from network.args.common import LabelsCountArg, TermsPerContextArg, \
     DistanceInTermsBetweenAttitudeEndsArg, ModelNameArg, VocabFilepathArg, \
     EmbeddingMatrixFilepathArg, ModelLoadDirArg
 from network.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
-from network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, ModelNameTagArg, DropoutKeepProbArg, \
+from network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, DropoutKeepProbArg, \
     LearningRateArg, EpochsCountArg
 from network.common import create_bags_collection_type, create_network_model_io
 from rusentrel.common import Common
@@ -43,7 +43,6 @@ if __name__ == '__main__':
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
     ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
     ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
-    ModelNameTagArg.add_argument(parser, default=ModelNameTagArg.NO_TAG)
     DropoutKeepProbArg.add_argument(parser, default=0.5)
     LearningRateArg.add_argument(parser, default=0.1)
     EpochsCountArg.add_argument(parser, default=150)
@@ -65,7 +64,6 @@ if __name__ == '__main__':
     terms_per_context = TermsPerContextArg.read_argument(args)
     learning_rate = LearningRateArg.read_argument(args)
     dist_in_terms_between_attitude_ends = DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
-    model_name_tag = ModelNameTagArg.read_argument(args)
     epochs_count = EpochsCountArg.read_argument(args)
     model_load_dir = ModelLoadDirArg.read_argument(args)
 
@@ -112,7 +110,7 @@ if __name__ == '__main__':
                                        target_dir=model_target_dir,
                                        embedding_filepath=embedding_matrix_filepath,
                                        vocab_filepath=vocab_filepath,
-                                       model_name_tag=model_name_tag)
+                                       model_name_tag=u'')
 
     # Setup model io.
     exp_ctx.set_model_io(model_io)

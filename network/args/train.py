@@ -104,23 +104,3 @@ class ModelInputTypeArg(BaseArg):
                             nargs='?',
                             help='Input format type (Default: {})'.format(default))
 
-
-class ModelNameTagArg(BaseArg):
-
-    NO_TAG = u''
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def read_argument(args):
-        return str(args.model_tag)
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--model-tag',
-                            dest='model_tag',
-                            type=str,
-                            default=default,
-                            nargs='?',
-                            help='Optional and additional custom model name suffix. (Default: {})'.format(default))
