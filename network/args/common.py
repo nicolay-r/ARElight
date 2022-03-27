@@ -130,7 +130,6 @@ class RusVectoresEmbeddingFilepathArg(BaseArg):
                             dest='embedding_filepath',
                             type=str,
                             default=default,
-                            nargs=1,
                             help='RusVectores embedding filepath')
 
 

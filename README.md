@@ -33,6 +33,11 @@ pip install -r dependencies.txt
 python standalone.py
 ```
 
+* Download required resources:
+```
+python download.py
+```
+
 # Inference
 
 <p align="center">
@@ -54,12 +59,12 @@ python3.6 run_text_infer.py --text "США намерена ввести сан�
     --bags-per-minibatch 2 \
     --model-input-type ctx \
     --entity-fmt hidden-simple-eng \
+    --emb-filepath models/news_mystem_skipgram_1000_20_2015.bin.gz \
     -o data/brat_inference_output.html
 ```
 
 List of the other input/output files and directories parameters:
 ```
---emb-filepath      EMBEDDING_FILEPATH          RusVectores embedding filepath
 --synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
 --vocab-filepath    [VOCAB_FILEPATH]            Custom vocabulary filepath
 --emb-npz-filepath  EMBEDDING_MATRIX_FILEPATH   RusVectores embedding filepath
@@ -84,12 +89,12 @@ python3.6 run_text_serialize.py --text "США намерена ввести с�
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
+    --emb-filepath models/news_mystem_skipgram_1000_20_2015.bin.gz \
     --frames ruattitudes-20 
 ```
 
 List of other supported parameters is as follows:
 ```
---emb-filepath      EMBEDDING_FILEPATH          RusVectores embedding filepath
 --synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
 ```
 

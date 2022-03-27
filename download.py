@@ -1,12 +1,13 @@
 from os.path import join
 from arekit.contrib.source import utils
+from network.args.const import EMBEDDING_FILEPATH
 
 
 def download_examples_data():
     root_dir = utils.get_default_download_dir()
 
     data = {
-        EMBEDDING_FILENAME: "http://rusvectores.org/static/models/rusvectores2/news_mystem_skipgram_1000_20_2015.bin.gz",
+        EMBEDDING_FILEPATH: "http://rusvectores.org/static/models/rusvectores2/news_mystem_skipgram_1000_20_2015.bin.gz",
     }
 
     # Perform downloading ...
