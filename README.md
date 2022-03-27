@@ -21,21 +21,19 @@ for Named Entity Recognition in text sentences (BertOntoNotes model).
 
 # Installation
 
-* Install python related dependencies:
+* ARElight:
 ```bash
+# Install the required dependencies
 pip install -r dependencies.txt
+# Donwload Required Resources
+python3.6 download.py
 ```
 
-* [Download](https://github.com/nlplab/brat/releases/tag/v1.3_Crunchy_Frog) 
-  and install BRAT library, and run standalone server as follows:
+* BRAT: [Download](https://github.com/nlplab/brat/releases/tag/v1.3_Crunchy_Frog) 
+  and install library, and run standalone server as follows:
 ```
 ./install.sh -u
 python standalone.py
-```
-
-* Download required resources:
-```
-python download.py
 ```
 
 # Inference
