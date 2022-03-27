@@ -33,7 +33,7 @@ if __name__ == '__main__':
     LabelsCountArg.add_argument(parser, default=3)
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="simple")
+    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
     StemmerArg.add_argument(parser, default="mystem")
     UseBalancingArg.add_argument(parser, default=True)
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)

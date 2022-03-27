@@ -52,6 +52,8 @@ python3.6 run_text_infer.py --text "США намерена ввести сан�
     --frames ruattitudes-20 \
     --labels-count 3 \
     --bags-per-minibatch 2 \
+    --model-input-type ctx \
+    --entity-fmt hidden-simple-eng \
     -o data/brat_inference_output.html
 ```
 
@@ -66,8 +68,6 @@ List of the other input/output files and directories parameters:
 List of the other supported parameters is as follows:
 ```
 --model-tag         [MODEL_TAG]                 Optional and additional custom model name suffix. (Default: )
---model-input-type  [{ctx,mi-mp,mi-self-att}]   Input format type (Default: ModelInputType.SingleInstance)
---entity-fmt        {rus-cased-fmt,rus-simple,simple-uppercase,simple,sharp-simple} Entity formatter type
 ```
 
 # Serialization 
@@ -90,8 +90,6 @@ python3.6 run_text_serialize.py --text "США намерена ввести с�
 List of other supported parameters is as follows:
 ```
 --emb-filepath      EMBEDDING_FILEPATH          RusVectores embedding filepath
---entity-fmt        {rus-cased-fmt,rus-simple,simple-uppercase,simple,sharp-simple}
-                                                Entity formatter type
 --synonyms-filepath SYNONYMS_FILEPATH           List of synonyms provided in lines of the source text file.
 ```
 

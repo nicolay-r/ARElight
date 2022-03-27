@@ -44,7 +44,7 @@ if __name__ == '__main__':
     ModelNameTagArg.add_argument(parser, default=ModelNameTagArg.NO_TAG)
     ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="simple")
+    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
     VocabFilepathArg.add_argument(parser, default=None)
     EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
     ModelLoadDirArg.add_argument(parser, default=NEURAL_NETWORKS_TARGET_DIR)

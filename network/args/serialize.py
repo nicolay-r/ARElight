@@ -12,11 +12,11 @@ class EntityFormatterTypesArg(BaseArg):
 
     @staticmethod
     def add_argument(parser, default):
+        assert(isinstance(default, str))
         assert(EntityFormattersService.is_supported(default))
         parser.add_argument('--entity-fmt',
                             dest='entity_fmt',
                             type=str,
                             choices=list(EntityFormattersService.iter_names()),
-                            default='simple',
-                            nargs=1,
+                            default=default,
                             help='Entity formatter type')
