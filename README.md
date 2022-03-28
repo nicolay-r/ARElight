@@ -87,12 +87,10 @@ python3.6 run_text_serialize.py --text "США намерена ввести с�
 
 # Powered by
 
-AREkit [[github]](https://github.com/nicolay-r/AREkit)
-<p align="left">
-    <img src="docs/arekit_logo.png"/>
-</p>
+* AREkit [[github]](https://github.com/nicolay-r/AREkit)
+* DeepPavlov [[github]](https://github.com/deepmipt/DeepPavlov)
 
-DeepPavlov [[github]](https://github.com/deepmipt/DeepPavlov)
-<p align="left">
-    <img src="docs/deeppavlov_logo.png"/>
+<p float="left">
+<a href="https://github.com/nicolay-r/AREkit"><img src="docs/arekit_logo.png"/></a>
+<a href="https://github.com/deepmipt/DeepPavlov"><img src="docs/deeppavlov_logo.png"/></a>
 </p>
