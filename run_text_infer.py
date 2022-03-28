@@ -20,7 +20,7 @@ from input import EXAMPLES
 from network.args import const
 from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, SynonymsCollectionArg, \
     InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
-    StemmerArg, PredictOutputFilepathArg, FramesColectionArg
+    StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFileArg
 from network.args.const import NEURAL_NETWORKS_TARGET_DIR
 from network.args.serialize import EntityFormatterTypesArg
 from network.args.train import ModelInputTypeArg, BagsPerMinibatchArg
@@ -37,6 +37,7 @@ if __name__ == '__main__':
     # Providing arguments.
     InputTextArg.add_argument(parser, default=EXAMPLES["no_entities"][0])
     SynonymsCollectionArg.add_argument(parser, default=None)
+    FromFileArg.add_argument(parser, default=None)
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
     LabelsCountArg.add_argument(parser, default=3)
@@ -60,6 +61,11 @@ if __name__ == '__main__':
     model_input_type = ModelInputTypeArg.read_argument(args)
     model_load_dir = ModelLoadDirArg.read_argument(args)
     frames_collection = FramesColectionArg.read_argument(args)
+
+    # Reading text-related parameters.
+    text_from_file = FromFileArg.read_argument(args)
+    text_from_arg = InputTextArg.read_argument(args)
+    actual_content = text_from_file if text_from_file is not None else text_from_arg
 
     # Implement extra structures.
     labels_scaler = Common.create_labels_scaler(LabelsCountArg.read_argument(args))
@@ -124,7 +130,9 @@ if __name__ == '__main__':
         )
     ])
 
-    ppl.run(InputTextArg.read_argument(args), {
-        "predict_fp": PredictOutputFilepathArg.read_argument(args),
-        "brat_vis_fp": None
+    backend_template = PredictOutputFilepathArg.read_argument(args)
+
+    ppl.run(actual_content, {
+        "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,
+        "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None
     })

@@ -80,6 +80,28 @@ class VocabFilepathArg(BaseArg):
                             help='Custom vocabulary filepath')
 
 
+class FromFileArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        filepath = args.from_file
+
+        if filepath is None:
+            return None
+
+        with open(filepath) as f:
+            return f.read().rstrip()
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--from-file',
+                            dest='from_file',
+                            type=str,
+                            default=default,
+                            nargs='?',
+                            help='Custom vocabulary filepath')
+
+
 class UseBalancingArg(BaseArg):
 
     def __init__(self):

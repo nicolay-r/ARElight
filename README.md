@@ -59,7 +59,7 @@ python3.6 run_text_infer.py --text "США намерена ввести сан�
     --entity-fmt hidden-simple-eng \
     --emb-filepath models/news_mystem_skipgram_1000_20_2015.bin.gz \
     --synonyms-filepath models/synonyms.txt \
-    -o data/brat_inference_output.html
+    -o data/brat_inference_output
 ```
 
 # Serialization 

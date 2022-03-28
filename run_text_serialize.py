@@ -13,7 +13,7 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 from input import EXAMPLES
 from network.args import const
 from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, SynonymsCollectionArg, FramesColectionArg
+    StemmerArg, SynonymsCollectionArg, FramesColectionArg, FromFileArg
 from network.args.serialize import EntityFormatterTypesArg
 from pipelines.serialize import TextSerializationPipelineItem
 
@@ -24,6 +24,7 @@ if __name__ == '__main__':
 
     # Provide arguments.
     InputTextArg.add_argument(parser, default=EXAMPLES["no_entities"][0])
+    FromFileArg.add_argument(parser, default=None)
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
@@ -51,4 +52,7 @@ if __name__ == '__main__':
             data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]))
     ])
 
-    ppl.run(InputTextArg.read_argument(args))
+    text_from_arg = InputTextArg.read_argument(args)
+    text_from_file = FromFileArg.read_argument(args)
+
+    ppl.run(text_from_file if text_from_file is not None else text_from_arg)
