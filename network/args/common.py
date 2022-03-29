@@ -263,12 +263,13 @@ class SynonymsCollectionArg(BaseArg):
         if filepath is None:
             # Provide RuSentRel collection by default.
             return RuSentRelSynonymsCollectionProvider.load_collection(stemmer=stemmer,
-                                                                       version=RuSentRelVersions.V11)
+                                                                       version=RuSentRelVersions.V11,
+                                                                       is_read_only=False)
         else:
             # Provide collection from file.
             return StemmerBasedSynonymCollection(iter_group_values_lists=SynonymsCollectionArg.__iter_groups(filepath),
                                                  stemmer=stemmer,
-                                                 is_read_only=True,
+                                                 is_read_only=False,
                                                  debug=False)
 
     @staticmethod

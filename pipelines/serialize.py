@@ -61,7 +61,7 @@ class TextSerializationPipelineItem(BasePipelineItem):
         self.__text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
             entities_parser,
-            EntitiesGroupingPipelineItem(self.__synonyms.get_synonym_group_index),
+            EntitiesGroupingPipelineItem(lambda value: self.get_synonym_group_index(self.__synonyms, value)),
             DefaultTextTokenizer(keep_tokens=True),
             FrameVariantsParser(frame_variants=frame_variants_collection),
             LemmasBasedFrameVariantsParser(save_lemmas=False,
@@ -82,6 +82,13 @@ class TextSerializationPipelineItem(BasePipelineItem):
             frame_variant_collection=frame_variants_collection,
             data_folding=data_folding)
         self.__exp_io = InferIOUtils(self.__exp_ctx)
+
+    @staticmethod
+    def get_synonym_group_index(synonyms, value):
+        assert(isinstance(synonyms, SynonymsCollection))
+        if not synonyms.contains_synonym_value(value):
+            synonyms.add_synonym_value(value)
+        return synonyms.get_synonym_group_index(value)
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(input_data, str))
