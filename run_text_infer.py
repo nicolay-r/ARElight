@@ -16,12 +16,10 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 
-from input import EXAMPLES
 from network.args import const
 from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, SynonymsCollectionArg, \
     InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
     StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFileArg
-from network.args.const import NEURAL_NETWORKS_TARGET_DIR
 from network.args.serialize import EntityFormatterTypesArg
 from network.args.train import ModelInputTypeArg, BagsPerMinibatchArg
 from network.common import create_network_model_io, create_bags_collection_type
@@ -35,9 +33,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    InputTextArg.add_argument(parser, default=EXAMPLES["no_entities"][0])
+    InputTextArg.add_argument(parser, default=None)
+    FromFileArg.add_argument(parser, default=const.TEXT_DEFAULT)
     SynonymsCollectionArg.add_argument(parser, default=None)
-    FromFileArg.add_argument(parser, default=None)
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
     LabelsCountArg.add_argument(parser, default=3)
@@ -47,7 +45,7 @@ if __name__ == '__main__':
     EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
     VocabFilepathArg.add_argument(parser, default=None)
     EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
-    ModelLoadDirArg.add_argument(parser, default=NEURAL_NETWORKS_TARGET_DIR)
+    ModelLoadDirArg.add_argument(parser, default=const.NEURAL_NETWORKS_TARGET_DIR)
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     StemmerArg.add_argument(parser, default="mystem")
     PredictOutputFilepathArg.add_argument(parser, default=None)
@@ -65,7 +63,7 @@ if __name__ == '__main__':
     # Reading text-related parameters.
     text_from_file = FromFileArg.read_argument(args)
     text_from_arg = InputTextArg.read_argument(args)
-    actual_content = text_from_file if text_from_file is not None else text_from_arg
+    actual_content = text_from_arg if text_from_arg is not None else text_from_file
 
     # Implement extra structures.
     labels_scaler = Common.create_labels_scaler(LabelsCountArg.read_argument(args))
