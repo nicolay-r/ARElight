@@ -42,11 +42,11 @@ python standalone.py
     <img src="docs/inference.png"/>
 </p>
 
-> Figure: Named Entities annotation and sentiment attitudes between mentioned named entities.
+> Figure: Named Entities annotation and sentiment attitudes between mentioned named entities for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
 
-In order to infer sentiment attitudes, use the `run_test_infer.py` script with the pretrained `PCNN` model:
+In order to infer sentiment attitudes from a mass-media document, use the `run_test_infer.py` script with the pretrained `PCNN` model:
 ```bash
-python3.6 run_text_infer.py --text "США намерена ввести санкции против Роccии. При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..." \
+python3.6 run_text_infer.py --from-file data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
     --model-state-dir models/ \
     --terms-per-context 50 \
@@ -68,11 +68,11 @@ python3.6 run_text_infer.py --text "США намерена ввести сан�
     <img src="docs/samples.png"/>
 </p>
 
-> Figure: The result of samples that might be utilized for ML training in further.
+> Figure: The result of samples that might be utilized for ML training in further for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
 
 In order to infer sentiment attitudes, use the `run_text_serialize.py` script as follows:
 ```bash
-python3.6 run_text_serialize.py --text "США намерена ввести санкции против Роccии. При этом Москва неоднократно подчеркивала, что ее активность на балтике является ответом именно на действия НАТО и эскалацию враждебного подхода к России вблизи ее восточных границ ..."
+python3.6 run_text_serialize.py  --from-file data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
