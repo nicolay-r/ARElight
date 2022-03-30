@@ -57,9 +57,9 @@ python3.6 run_text_infer.py --from-file data/texts-inosmi-rus/e1.txt \
     --bags-per-minibatch 2 \
     --model-input-type ctx \
     --entity-fmt hidden-simple-eng \
-    --emb-filepath models/news_mystem_skipgram_1000_20_2015.bin.gz \
-    --synonyms-filepath models/synonyms.txt \
-    -o data/brat_inference_output
+    --emb-filepath data/news_mystem_skipgram_1000_20_2015.bin.gz \
+    --synonyms-filepath data/synonyms.txt \
+    -o output/brat_inference_output
 ```
 
 # Serialization 
@@ -76,8 +76,8 @@ python3.6 run_text_serialize.py  --from-file data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
-    --emb-filepath models/news_mystem_skipgram_1000_20_2015.bin.gz \
-    --synonyms-filepath models/synonyms.txt \
+    --emb-filepath data/news_mystem_skipgram_1000_20_2015.bin.gz \
+    --synonyms-filepath data/synonyms.txt \
     --frames ruattitudes-20 
 ```
 

@@ -1,8 +1,6 @@
 import os
-
 from arekit.contrib.experiment_rusentrel.model_io.tf_networks import RuSentRelExperimentNetworkIOUtils
-
-from network.args.const import DATA_DIR
+from network.args.const import OUTPUT_DIR
 
 
 class InferIOUtils(RuSentRelExperimentNetworkIOUtils):
@@ -12,7 +10,7 @@ class InferIOUtils(RuSentRelExperimentNetworkIOUtils):
         return os.path.join(self._get_target_dir(), filename)
 
     def _get_experiment_sources_dir(self):
-        return DATA_DIR
+        return OUTPUT_DIR
 
     def create_opinion_collection_target(self, doc_id, data_type, check_existance=False):
         return self.__create_target(doc_id=doc_id, data_type=data_type)

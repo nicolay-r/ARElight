@@ -1,5 +1,5 @@
 from arekit.contrib.experiment_rusentrel.model_io.tf_networks import RuSentRelExperimentNetworkIOUtils
-from network.args.const import DATA_DIR
+from network.args.const import OUTPUT_DIR
 
 
 class CustomRuSentRelNetworkExperimentIO(RuSentRelExperimentNetworkIOUtils):
@@ -8,4 +8,4 @@ class CustomRuSentRelNetworkExperimentIO(RuSentRelExperimentNetworkIOUtils):
         pass
 
     def _get_experiment_sources_dir(self):
-        return DATA_DIR
+        return OUTPUT_DIR
