@@ -9,9 +9,11 @@ from text.ner_ontonotes import BertOntonotesNER
 
 class BertOntonotesNERPipelineItem(SentenceObjectsParserPipelineItem):
 
-    def __init__(self):
+    def __init__(self, obj_filter):
+        assert(callable(obj_filter))
         # Initialize bert-based model instance.
         self.__ontonotes_ner = BertOntonotesNER()
+        self.__obj_filter = obj_filter
         super(BertOntonotesNERPipelineItem, self).__init__(TermsPartitioning())
 
     def _get_parts_provider_func(self, input_data, pipeline_ctx):
@@ -26,6 +28,10 @@ class BertOntonotesNERPipelineItem(SentenceObjectsParserPipelineItem):
         for p_sequence in processed_sequences:
             for s_obj in p_sequence:
                 assert(isinstance(s_obj, NerObjectDescriptor))
+
+                if not self.__obj_filter(s_obj):
+                    continue
+
                 value = " ".join(terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
                 entity = Entity(value=value, e_type=s_obj.ObjectType)
                 yield entity, Bound(pos=s_obj.Position, length=s_obj.Length)

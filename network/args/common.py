@@ -289,7 +289,10 @@ class EntitiesParserArg(BaseArg):
         if arg == "default":
             return TextEntitiesParser()
         elif arg == "bert-ontonotes":
-            return BertOntonotesNERPipelineItem()
+            # We consider only such entity types that supported by ML model.
+            ppl_item = BertOntonotesNERPipelineItem(
+                lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"])
+            return ppl_item
 
     @staticmethod
     def add_argument(parser, default):
