@@ -19,8 +19,7 @@ from arekit.contrib.networks.enum_name_types import ModelNames
 from network.args import const
 from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, SynonymsCollectionArg, \
     InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
-    StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFileArg
-from network.args.serialize import EntityFormatterTypesArg
+    StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFileArg, EntityFormatterTypesArg
 from network.args.train import ModelInputTypeArg, BagsPerMinibatchArg
 from network.common import create_network_model_io, create_bags_collection_type
 from pipelines.backend import BratBackendPipelineItem

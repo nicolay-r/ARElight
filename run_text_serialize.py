@@ -12,9 +12,8 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 
 from network.args import const
 from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, SynonymsCollectionArg, FramesColectionArg, FromFileArg
+    StemmerArg, SynonymsCollectionArg, FramesColectionArg, FromFileArg, EntityFormatterTypesArg
 from network.args.const import TEXT_DEFAULT
-from network.args.serialize import EntityFormatterTypesArg
 from pipelines.serialize import TextSerializationPipelineItem
 
 if __name__ == '__main__':
