@@ -106,8 +106,6 @@ if __name__ == '__main__':
         opin_ops=experiment.OpinionOperations,
         exp_io=experiment.ExperimentIO,
         balance=use_balancing,
-        force_serialize=True,
-        skip_folder_if_exists=True,
         value_to_group_id_func=synonyms_collection.get_synonym_group_index)
 
     engine = ExperimentEngine(exp_ctx.DataFolding)
