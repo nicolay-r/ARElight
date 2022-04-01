@@ -23,7 +23,7 @@ from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
 
 from rusenttokenize import ru_sent_tokenize
 
-from exp.doc_ops import SingleDocOperations
+from exp.doc_ops import CustomDocOperations
 from exp.exp import CustomExperiment
 from exp.exp_io import InferIOUtils
 from network.common import create_and_fill_variant_collection
@@ -81,7 +81,19 @@ class TextSerializationPipelineItem(BasePipelineItem):
             frames_collection=frames_collection,
             frame_variant_collection=frame_variants_collection,
             data_folding=data_folding)
+
         self.__exp_io = InferIOUtils(self.__exp_ctx)
+
+        self.__doc_ops = CustomDocOperations(exp_ctx=self.__exp_ctx,
+                                             text_parser=self.__text_parser)
+
+        self.__exp = CustomExperiment(
+            exp_io=self.__exp_io,
+            exp_ctx=self.__exp_ctx,
+            doc_ops=self.__doc_ops,
+            labels_formatter=self.__labels_fmt,
+            synonyms=self.__synonyms,
+            neutral_labels_fmt=self.__labels_fmt)
 
     @staticmethod
     def get_synonym_group_index(synonyms, value):
@@ -98,23 +110,17 @@ class TextSerializationPipelineItem(BasePipelineItem):
         sentences = list(map(lambda text: BaseNewsSentence(text), sentences))
 
         # Parse text.
-        news = News(doc_id=0, sentences=sentences)
+        doc = News(doc_id=0, sentences=sentences)
 
-        # Step 3. Serialize data
-        experiment = CustomExperiment(
-            exp_io=self.__exp_io,
-            exp_ctx=self.__exp_ctx,
-            doc_ops=SingleDocOperations(exp_ctx=self.__exp_ctx, news=news, text_parser=self.__text_parser),
-            labels_formatter=self.__labels_fmt,
-            synonyms=self.__synonyms,
-            neutral_labels_fmt=self.__labels_fmt)
+        # Setup document.
+        self.__doc_ops.set_docs(docs=[doc])
 
-        NetworkInputHelper.prepare(exp_ctx=experiment.ExperimentContext,
-                                   exp_io=experiment.ExperimentIO,
-                                   doc_ops=experiment.DocumentOperations,
-                                   opin_ops=experiment.OpinionOperations,
+        NetworkInputHelper.prepare(exp_ctx=self.__exp.ExperimentContext,
+                                   exp_io=self.__exp.ExperimentIO,
+                                   doc_ops=self.__exp.DocumentOperations,
+                                   opin_ops=self.__exp.OpinionOperations,
                                    terms_per_context=self.__exp_ctx.TermsPerContext,
                                    balance=False,
                                    value_to_group_id_func=self.__synonyms.get_synonym_group_index)
 
-        return experiment.ExperimentIO
+        return self.__exp.ExperimentIO
