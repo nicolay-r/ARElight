@@ -10,7 +10,7 @@ from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.entities.base import Entity
 from arekit.common.frames.variants.base import FrameVariant
 from arekit.common.news.entity import DocumentEntity
-from arekit.contrib.networks.core.input.const import Entities, FrameVariantIndices
+from arekit.contrib.networks.core.input.const import FrameVariantIndices
 from arekit.contrib.networks.core.input.rows_parser import ParsedSampleRow
 from arekit.processing.text.token import Token
 from arekit.processing.text.tokens import Tokens
@@ -166,7 +166,8 @@ class BratBackend(object):
         for s_ind in sorted(doc_data):
             sent_data = doc_data[s_ind]
             text_terms = sent_data[BaseSingleTextProvider.TEXT_A]
-            for i, e_ind in enumerate(sent_data[Entities]):
+
+            for i, e_ind in enumerate(sent_data[const.ENTITIES]):
                 sentence_entity_values = sent_data[const.ENTITY_VALUES]
                 sentence_entity_types = sent_data[const.ENTITY_TYPES]
 
@@ -181,9 +182,10 @@ class BratBackend(object):
 
                 e_doc_id += 1
 
-            for i, f_ind in enumerate(sent_data[FrameVariantIndices]):
-                value = text_terms[f_ind]
-                text_terms[f_ind] = FrameVariant(text=value, frame_id="0")
+            if sent_data[FrameVariantIndices] is not None:
+                for i, f_ind in enumerate(sent_data[FrameVariantIndices]):
+                    value = text_terms[f_ind]
+                    text_terms[f_ind] = FrameVariant(text=value, frame_id="0")
 
             for i, term in enumerate(text_terms):
                 if not isinstance(term, str):
@@ -260,7 +262,7 @@ class BratBackend(object):
         sent_data_cols = [BaseSingleTextProvider.TEXT_A,
                           const.ENTITY_VALUES,
                           const.ENTITY_TYPES,
-                          Entities,
+                          const.ENTITIES,
                           FrameVariantIndices]
 
         # Join all the sentences within a single list of terms.
