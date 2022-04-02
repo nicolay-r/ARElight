@@ -32,7 +32,7 @@ if __name__ == '__main__':
     LabelsCountArg.add_argument(parser, default=3)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
+    EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     PredictOutputFilepathArg.add_argument(parser, default=None)
 
     # Parsing arguments.

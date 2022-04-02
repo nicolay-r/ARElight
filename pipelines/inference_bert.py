@@ -21,7 +21,7 @@ class BertInferencePipelineItem(BasePipelineItem):
         # Model classifier.
         self.__model = bert_classifier.BertClassifierModel(
             bert_config_file=join('models', "ra-20-srubert-large-neut-nli-pretrained-3l/bert_config.json"),
-            pretrained_bert=join('models', "ra-20-srubert-large-neut-nli-pretrained-3l/model.ckpt-30238"),
+            load_path=join('models', "ra-20-srubert-large-neut-nli-pretrained-3l/model.ckpt-30238"),
             attention_probs_keep_prob=1.0,
             hidden_keep_prob=1.0,
             keep_prob=1.0,
@@ -49,6 +49,8 @@ class BertInferencePipelineItem(BasePipelineItem):
             data = {"text_a": [], "text_b": [], "row_ids": []}
 
             for row_ind, row in samples:
+                print(row['text_a'])
+                print(row['text_b'])
                 data["text_a"].append(row['text_a'])
                 data["text_b"].append(row['text_b'])
                 data["row_ids"].append(row_ind)

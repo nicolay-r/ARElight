@@ -27,7 +27,7 @@ if __name__ == '__main__':
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
+    EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     SynonymsCollectionArg.add_argument(parser, default=None)
 
     # Parsing arguments.
