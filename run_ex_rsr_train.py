@@ -25,7 +25,7 @@ from network.args.common import LabelsCountArg, TermsPerContextArg, \
 from network.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
 from network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, DropoutKeepProbArg, \
     LearningRateArg, EpochsCountArg
-from network.common import create_bags_collection_type, create_network_model_io
+from network.nn.common import create_bags_collection_type, create_network_model_io
 from rusentrel.common import Common
 from rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
 from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO

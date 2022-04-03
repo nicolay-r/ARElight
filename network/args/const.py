@@ -18,4 +18,4 @@ BERT_CONFIG_PATH = join(BERT_MODEL_PATH, "bert_config.json")
 BERT_CKPT_PATH = join(BERT_MODEL_PATH, "model.ckpt-30238")
 BERT_VOCAB_PATH = join(BERT_MODEL_PATH, "vocab.txt")
 
-OUTPUT_DIR = join(current_dir, "../../output")
+OUTPUT_DIR = join(current_dir, "../../_output")

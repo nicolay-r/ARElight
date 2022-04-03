@@ -14,7 +14,8 @@ from network.args import const
 from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
     StemmerArg, SynonymsCollectionArg, FramesColectionArg, FromFileArg, EntityFormatterTypesArg
 from network.args.const import TEXT_DEFAULT
-from pipelines.serialize import TextSerializationPipelineItem
+from pipelines.serialize_nn import TextSerializationPipelineItem
+
 
 if __name__ == '__main__':
 

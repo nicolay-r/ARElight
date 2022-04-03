@@ -26,9 +26,9 @@ from rusenttokenize import ru_sent_tokenize
 from exp.doc_ops import CustomDocOperations
 from exp.exp import CustomExperiment
 from exp.exp_io import InferIOUtils
-from network.common import create_and_fill_variant_collection
-from network.embedding import RusvectoresEmbedding
-from network.serialization_data import CustomSerializationContext
+from network.nn.common import create_and_fill_variant_collection
+from network.nn.embedding import RusvectoresEmbedding
+from network.nn.serialization_data import CustomSerializationContext
 
 
 class TextSerializationPipelineItem(BasePipelineItem):

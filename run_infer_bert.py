@@ -1,5 +1,4 @@
 import argparse
-from os.path import join
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator

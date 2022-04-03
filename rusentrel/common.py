@@ -11,7 +11,7 @@ from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.ruattitudes.io_utils import RuAttitudesVersions
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelIOUtils
 
-from network.embedding import RusvectoresEmbedding
+from network.nn.embedding import RusvectoresEmbedding
 
 
 class Common:

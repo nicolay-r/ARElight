@@ -19,8 +19,8 @@ from arekit.processing.pos.mystem_wrap import POSMystemWrapper
 from network.args import const
 from network.args.common import LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
     StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg, FramesColectionArg, EntityFormatterTypesArg
-from network.common import create_and_fill_variant_collection
-from network.serialization_data import CustomSerializationContext
+from network.nn.common import create_and_fill_variant_collection
+from network.nn.serialization_data import CustomSerializationContext
 from rusentrel.common import Common
 from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 

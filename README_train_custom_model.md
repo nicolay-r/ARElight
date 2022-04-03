@@ -7,7 +7,7 @@
 > **NOTE:** Provided for [RuSentRel](https://github.com/nicolay-r/RuSentRel) collection
 
 ```bash
-python3.6 run_rusentrel_serialize.py
+python3.6 run_ex_rsr_serialize.py
 ```
 
 List of the parameters is as follows:
@@ -38,7 +38,7 @@ List of the parameters is as follows:
 > **Limitation #2:** Support Tensorflow-based neural networks.
 
 ```bash
-python3.6 run_rusentrel_train.py
+python3.6 run_ex_rsr_train.py
 ```
 
 List of the parameters related to models:

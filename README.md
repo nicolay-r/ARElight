@@ -44,9 +44,15 @@ python standalone.py
 
 > Figure: Named Entities annotation and sentiment attitudes between mentioned named entities for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
 
-In order to infer sentiment attitudes from a mass-media document, use the `run_test_infer.py` script with the pretrained `PCNN` model:
+In order to infer sentiment attitudes from a mass-media document, 
+
+For the `BERT` (NOTE: pretrained version by default has not been fine-tuned):
 ```bash
-python3.6 run_text_infer.py --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_infer_bert.py --from-file data/texts-inosmi-rus/e1.txt
+```
+For the pretrained `PCNN` model:
+```bash
+python3.6 run_infer_nn.py --from-file data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
     --model-state-dir models/ \
     --terms-per-context 50 \
@@ -70,9 +76,16 @@ python3.6 run_text_infer.py --from-file data/texts-inosmi-rus/e1.txt \
 
 > Figure: The result of samples that might be utilized for ML training in further for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
 
-In order to infer sentiment attitudes, use the `run_text_serialize.py` script as follows:
+In order to infer sentiment attitudes, use the `run_serialize.py` script as follows.
+
+For the `BERT` model:
 ```bash
-python3.6 run_text_serialize.py  --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_serialize_bert.py --from-file data/texts-inosmi-rus/e1.txt \
+```
+
+For the other neural networks (including embedding and other features):
+```bash
+python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
@@ -83,7 +96,7 @@ python3.6 run_text_serialize.py  --from-file data/texts-inosmi-rus/e1.txt \
 
 # Training other models
 
-[Please proceed with the following Readme/Tutorial](README_train_custom_model.md)
+## [Proceed with the Tutorial](README_train_custom_model.md)
 
 # Powered by
 
