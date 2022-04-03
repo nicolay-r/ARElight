@@ -96,7 +96,7 @@ python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
 
 # Training other models
 
-## [Proceed with the Tutorial](README_train_custom_model.md)
+[Proceed with the Tutorial](README_train_custom_model.md)
 
 # Powered by
 
