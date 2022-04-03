@@ -14,25 +14,23 @@ from exp.exp_io import InferIOUtils
 
 class BertInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self, data_type, predict_writer, labels_scaler):
+    def __init__(self, bert_config_file, model_checkpoint_path, vocab_filepath,
+                 data_type, predict_writer, labels_scaler):
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
 
         # Model classifier.
         self.__model = bert_classifier.BertClassifierModel(
-            bert_config_file=join('models', "ra-20-srubert-large-neut-nli-pretrained-3l/bert_config.json"),
-            load_path=join('models', "ra-20-srubert-large-neut-nli-pretrained-3l/model.ckpt-30238"),
-            attention_probs_keep_prob=1.0,
-            hidden_keep_prob=1.0,
+            bert_config_file=bert_config_file,
+            load_path=model_checkpoint_path,
             keep_prob=1.0,
             n_classes=3,
             save_path="")
 
         # Setup processor.
-        self.__proc = BertPreprocessor(
-            vocab_file=join('models', "ra-20-srubert-large-neut-nli-pretrained-3l/vocab.txt"),
-            do_lower_case=False,
-            max_seq_length=128)
+        self.__proc = BertPreprocessor(vocab_file=vocab_filepath,
+                                       do_lower_case=False,
+                                       max_seq_length=128)
 
         self.__writer = predict_writer
         self.__data_type = data_type
@@ -49,8 +47,6 @@ class BertInferencePipelineItem(BasePipelineItem):
             data = {"text_a": [], "text_b": [], "row_ids": []}
 
             for row_ind, row in samples:
-                print(row['text_a'])
-                print(row['text_b'])
                 data["text_a"].append(row['text_a'])
                 data["text_b"].append(row['text_b'])
                 data["row_ids"].append(row_ind)

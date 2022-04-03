@@ -1,4 +1,5 @@
 import argparse
+from os.path import join
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -14,7 +15,9 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 
 from network.args import const
 from network.args.common import LabelsCountArg, InputTextArg, FromFileArg, SynonymsCollectionArg, \
-    EntityFormatterTypesArg, EntitiesParserArg, TermsPerContextArg, PredictOutputFilepathArg
+    EntityFormatterTypesArg, EntitiesParserArg, TermsPerContextArg, PredictOutputFilepathArg, BertConfigFilepathArg, \
+    BertCheckpointFilepathArg, BertVocabFilepathArg
+from network.args.const import BERT_VOCAB_PATH, BERT_CKPT_PATH, BERT_CONFIG_PATH
 from pipelines.backend import BratBackendPipelineItem
 from pipelines.inference_bert import BertInferencePipelineItem
 from pipelines.serialize_bert import BertTextSerializationPipelineItem
@@ -34,6 +37,9 @@ if __name__ == '__main__':
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     PredictOutputFilepathArg.add_argument(parser, default=None)
+    BertConfigFilepathArg.add_argument(parser, default=BERT_CONFIG_PATH)
+    BertCheckpointFilepathArg.add_argument(parser, default=BERT_CKPT_PATH)
+    BertVocabFilepathArg.add_argument(parser, default=BERT_VOCAB_PATH)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -64,20 +70,20 @@ if __name__ == '__main__':
                     label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test])),
 
-        BertInferencePipelineItem(predict_writer=TsvPredictWriter(),
-                                  data_type=DataType.Test,
-                                  labels_scaler=labels_scaler),
+        BertInferencePipelineItem(
+            predict_writer=TsvPredictWriter(),
+            bert_config_file=BertConfigFilepathArg.read_argument(args),
+            model_checkpoint_path=BertCheckpointFilepathArg.read_argument(args),
+            vocab_filepath=BertVocabFilepathArg.read_argument(args),
+            data_type=DataType.Test,
+            labels_scaler=labels_scaler),
 
         BratBackendPipelineItem(label_to_rel={
                 str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
                 str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"
             },
-            obj_color_types={"ORG": '#7fa2ff',
-                             "GPE": "#7fa200",
-                             "PERSON": "#7f00ff",
-                             "Frame": "#00a2ff"},
-            rel_color_types={"POS": "GREEN",
-                             "NEG": "RED"},
+            obj_color_types={"ORG": '#7fa2ff', "GPE": "#7fa200", "PERSON": "#7f00ff", "Frame": "#00a2ff"},
+            rel_color_types={"POS": "GREEN", "NEG": "RED"},
         )
     ])
 

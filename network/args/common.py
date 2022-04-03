@@ -354,3 +354,48 @@ class EntityFormatterTypesArg(BaseArg):
                             choices=list(EntityFormattersService.iter_names()),
                             default=default,
                             help='Entity formatter type')
+
+
+class BertConfigFilepathArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.bert_config
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--bert-config',
+                            dest='bert_config',
+                            type=str,
+                            default=default,
+                            help='Bert config filepath')
+
+
+class BertCheckpointFilepathArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.bert_checkpoint
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--bert-checkpoint',
+                            dest='bert_checkpoint',
+                            type=str,
+                            default=default,
+                            help='Bert checkpoint filepath')
+
+
+class BertVocabFilepathArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.bert_vocab
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--bert-vocab',
+                            dest='bert_vocab',
+                            type=str,
+                            default=default,
+                            help='Bert vocab filepath')
