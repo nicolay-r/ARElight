@@ -9,8 +9,8 @@ from text.ner_ontonotes import BertOntonotesNER
 
 class BertOntonotesNERPipelineItem(SentenceObjectsParserPipelineItem):
 
-    def __init__(self, obj_filter):
-        assert(callable(obj_filter))
+    def __init__(self, obj_filter=None):
+        assert(callable(obj_filter) or obj_filter is None)
         # Initialize bert-based model instance.
         self.__ontonotes_ner = BertOntonotesNER()
         self.__obj_filter = obj_filter
@@ -29,7 +29,7 @@ class BertOntonotesNERPipelineItem(SentenceObjectsParserPipelineItem):
             for s_obj in p_sequence:
                 assert(isinstance(s_obj, NerObjectDescriptor))
 
-                if not self.__obj_filter(s_obj):
+                if self.__obj_filter is not None and not self.__obj_filter(s_obj):
                     continue
 
                 value = " ".join(terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
