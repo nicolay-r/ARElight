@@ -8,21 +8,12 @@ from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelS
 from arekit.contrib.experiment_rusentrel.labels.scalers.two import TwoLabelScaler
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
-from arekit.contrib.source.ruattitudes.io_utils import RuAttitudesVersions
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelIOUtils
 
 from network.nn.embedding import RusvectoresEmbedding
 
 
 class Common:
-
-    __tags = {
-        None: None,
-        RuAttitudesVersions.V20Base: u'ra20b',
-        RuAttitudesVersions.V20BaseNeut: u'ra20bn',
-        RuAttitudesVersions.V20Large: u'ra20l',
-        RuAttitudesVersions.V20LargeNeut: u'ra20ln'
-    }
 
     @staticmethod
     def __create_folding_type_prefix(folding_type):
