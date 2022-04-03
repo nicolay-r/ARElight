@@ -1,4 +1,7 @@
+import sys
 import argparse
+
+sys.path.append('../')
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator

@@ -1,4 +1,7 @@
+import sys
 import argparse
+
+sys.path.append('../')
 
 from arekit.common.experiment.api.ctx_training import ExperimentTrainingContext
 from arekit.common.experiment.engine import ExperimentEngine
