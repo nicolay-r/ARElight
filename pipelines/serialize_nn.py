@@ -22,8 +22,8 @@ from exp.doc_ops import CustomDocOperations
 from exp.exp import CustomExperiment
 from exp.exp_io import InferIOUtils
 from network.nn.common import create_and_fill_variant_collection
+from network.nn.ctx import NetworkSerializationContext
 from network.nn.embedding import RusvectoresEmbedding
-from network.nn.serialization_data import CustomSerializationContext
 from pipelines.utils import input_to_docs
 
 
@@ -66,7 +66,7 @@ class NetworkTextsSerializationPipelineItem(BasePipelineItem):
             FrameVariantsSentimentNegation()])
 
         # initialize expriment related data.
-        self.__exp_ctx = CustomSerializationContext(
+        self.__exp_ctx = NetworkSerializationContext(
             labels_scaler=SingleLabelScaler(NoLabel()),
             embedding=embedding,
             annotator=opin_annot,

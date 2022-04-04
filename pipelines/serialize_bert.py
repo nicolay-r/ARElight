@@ -16,7 +16,7 @@ from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
 from exp.doc_ops import CustomDocOperations
 from exp.exp import CustomExperiment
 from exp.exp_io import InferIOUtils
-from network.bert.ctx_bert import BertSerializationContext
+from network.bert.ctx import BertSerializationContext
 from pipelines.utils import input_to_docs
 
 

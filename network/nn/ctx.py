@@ -7,7 +7,7 @@ from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollecti
 from arekit.processing.pos.base import POSTagger
 
 
-class CustomSerializationContext(NetworkSerializationContext):
+class NetworkSerializationContext(NetworkSerializationContext):
 
     def __init__(self, labels_scaler, pos_tagger, embedding,
                  terms_per_context, str_entity_formatter, annotator,
@@ -18,7 +18,7 @@ class CustomSerializationContext(NetworkSerializationContext):
         assert(isinstance(str_entity_formatter, StringEntitiesFormatter))
         assert(isinstance(terms_per_context, int))
 
-        super(CustomSerializationContext, self).__init__(
+        super(NetworkSerializationContext, self).__init__(
             labels_scaler=labels_scaler, annot=annotator,
             name_provider=name_provider, data_folding=data_folding)
 

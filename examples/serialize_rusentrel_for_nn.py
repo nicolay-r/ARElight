@@ -1,6 +1,8 @@
 import sys
 import argparse
 
+from network.nn.ctx import NetworkSerializationContext
+
 sys.path.append('../')
 
 from utils import create_labels_scaler
@@ -25,7 +27,6 @@ from network.args import const
 from network.args.common import LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
     StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg, FramesColectionArg, EntityFormatterTypesArg
 from network.nn.common import create_and_fill_variant_collection
-from network.nn.serialization_data import CustomSerializationContext
 
 from examples.rusentrel.common import Common
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
@@ -83,7 +84,7 @@ if __name__ == '__main__':
         doc_id_func=lambda doc_id: Common.ra_doc_id_func(doc_id=doc_id))
 
     # Preparing necessary structures for further initializations.
-    exp_ctx = CustomSerializationContext(
+    exp_ctx = NetworkSerializationContext(
         labels_scaler=create_labels_scaler(labels_count),
         embedding=Common.load_rusvectores_embedding(filepath=embedding_filepath, stemmer=stemmer),
         terms_per_context=terms_per_context,
