@@ -12,9 +12,9 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 
 from network.args import const
 from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, \
-    TermsPerContextArg, SynonymsCollectionArg, FromFileArg, EntityFormatterTypesArg
-from network.args.const import TEXT_DEFAULT
-from pipelines.serialize_bert import BertTextSerializationPipelineItem
+    TermsPerContextArg, SynonymsCollectionArg, FromFilesArg, EntityFormatterTypesArg
+from network.args.const import DEFAULT_TEXT_FILEPATH
+from pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
 if __name__ == '__main__':
 
@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     # Provide arguments.
     InputTextArg.add_argument(parser, default=None)
-    FromFileArg.add_argument(parser, default=TEXT_DEFAULT)
+    FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
@@ -33,8 +33,11 @@ if __name__ == '__main__':
     # Parsing arguments.
     args = parser.parse_args()
 
+    text_from_arg = InputTextArg.read_argument(args)
+    texts_from_files = FromFilesArg.read_argument(args)
+
     ppl = BasePipeline([
-        BertTextSerializationPipelineItem(
+        BertTextsSerializationPipelineItem(
             terms_per_context=TermsPerContextArg.read_argument(args),
             synonyms=SynonymsCollectionArg.read_argument(args),
             entities_parser=EntitiesParserArg.read_argument(args),
@@ -43,10 +46,8 @@ if __name__ == '__main__':
             opin_annot=DefaultAnnotator(annot_algo=PairBasedAnnotationAlgorithm(
                 dist_in_terms_bound=None,
                 label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
-            data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]))
+            data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
+                                   supported_data_types=[DataType.Test]))
     ])
 
-    text_from_arg = InputTextArg.read_argument(args)
-    text_from_file = FromFileArg.read_argument(args)
-
-    ppl.run(text_from_arg if text_from_arg is not None else text_from_file)
+    ppl.run(text_from_arg if text_from_arg is not None else texts_from_files)

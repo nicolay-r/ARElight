@@ -19,12 +19,12 @@ from arekit.contrib.networks.enum_name_types import ModelNames
 from network.args import const
 from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, SynonymsCollectionArg, \
     InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
-    StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFileArg, EntityFormatterTypesArg
+    StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFilesArg, EntityFormatterTypesArg
 from network.args.train import ModelInputTypeArg, BagsPerMinibatchArg
 from network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
 from pipelines.backend import BratBackendPipelineItem
 from pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
-from pipelines.serialize_nn import TextSerializationPipelineItem
+from pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
 from utils import create_labels_scaler
 
 if __name__ == '__main__':
@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     # Providing arguments.
     InputTextArg.add_argument(parser, default=None)
-    FromFileArg.add_argument(parser, default=const.TEXT_DEFAULT)
+    FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
     SynonymsCollectionArg.add_argument(parser, default=None)
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
@@ -60,9 +60,9 @@ if __name__ == '__main__':
     frames_collection = FramesColectionArg.read_argument(args)
 
     # Reading text-related parameters.
-    text_from_file = FromFileArg.read_argument(args)
+    texts_from_files = FromFilesArg.read_argument(args)
     text_from_arg = InputTextArg.read_argument(args)
-    actual_content = text_from_arg if text_from_arg is not None else text_from_file
+    actual_content = text_from_arg if text_from_arg is not None else texts_from_files
 
     # Implement extra structures.
     labels_scaler = create_labels_scaler(LabelsCountArg.read_argument(args))
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[
-        TextSerializationPipelineItem(
+        NetworkTextsSerializationPipelineItem(
             frames_collection=frames_collection,
             synonyms=SynonymsCollectionArg.read_argument(args),
             terms_per_context=TermsPerContextArg.read_argument(args),
@@ -98,7 +98,8 @@ if __name__ == '__main__':
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,
                     label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
-            data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test])),
+            data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
+                                   supported_data_types=[DataType.Test])),
         TensorflowNetworkInferencePipelineItem(
             nn_io=nn_io,
             model_name=model_name,

@@ -4,9 +4,7 @@ from arekit.common.folding.base import BaseDataFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
-from arekit.common.news.base import News
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.news.sentence import BaseNewsSentence
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.synonyms import SynonymsCollection
 from arekit.common.text.parser import BaseTextParser
@@ -20,18 +18,16 @@ from arekit.processing.text.pipeline_frames_lemmatized import LemmasBasedFrameVa
 from arekit.processing.text.pipeline_frames_negation import FrameVariantsSentimentNegation
 from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
 from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
-
-from rusenttokenize import ru_sent_tokenize
-
 from exp.doc_ops import CustomDocOperations
 from exp.exp import CustomExperiment
 from exp.exp_io import InferIOUtils
 from network.nn.common import create_and_fill_variant_collection
 from network.nn.embedding import RusvectoresEmbedding
 from network.nn.serialization_data import CustomSerializationContext
+from pipelines.utils import input_to_docs
 
 
-class TextSerializationPipelineItem(BasePipelineItem):
+class NetworkTextsSerializationPipelineItem(BasePipelineItem):
 
     def __init__(self, terms_per_context, entities_parser, synonyms, opin_annot, name_provider,
                  embedding_path, frames_collection, entity_fmt, stemmer, data_folding):
@@ -103,17 +99,12 @@ class TextSerializationPipelineItem(BasePipelineItem):
         return synonyms.get_synonym_group_index(value)
 
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, str))
+        assert(isinstance(input_data, list))
 
-        # setup input data.
-        sentences = ru_sent_tokenize(input_data)
-        sentences = list(map(lambda text: BaseNewsSentence(text), sentences))
-
-        # Parse text.
-        doc = News(doc_id=0, sentences=sentences)
+        docs = input_to_docs(input_data)
 
         # Setup document.
-        self.__doc_ops.set_docs(docs=[doc])
+        self.__doc_ops.set_docs(docs)
 
         NetworkInputHelper.prepare(exp_ctx=self.__exp.ExperimentContext,
                                    exp_io=self.__exp.ExperimentIO,

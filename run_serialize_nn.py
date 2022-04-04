@@ -12,9 +12,9 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 
 from network.args import const
 from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, SynonymsCollectionArg, FramesColectionArg, FromFileArg, EntityFormatterTypesArg
-from network.args.const import TEXT_DEFAULT
-from pipelines.serialize_nn import TextSerializationPipelineItem
+    StemmerArg, SynonymsCollectionArg, FramesColectionArg, FromFilesArg, EntityFormatterTypesArg
+from network.args.const import DEFAULT_TEXT_FILEPATH
+from pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
 
 
 if __name__ == '__main__':
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     # Provide arguments.
     InputTextArg.add_argument(parser, default=None)
-    FromFileArg.add_argument(parser, default=TEXT_DEFAULT)
+    FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     ppl = BasePipeline([
-        TextSerializationPipelineItem(
+        NetworkTextsSerializationPipelineItem(
             terms_per_context=TermsPerContextArg.read_argument(args),
             synonyms=SynonymsCollectionArg.read_argument(args),
             entities_parser=EntitiesParserArg.read_argument(args),
@@ -53,6 +53,6 @@ if __name__ == '__main__':
     ])
 
     text_from_arg = InputTextArg.read_argument(args)
-    text_from_file = FromFileArg.read_argument(args)
+    text_from_file = FromFilesArg.read_argument(args)
 
     ppl.run(text_from_arg if text_from_arg is not None else text_from_file)

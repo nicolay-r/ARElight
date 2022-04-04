@@ -13,13 +13,13 @@ from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNegativeL
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 
 from network.args import const
-from network.args.common import LabelsCountArg, InputTextArg, FromFileArg, SynonymsCollectionArg, \
+from network.args.common import LabelsCountArg, InputTextArg, FromFilesArg, SynonymsCollectionArg, \
     EntityFormatterTypesArg, EntitiesParserArg, TermsPerContextArg, PredictOutputFilepathArg, BertConfigFilepathArg, \
     BertCheckpointFilepathArg, BertVocabFilepathArg
 from network.args.const import BERT_VOCAB_PATH, BERT_CKPT_PATH, BERT_CONFIG_PATH
 from pipelines.backend import BratBackendPipelineItem
 from pipelines.inference_bert import BertInferencePipelineItem
-from pipelines.serialize_bert import BertTextSerializationPipelineItem
+from pipelines.serialize_bert import BertTextsSerializationPipelineItem
 from utils import create_labels_scaler
 
 if __name__ == '__main__':
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     # Providing arguments.
     InputTextArg.add_argument(parser, default=None)
-    FromFileArg.add_argument(parser, default=const.TEXT_DEFAULT)
+    FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
     SynonymsCollectionArg.add_argument(parser, default=None)
     LabelsCountArg.add_argument(parser, default=3)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
@@ -43,9 +43,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Reading text-related parameters.
-    text_from_file = FromFileArg.read_argument(args)
+    texts_from_files = FromFilesArg.read_argument(args)
     text_from_arg = InputTextArg.read_argument(args)
-    actual_content = text_from_arg if text_from_arg is not None else text_from_file
+    actual_content = text_from_arg if text_from_arg is not None else texts_from_files
 
     # Implement extra structures.
     labels_scaler = create_labels_scaler(LabelsCountArg.read_argument(args))
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[
 
-        BertTextSerializationPipelineItem(
+        BertTextsSerializationPipelineItem(
             synonyms=SynonymsCollectionArg.read_argument(args),
             terms_per_context=TermsPerContextArg.read_argument(args),
             entities_parser=EntitiesParserArg.read_argument(args),
@@ -66,7 +66,8 @@ if __name__ == '__main__':
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,
                     label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
-            data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test])),
+            data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
+                                   supported_data_types=[DataType.Test])),
 
         BertInferencePipelineItem(
             predict_writer=TsvPredictWriter(),

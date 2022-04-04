@@ -81,25 +81,29 @@ class VocabFilepathArg(BaseArg):
                             help='Custom vocabulary filepath')
 
 
-class FromFileArg(BaseArg):
+class FromFilesArg(BaseArg):
 
     @staticmethod
     def read_argument(args):
-        filepath = args.from_file
+        paths = args.from_files
 
-        if filepath is None:
+        if paths is None:
             return None
 
-        with open(filepath) as f:
-            return f.read().rstrip()
+        file_contents = []
+        for path in paths:
+            with open(path) as f:
+                file_contents.append(f.read().rstrip())
+
+        return file_contents
 
     @staticmethod
     def add_argument(parser, default):
-        parser.add_argument('--from-file',
-                            dest='from_file',
+        parser.add_argument('--from-files',
+                            dest='from_files',
                             type=str,
                             default=default,
-                            nargs='?',
+                            nargs='+',
                             help='Custom vocabulary filepath')
 
 
