@@ -3,6 +3,12 @@ import argparse
 
 sys.path.append('../')
 
+from utils import create_labels_scaler
+
+from examples.rusentrel.common import Common
+from examples.rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
+from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
+
 from arekit.common.experiment.api.ctx_training import ExperimentTrainingContext
 from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
@@ -28,11 +34,7 @@ from network.args.common import LabelsCountArg, TermsPerContextArg, \
 from network.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
 from network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, DropoutKeepProbArg, \
     LearningRateArg, EpochsCountArg
-from network.nn.common import create_bags_collection_type, create_network_model_io
-from rusentrel.common import Common
-from rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
-from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
-
+from network.nn.common import create_bags_collection_type, create_network_model_io, create_full_model_name
 
 if __name__ == '__main__':
 
@@ -82,7 +84,7 @@ if __name__ == '__main__':
         model_name=model_name,
         model_input_type=model_input_type)
 
-    labels_scaler = Common.create_labels_scaler(labels_count)
+    labels_scaler = create_labels_scaler(labels_count)
 
     exp_name = Common.create_exp_name(rusentrel_version=rusentrel_version,
                                       ra_version=None,
@@ -105,8 +107,8 @@ if __name__ == '__main__':
 
     exp_io = CustomRuSentRelNetworkExperimentIO(exp_ctx)
 
-    full_model_name = Common.create_full_model_name(model_name=model_name,
-                                                    input_type=model_input_type)
+    full_model_name = create_full_model_name(model_name=model_name,
+                                             input_type=model_input_type)
 
     model_io = create_network_model_io(full_model_name=full_model_name,
                                        source_dir=model_load_dir,

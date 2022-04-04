@@ -4,9 +4,9 @@ from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.networks.multi.configurations.base import BaseMultiInstanceConfig
 
-from rusentrel.configs.common import apply_classic_mi_settings
-from rusentrel.configs.mi import apply_ds_mi_settings
-from rusentrel.configs.single import ctx_self_att_bilstm_custom_config, ctx_att_bilstm_p_zhou_custom_config, \
+from examples.rusentrel.configs.common import apply_classic_mi_settings
+from examples.rusentrel.configs.mi import apply_ds_mi_settings
+from examples.rusentrel.configs.single import ctx_self_att_bilstm_custom_config, ctx_att_bilstm_p_zhou_custom_config, \
     ctx_att_bilstm_z_yang_custom_config, ctx_bilstm_custom_config, ctx_cnn_custom_config, ctx_lstm_custom_config, \
     ctx_pcnn_custom_config, ctx_rcnn_custom_config, ctx_rcnn_z_yang_custom_config, ctx_rcnn_p_zhou_custom_config
 

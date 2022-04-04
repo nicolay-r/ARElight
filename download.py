@@ -9,6 +9,7 @@ def download_examples_data():
     data = {
         EMBEDDING_FILEPATH: "http://rusvectores.org/static/models/rusvectores2/news_mystem_skipgram_1000_20_2015.bin.gz",
         SYNONYMS_FILEPATH: "https://raw.githubusercontent.com/nicolay-r/RuSentRel/v1.1/synonyms.txt",
+        # NOTE: this is a pre-trained model and it is expected to be fine-tunned.
         BERT_MODEL_PATH: "https://www.dropbox.com/s/cr6nejxjiqbyd5o/ra-20-srubert-large-neut-nli-pretrained-3l.tar.gz?dl=1"
     }
 

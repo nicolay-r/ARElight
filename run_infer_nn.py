@@ -21,11 +21,11 @@ from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddi
     InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
     StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFileArg, EntityFormatterTypesArg
 from network.args.train import ModelInputTypeArg, BagsPerMinibatchArg
-from network.nn.common import create_network_model_io, create_bags_collection_type
+from network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
 from pipelines.backend import BratBackendPipelineItem
 from pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
 from pipelines.serialize_nn import TextSerializationPipelineItem
-from rusentrel.common import Common
+from utils import create_labels_scaler
 
 if __name__ == '__main__':
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     actual_content = text_from_arg if text_from_arg is not None else text_from_file
 
     # Implement extra structures.
-    labels_scaler = Common.create_labels_scaler(LabelsCountArg.read_argument(args))
+    labels_scaler = create_labels_scaler(LabelsCountArg.read_argument(args))
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -73,9 +73,7 @@ if __name__ == '__main__':
     #############################
     # Execute pipeline element.
     #############################
-    full_model_name = Common.create_full_model_name(
-        model_name=model_name,
-        input_type=model_input_type)
+    full_model_name = create_full_model_name(model_name=model_name, input_type=model_input_type)
 
     nn_io = create_network_model_io(
         full_model_name=full_model_name,

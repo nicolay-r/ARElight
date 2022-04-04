@@ -171,7 +171,7 @@ class BratBackend(object):
                 sentence_entity_values = sent_data[const.ENTITY_VALUES]
                 sentence_entity_types = sent_data[const.ENTITY_TYPES]
 
-                if (e_ind >= len(text_terms)):
+                if e_ind >= len(text_terms):
                     continue
 
                 text_terms[e_ind] = DocumentEntity(

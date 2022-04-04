@@ -2,47 +2,13 @@ from itertools import chain
 
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
-from arekit.common.folding.types import FoldingType
 from arekit.contrib.experiment_rusentrel.exp_ds.utils import read_ruattitudes_in_memory
-from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
-from arekit.contrib.experiment_rusentrel.labels.scalers.two import TwoLabelScaler
-from arekit.contrib.networks.enum_input_types import ModelInputType
-from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelIOUtils
 
 from network.nn.embedding import RusvectoresEmbedding
 
 
 class Common:
-
-    @staticmethod
-    def __create_folding_type_prefix(folding_type):
-        assert(isinstance(folding_type,  FoldingType))
-        if folding_type == FoldingType.Fixed:
-            return u'fx'
-        elif folding_type == FoldingType.CrossValidation:
-            return u'cv'
-        else:
-            raise NotImplementedError(u"Folding type `{}` was not declared".format(folding_type))
-
-    @staticmethod
-    def __create_input_type_prefix(input_type):
-        assert(isinstance(input_type, ModelInputType))
-        if input_type == ModelInputType.SingleInstance:
-            return u'ctx'
-        elif input_type == ModelInputType.MultiInstanceMaxPooling:
-            return u'mi-mp'
-        elif input_type == ModelInputType.MultiInstanceWithSelfAttention:
-            return u'mi-sa'
-        else:
-            raise NotImplementedError(u"Input type `{}` was not declared".format(input_type))
-
-    @staticmethod
-    def create_full_model_name(model_name, input_type):
-        assert(isinstance(model_name, ModelNames))
-        return u'_'.join([Common.__create_folding_type_prefix(FoldingType.Fixed),
-                          Common.__create_input_type_prefix(input_type),
-                          model_name.value])
 
     @staticmethod
     def ra_doc_id_func(doc_id):
@@ -86,17 +52,6 @@ class Common:
             params.append(u"dbe{}".format(dist_in_terms_between_att_ends))
 
         return u'-'.join(params)
-
-    @staticmethod
-    def create_labels_scaler(labels_count):
-        assert(isinstance(labels_count, int))
-
-        if labels_count == 2:
-            return TwoLabelScaler()
-        if labels_count == 3:
-            return ThreeLabelScaler()
-
-        raise NotImplementedError("Not supported")
 
     @staticmethod
     def load_rusvectores_embedding(filepath, stemmer):

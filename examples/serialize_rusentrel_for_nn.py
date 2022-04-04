@@ -3,6 +3,8 @@ import argparse
 
 sys.path.append('../')
 
+from utils import create_labels_scaler
+
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
 from arekit.common.experiment.engine import ExperimentEngine
@@ -24,8 +26,9 @@ from network.args.common import LabelsCountArg, RusVectoresEmbeddingFilepathArg,
     StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg, FramesColectionArg, EntityFormatterTypesArg
 from network.nn.common import create_and_fill_variant_collection
 from network.nn.serialization_data import CustomSerializationContext
-from rusentrel.common import Common
-from rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
+
+from examples.rusentrel.common import Common
+from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
 if __name__ == '__main__':
 
@@ -81,7 +84,7 @@ if __name__ == '__main__':
 
     # Preparing necessary structures for further initializations.
     exp_ctx = CustomSerializationContext(
-        labels_scaler=Common.create_labels_scaler(labels_count),
+        labels_scaler=create_labels_scaler(labels_count),
         embedding=Common.load_rusvectores_embedding(filepath=embedding_filepath, stemmer=stemmer),
         terms_per_context=terms_per_context,
         str_entity_formatter=create_entity_formatter(entity_fmt),
