@@ -24,7 +24,7 @@ from examples.rusentrel.common import Common
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 from network.args import const
 from network.args.common import TermsPerContextArg, SynonymsCollectionArg, EntitiesParserArg, InputTextArg, \
-    FromFilesArg, RusVectoresEmbeddingFilepathArg, EntityFormatterTypesArg, UseBalancingArg, LabelsCountArg, \
+    FromFilesArg, RusVectoresEmbeddingFilepathArg, EntityFormatterTypesArg, UseBalancingArg, \
     DistanceInTermsBetweenAttitudeEndsArg, StemmerArg
 from network.args.const import DEFAULT_TEXT_FILEPATH
 from network.bert.ctx import BertSerializationContext
