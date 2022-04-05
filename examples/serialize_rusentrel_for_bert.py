@@ -1,9 +1,4 @@
-import sys
 import argparse
-
-sys.path.append('../')
-
-from utils import create_labels_scaler
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -11,60 +6,60 @@ from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.types import FoldingType
 from arekit.common.labels.provider.constant import ConstantLabelProvider
+from arekit.contrib.bert.handlers.serializer import BertExperimentInputSerializerIterationHandler
+from arekit.contrib.bert.samplers.types import BertSampleProviderTypes
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 from arekit.contrib.experiment_rusentrel.factory import create_experiment
 from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNeutralLabel
 from arekit.contrib.experiment_rusentrel.synonyms.provider import RuSentRelSynonymsCollectionProvider
 from arekit.contrib.experiment_rusentrel.types import ExperimentTypes
-from arekit.contrib.networks.handlers.serializer import NetworksInputSerializerExperimentIteration
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
-from arekit.processing.lemmatization.mystem import MystemWrapper
-from arekit.processing.pos.mystem_wrap import POSMystemWrapper
-from arekit.processing.text.pipeline_frames_lemmatized import LemmasBasedFrameVariantsParser
-from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
-
-from network.args import const
-from network.args.common import LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg, FramesColectionArg, EntityFormatterTypesArg
-from network.nn.common import create_and_fill_variant_collection
-from network.nn.ctx import NetworkSerializationContext
 
 from examples.rusentrel.common import Common
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
+from network.args import const
+from network.args.common import TermsPerContextArg, SynonymsCollectionArg, EntitiesParserArg, InputTextArg, \
+    FromFilesArg, RusVectoresEmbeddingFilepathArg, EntityFormatterTypesArg, UseBalancingArg, LabelsCountArg, \
+    DistanceInTermsBetweenAttitudeEndsArg, StemmerArg
+from network.args.const import DEFAULT_TEXT_FILEPATH
+from network.bert.ctx import BertSerializationContext
+from utils import create_labels_scaler
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description="RuSentRel dataset serialization script")
+    parser = argparse.ArgumentParser(description="Serialization script for obtaining sources, "
+                                                 "required for inference and training.")
 
     # Provide arguments.
-    LabelsCountArg.add_argument(parser, default=3)
+    InputTextArg.add_argument(parser, default=None)
+    FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
+    EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
-    StemmerArg.add_argument(parser, default="mystem")
-    UseBalancingArg.add_argument(parser, default=True)
+    SynonymsCollectionArg.add_argument(parser, default=None)
+    UseBalancingArg.add_argument(parser, default=False)
+    LabelsCountArg.add_argument(parser, default=3)
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
-    FramesColectionArg.add_argument(parser)
+    EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    StemmerArg.add_argument(parser, default="mystem")
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading arguments.
-    embedding_filepath = RusVectoresEmbeddingFilepathArg.read_argument(args)
-    labels_count = LabelsCountArg.read_argument(args)
+    text_from_arg = InputTextArg.read_argument(args)
+    texts_from_files = FromFilesArg.read_argument(args)
     terms_per_context = TermsPerContextArg.read_argument(args)
-    entity_fmt = EntityFormatterTypesArg.read_argument(args)
-    stemmer = StemmerArg.read_argument(args)
     use_balancing = UseBalancingArg.read_argument(args)
+    stemmer = StemmerArg.read_argument(args)
+    labels_count = LabelsCountArg.read_argument(args)
+    entity_fmt = EntityFormatterTypesArg.read_argument(args)
     dist_in_terms_between_attitude_ends = DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
-    frames_collection = FramesColectionArg.read_argument(args)
-    pos_tagger = POSMystemWrapper(MystemWrapper().MystemInstance)
 
-    # Default parameters
+    # Predefined parameters.
     rusentrel_version = RuSentRelVersions.V11
+    synonyms = RuSentRelSynonymsCollectionProvider.load_collection(stemmer=stemmer)
     folding_type = FoldingType.Fixed
-
-    synonyms_collection = RuSentRelSynonymsCollectionProvider.load_collection(stemmer=stemmer)
 
     annot_algo = PairBasedAnnotationAlgorithm(
         dist_in_terms_bound=None,
@@ -85,16 +80,12 @@ if __name__ == '__main__':
         doc_id_func=lambda doc_id: Common.ra_doc_id_func(doc_id=doc_id))
 
     # Preparing necessary structures for further initializations.
-    exp_ctx = NetworkSerializationContext(
-        labels_scaler=create_labels_scaler(labels_count),
-        embedding=Common.load_rusvectores_embedding(filepath=embedding_filepath, stemmer=stemmer),
+    exp_ctx = BertSerializationContext(
+        label_scaler=create_labels_scaler(labels_count),
         terms_per_context=terms_per_context,
         str_entity_formatter=create_entity_formatter(entity_fmt),
-        pos_tagger=pos_tagger,
         annotator=DefaultAnnotator(annot_algo=annot_algo),
-        name_provider=ExperimentNameProvider(name=exp_name, suffix=extra_name_suffix),
-        frames_collection=frames_collection,
-        frame_variant_collection=create_and_fill_variant_collection(frames_collection),
+        name_provider=ExperimentNameProvider(name=exp_name, suffix=extra_name_suffix + "-bert"),
         data_folding=data_folding)
 
     experiment = create_experiment(
@@ -105,21 +96,19 @@ if __name__ == '__main__':
         rusentrel_version=rusentrel_version,
         ruattitudes_version=None,
         load_ruattitude_docs=True,
-        text_parser_items=[
-            DefaultTextTokenizer(keep_tokens=True),
-            LemmasBasedFrameVariantsParser(frame_variants=exp_ctx.FrameVariantCollection, stemmer=stemmer)
-        ],
         ra_doc_id_func=lambda doc_id: Common.ra_doc_id_func(doc_id=doc_id))
 
-    # Performing serialization process.
-    serialization_handler = NetworksInputSerializerExperimentIteration(
+    handler = BertExperimentInputSerializerIterationHandler(
+        exp_io=experiment.ExperimentIO,
         exp_ctx=experiment.ExperimentContext,
         doc_ops=experiment.DocumentOperations,
         opin_ops=experiment.OpinionOperations,
-        exp_io=experiment.ExperimentIO,
-        balance=use_balancing,
-        value_to_group_id_func=synonyms_collection.get_synonym_group_index)
+        labels_formatter=experiment.OpinionOperations.LabelsFormatter,
+        sample_provider_type=BertSampleProviderTypes.NLI_M,
+        entity_formatter=experiment.ExperimentContext.StringEntityFormatter,
+        value_to_group_id_func=synonyms.get_synonym_group_index,
+        balance_train_samples=True)
 
     engine = ExperimentEngine(exp_ctx.DataFolding)
 
-    engine.run(handlers=[serialization_handler])
+    engine.run(handlers=[handler])
