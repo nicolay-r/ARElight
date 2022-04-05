@@ -1,4 +1,7 @@
 import argparse
+import sys
+
+sys.path.append('../')
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -6,11 +9,13 @@ from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.types import FoldingType
 from arekit.common.labels.provider.constant import ConstantLabelProvider
+from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.contrib.bert.handlers.serializer import BertExperimentInputSerializerIterationHandler
 from arekit.contrib.bert.samplers.types import BertSampleProviderTypes
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 from arekit.contrib.experiment_rusentrel.factory import create_experiment
-from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNeutralLabel
+from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNeutralLabel, ExperimentPositiveLabel, \
+    ExperimentNegativeLabel
 from arekit.contrib.experiment_rusentrel.synonyms.provider import RuSentRelSynonymsCollectionProvider
 from arekit.contrib.experiment_rusentrel.types import ExperimentTypes
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
@@ -25,6 +30,16 @@ from network.args.const import DEFAULT_TEXT_FILEPATH
 from network.bert.ctx import BertSerializationContext
 from utils import create_labels_scaler
 
+
+class ExperimentBERTTextBThreeScaleLabelsFormatter(StringLabelsFormatter):
+
+    def __init__(self):
+        stol = {'neu': ExperimentNeutralLabel,
+                'pos': ExperimentPositiveLabel,
+                'neg': ExperimentNegativeLabel}
+        super(ExperimentBERTTextBThreeScaleLabelsFormatter, self).__init__(stol=stol)
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Serialization script for obtaining sources, "
@@ -38,7 +53,6 @@ if __name__ == '__main__':
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     SynonymsCollectionArg.add_argument(parser, default=None)
     UseBalancingArg.add_argument(parser, default=False)
-    LabelsCountArg.add_argument(parser, default=3)
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     StemmerArg.add_argument(parser, default="mystem")
@@ -52,11 +66,11 @@ if __name__ == '__main__':
     terms_per_context = TermsPerContextArg.read_argument(args)
     use_balancing = UseBalancingArg.read_argument(args)
     stemmer = StemmerArg.read_argument(args)
-    labels_count = LabelsCountArg.read_argument(args)
     entity_fmt = EntityFormatterTypesArg.read_argument(args)
     dist_in_terms_between_attitude_ends = DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
 
     # Predefined parameters.
+    labels_count = 3
     rusentrel_version = RuSentRelVersions.V11
     synonyms = RuSentRelSynonymsCollectionProvider.load_collection(stemmer=stemmer)
     folding_type = FoldingType.Fixed
@@ -103,7 +117,8 @@ if __name__ == '__main__':
         exp_ctx=experiment.ExperimentContext,
         doc_ops=experiment.DocumentOperations,
         opin_ops=experiment.OpinionOperations,
-        labels_formatter=experiment.OpinionOperations.LabelsFormatter,
+        sample_labels_fmt=ExperimentBERTTextBThreeScaleLabelsFormatter(),
+        annot_labels_fmt=experiment.OpinionOperations.LabelsFormatter,
         sample_provider_type=BertSampleProviderTypes.NLI_M,
         entity_formatter=experiment.ExperimentContext.StringEntityFormatter,
         value_to_group_id_func=synonyms.get_synonym_group_index,
