@@ -13,10 +13,17 @@ EMBEDDING_FILEPATH = join(DATA_DIR, "news_mystem_skipgram_1000_20_2015.bin.gz")
 SYNONYMS_FILEPATH = join(DATA_DIR, "synonyms.txt")
 
 NEURAL_NETWORKS_TARGET_DIR = join(current_dir, "../../models/")
-BERT_DEFAULT_STATE = "ra-20-srubert-large-neut-nli-pretrained-3l"
-BERT_MODEL_PATH = join(NEURAL_NETWORKS_TARGET_DIR, BERT_DEFAULT_STATE)
+
+# Default pretrained BERT.
+BERT_DEFAULT_STATE_NAME = "ra-20-srubert-large-neut-nli-pretrained-3l"
+BERT_MODEL_PATH = join(NEURAL_NETWORKS_TARGET_DIR, BERT_DEFAULT_STATE_NAME)
 BERT_CONFIG_PATH = join(BERT_MODEL_PATH, "bert_config.json")
 BERT_CKPT_PATH = join(BERT_MODEL_PATH, "model.ckpt-30238")
 BERT_VOCAB_PATH = join(BERT_MODEL_PATH, "vocab.txt")
+
+# Default Fine-tuned BERT.
+BERT_DEFAULT_FINETUNED = BERT_DEFAULT_STATE_NAME + '-finetuned'
+BERT_FINETUNED_MODEL_PATH = join(NEURAL_NETWORKS_TARGET_DIR, BERT_DEFAULT_FINETUNED)
+BERT_FINETUNED_CKPT_PATH = join(BERT_FINETUNED_MODEL_PATH, BERT_DEFAULT_STATE_NAME)
 
 OUTPUT_DIR = join(current_dir, "../../_output")

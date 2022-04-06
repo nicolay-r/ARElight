@@ -16,7 +16,7 @@ from network.args import const
 from network.args.common import LabelsCountArg, InputTextArg, FromFilesArg, SynonymsCollectionArg, \
     EntityFormatterTypesArg, EntitiesParserArg, TermsPerContextArg, PredictOutputFilepathArg, BertConfigFilepathArg, \
     BertCheckpointFilepathArg, BertVocabFilepathArg
-from network.args.const import BERT_VOCAB_PATH, BERT_CKPT_PATH, BERT_CONFIG_PATH
+from network.args.const import BERT_FINETUNED_CKPT_PATH, BERT_VOCAB_PATH, BERT_CONFIG_PATH
 from pipelines.backend import BratBackendPipelineItem
 from pipelines.inference_bert import BertInferencePipelineItem
 from pipelines.serialize_bert import BertTextsSerializationPipelineItem
@@ -35,8 +35,8 @@ if __name__ == '__main__':
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     PredictOutputFilepathArg.add_argument(parser, default=None)
+    BertCheckpointFilepathArg.add_argument(parser, default=BERT_FINETUNED_CKPT_PATH)
     BertConfigFilepathArg.add_argument(parser, default=BERT_CONFIG_PATH)
-    BertCheckpointFilepathArg.add_argument(parser, default=BERT_CKPT_PATH)
     BertVocabFilepathArg.add_argument(parser, default=BERT_VOCAB_PATH)
 
     # Parsing arguments.

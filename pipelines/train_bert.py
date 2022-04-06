@@ -11,7 +11,7 @@ from tqdm import tqdm
 class BertFinetunePipelineItem(BasePipelineItem):
 
     def __init__(self, bert_config_file, model_checkpoint_path, do_lowercase,
-                 vocab_filepath, max_seq_length, save_path):
+                 learning_rate, vocab_filepath, max_seq_length, save_path):
         assert(isinstance(bert_config_file, str))
         assert(isinstance(model_checkpoint_path, str))
 
@@ -19,10 +19,10 @@ class BertFinetunePipelineItem(BasePipelineItem):
         self.__model = bert_classifier.BertClassifierModel(
             bert_config_file=bert_config_file,
             load_path=model_checkpoint_path,
-            keep_prob=1.0,
+            keep_prob=0.1,
             n_classes=3,
             save_path=save_path,
-            learning_rate=1e-5)
+            learning_rate=learning_rate)
 
         # Setup processor.
         self.__proc = BertPreprocessor(vocab_file=vocab_filepath,

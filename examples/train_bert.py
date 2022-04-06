@@ -10,8 +10,8 @@ from network.args.common import TermsPerContextArg, SynonymsCollectionArg, Entit
     EntityFormatterTypesArg, BertConfigFilepathArg, BertCheckpointFilepathArg, BertVocabFilepathArg, \
     BertSaveFilepathArg, InputSamplesFilepath
 from network.args.const import BERT_CONFIG_PATH, BERT_CKPT_PATH, BERT_VOCAB_PATH, OUTPUT_DIR, BERT_MODEL_PATH, \
-    BERT_DEFAULT_STATE
-from network.args.train import EpochsCountArg, BatchSizeArg
+    BERT_DEFAULT_STATE_NAME, BERT_DEFAULT_FINETUNED
+from network.args.train import EpochsCountArg, BatchSizeArg, LearningRateArg
 from pipelines.train_bert import BertFinetunePipelineItem
 
 if __name__ == '__main__':
@@ -27,9 +27,10 @@ if __name__ == '__main__':
     BertConfigFilepathArg.add_argument(parser, default=BERT_CONFIG_PATH)
     BertCheckpointFilepathArg.add_argument(parser, default=BERT_CKPT_PATH)
     BertVocabFilepathArg.add_argument(parser, default=BERT_VOCAB_PATH)
-    BertSaveFilepathArg.add_argument(parser, default=join(BERT_MODEL_PATH + '-finetuned', BERT_DEFAULT_STATE))
+    BertSaveFilepathArg.add_argument(parser, default=join(BERT_DEFAULT_FINETUNED, BERT_DEFAULT_STATE_NAME))
     InputSamplesFilepath.add_argument(parser, default=join(OUTPUT_DIR, join("rsr-v1_1-fx-nobalance-tpc50-bert_3l", "sample-train-0.tsv.gz")))
     SynonymsCollectionArg.add_argument(parser, default=None)
+    LearningRateArg.add_argument(parser, default=1e-4)
     EpochsCountArg.add_argument(parser, default=4)
     BatchSizeArg.add_argument(parser, default=6)
 
@@ -43,6 +44,7 @@ if __name__ == '__main__':
                                  vocab_filepath=BertVocabFilepathArg.read_argument(args),
                                  do_lowercase=False,
                                  max_seq_length=96,
+                                 learning_rate=LearningRateArg.read_argument(args),
                                  save_path=BertSaveFilepathArg.read_argument(args))
     ])
 
