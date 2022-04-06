@@ -403,3 +403,33 @@ class BertVocabFilepathArg(BaseArg):
                             type=str,
                             default=default,
                             help='Bert vocab filepath')
+
+
+class BertSaveFilepathArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.bert_savepath
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--bert-savepath',
+                            dest='bert_savepath',
+                            type=str,
+                            default=default,
+                            help='Bert state save filepath')
+
+
+class InputSamplesFilepath(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.input_samples
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--input-samples',
+                            dest='input_samples',
+                            type=str,
+                            default=default,
+                            help='Input Samples')

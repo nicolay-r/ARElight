@@ -62,6 +62,26 @@ class EpochsCountArg(BaseArg):
                             help='Epochs count (Default: {})'.format(default))
 
 
+class BatchSizeArg(BaseArg):
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def read_argument(args):
+        return args.batch_size
+
+    @staticmethod
+    def add_argument(parser, default):
+        assert(isinstance(default, int))
+        parser.add_argument('--batch-size',
+                            dest='batch_size',
+                            type=int,
+                            default=default,
+                            nargs='?',
+                            help='Batch size (Default: {})'.format(default))
+
+
 class LearningRateArg(BaseArg):
 
     def __init__(self):

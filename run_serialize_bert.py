@@ -11,8 +11,8 @@ from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 
 from network.args import const
-from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, \
-    TermsPerContextArg, SynonymsCollectionArg, FromFilesArg, EntityFormatterTypesArg
+from network.args.common import InputTextArg, EntitiesParserArg, TermsPerContextArg, \
+    SynonymsCollectionArg, FromFilesArg, EntityFormatterTypesArg
 from network.args.const import DEFAULT_TEXT_FILEPATH
 from pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
@@ -25,7 +25,6 @@ if __name__ == '__main__':
     InputTextArg.add_argument(parser, default=None)
     FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     SynonymsCollectionArg.add_argument(parser, default=None)
