@@ -10,7 +10,8 @@ from tqdm import tqdm
 
 class BertFinetunePipelineItem(BasePipelineItem):
 
-    def __init__(self, bert_config_file, model_checkpoint_path, vocab_filepath, save_path):
+    def __init__(self, bert_config_file, model_checkpoint_path, do_lowercase,
+                 vocab_filepath, max_seq_length, save_path):
         assert(isinstance(bert_config_file, str))
         assert(isinstance(model_checkpoint_path, str))
 
@@ -25,8 +26,8 @@ class BertFinetunePipelineItem(BasePipelineItem):
 
         # Setup processor.
         self.__proc = BertPreprocessor(vocab_file=vocab_filepath,
-                                       do_lower_case=False,
-                                       max_seq_length=128)
+                                       do_lower_case=do_lowercase,
+                                       max_seq_length=max_seq_length)
 
     @staticmethod
     def get_synonym_group_index(synonyms, value):

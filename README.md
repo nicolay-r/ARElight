@@ -12,7 +12,7 @@ commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
 
 * arekit == 0.22.0
 * gensim == 3.2.0
-* deeppavlov == 1.11.0
+* deeppavlov == 0.11.0
 * rusenttokenize
 * brat-v1.3 [[github]](https://github.com/nlplab/brat)
 
@@ -94,9 +94,16 @@ python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
     --frames ruattitudes-20 
 ```
 
-# Training other models
+# Other Examples
 
-[Proceed with the Tutorial](README_train_custom_model.md)
+* Serialize RuSentRel collection for BERT [[code]](examples/serialize_rusentrel_for_bert.py)
+* Serialize RuSentRel collection for Neural Networks [[code]](examples/serialize_rusentrel_for_nn.py)
+* Finetune BERT on samples [[code]](examples/train_bert.py)
+* Finetune Neural Networks on RuSentRel [[code]](examples/train_nn_on_rusentrel.py)
+
+# Papers
+
+* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021)](Language Models Application in Sentiment Attitude Extraction Task)
 
 # Powered by
 

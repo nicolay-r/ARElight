@@ -1,5 +1,8 @@
 import argparse
+import sys
 from os.path import join
+
+sys.path.append('../')
 
 from arekit.common.pipeline.base import BasePipeline
 from network.args import const
@@ -38,6 +41,8 @@ if __name__ == '__main__':
         BertFinetunePipelineItem(bert_config_file=BertConfigFilepathArg.read_argument(args),
                                  model_checkpoint_path=BertCheckpointFilepathArg.read_argument(args),
                                  vocab_filepath=BertVocabFilepathArg.read_argument(args),
+                                 do_lowercase=False,
+                                 max_seq_length=96,
                                  save_path=BertSaveFilepathArg.read_argument(args))
     ])
 
