@@ -63,13 +63,20 @@ class BertFinetunePipelineItem(BasePipelineItem):
         batch_size = pipeline_ctx.provide("batch_size")
         samples = BaseRowsStorage.from_tsv(input_data)
 
-        for _ in range(epochs_count):
+        for e in range(epochs_count):
 
             it = __iter_batches(samples, batch_size)
             batches = len(samples.DataFrame) / batch_size
 
-            for features, y in tqdm(it, total=batches):
-                self.__model.train_on_batch(features=features, y=y)
+            total_loss = 0
+            pbar = tqdm(it, total=batches, desc="Epoch: {}".format(e), unit='batches')
+            for batch_index, payload in enumerate(pbar):
+                features, y = payload
+                d = self.__model.train_on_batch(features=features, y=y)
+                total_loss += d["loss"]
+                pbar.set_postfix({
+                    "avg-loss": total_loss/(batch_index+1)
+                })
 
         # Save the result model.
         self.__model.save()
