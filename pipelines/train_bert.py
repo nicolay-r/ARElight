@@ -70,7 +70,6 @@ class BertFinetunePipelineItem(BasePipelineItem):
 
             for features, y in tqdm(it, total=batches):
                 self.__model.train_on_batch(features=features, y=y)
-                break
 
         # Save the result model.
         self.__model.save()
