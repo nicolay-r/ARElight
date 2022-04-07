@@ -38,21 +38,19 @@ python standalone.py
 
 # Inference
 
+Infer sentiment attitudes from a mass-media document(s).
+
+Using the `BERT` fine-tuned model version:
+```bash
+python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt
+```
 <p align="center">
-    <img src="docs/inference.png"/>
+    <img src="docs/inference-bert-e1.png"/>
 </p>
 
-> Figure: Named Entities annotation and sentiment attitudes between mentioned named entities for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
-
-In order to infer sentiment attitudes from a mass-media document, 
-
-For the `BERT` (NOTE: pretrained version by default has not been fine-tuned):
+Using the pretrained `PCNN` model (including frames annotation):
 ```bash
-python3.6 run_infer_bert.py --from-file data/texts-inosmi-rus/e1.txt
-```
-For the pretrained `PCNN` model:
-```bash
-python3.6 run_infer_nn.py --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
     --model-state-dir models/ \
     --terms-per-context 50 \
@@ -68,24 +66,20 @@ python3.6 run_infer_nn.py --from-file data/texts-inosmi-rus/e1.txt \
     -o output/brat_inference_output
 ```
 
-# Serialization 
-
 <p align="center">
-    <img src="docs/samples.png"/>
+    <img src="docs/inference-pcnn-e1.png"/>
 </p>
 
-> Figure: The result of samples that might be utilized for ML training in further for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
-
-In order to infer sentiment attitudes, use the `run_serialize.py` script as follows.
+# Serialization 
 
 For the `BERT` model:
 ```bash
-python3.6 run_serialize_bert.py --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt \
 ```
 
 For the other neural networks (including embedding and other features):
 ```bash
-python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_serialize_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
@@ -93,6 +87,10 @@ python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
     --synonyms-filepath data/synonyms.txt \
     --frames ruattitudes-20 
 ```
+
+<p align="center">
+    <img src="docs/samples.png"/>
+</p>
 
 # Other Examples
 
@@ -103,7 +101,7 @@ python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
 
 # Papers
 
-* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021)](Language Models Application in Sentiment Attitude Extraction Task)
+* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021)](https://nicolay-r.github.io/website/data/rusnachenko2021language.pdf)
 
 # Powered by
 

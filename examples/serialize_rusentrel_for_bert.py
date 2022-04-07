@@ -52,7 +52,7 @@ if __name__ == '__main__':
     RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     SynonymsCollectionArg.add_argument(parser, default=None)
-    UseBalancingArg.add_argument(parser, default=False)
+    UseBalancingArg.add_argument(parser, default=True)
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     StemmerArg.add_argument(parser, default="mystem")
@@ -122,7 +122,7 @@ if __name__ == '__main__':
         sample_provider_type=BertSampleProviderTypes.NLI_M,
         entity_formatter=experiment.ExperimentContext.StringEntityFormatter,
         value_to_group_id_func=synonyms.get_synonym_group_index,
-        balance_train_samples=True)
+        balance_train_samples=use_balancing)
 
     engine = ExperimentEngine(exp_ctx.DataFolding)
 
