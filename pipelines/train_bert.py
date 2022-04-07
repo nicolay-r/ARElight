@@ -41,10 +41,12 @@ class BertFinetunePipelineItem(BasePipelineItem):
         assert(isinstance(pipeline_ctx, PipelineContext))
 
         def __iter_batches(s, batch_size):
+            assert(isinstance(s, BaseRowsStorage))
 
             data = {"text_a": [], "text_b": [], "label": []}
 
-            for row_ind, row in s:
+            # NOTE: it is important to iter shuffled data!
+            for row_ind, row in s.iter_shuffled():
                 data["text_a"].append(row['text_a'])
                 data["text_b"].append(row['text_b'])
                 data["label"].append(row[const.LABEL])
