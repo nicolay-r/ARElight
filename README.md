@@ -38,18 +38,21 @@ python standalone.py
 
 # Inference
 
-<p align="center">
-    <img src="docs/inference.png"/>
-</p>
-
-> Figure: Named Entities annotation and sentiment attitudes between mentioned named entities for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
-
 In order to infer sentiment attitudes from a mass-media document, 
 
-For the `BERT` (NOTE: pretrained version by default has not been fine-tuned):
+<p align="center">
+    <img src="docs/inference-bert-e1.png"/>
+</p>
+
+For the `BERT`, fine-tuned model version:
 ```bash
 python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt
 ```
+
+<p align="center">
+    <img src="docs/inference-pcnn-e1.png"/>
+</p>
+
 For the pretrained `PCNN` model:
 ```bash
 python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \

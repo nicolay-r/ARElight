@@ -8,7 +8,7 @@ BAGS_PER_MINIBATCH = 2
 BAG_SIZE = 1
 
 DATA_DIR = join(current_dir, "../../data")
-DEFAULT_TEXT_FILEPATH = join(DATA_DIR, "texts-inosmi-rus/e2.txt")
+DEFAULT_TEXT_FILEPATH = join(DATA_DIR, "texts-inosmi-rus/e1.txt")
 EMBEDDING_FILEPATH = join(DATA_DIR, "news_mystem_skipgram_1000_20_2015.bin.gz")
 SYNONYMS_FILEPATH = join(DATA_DIR, "synonyms.txt")
 
