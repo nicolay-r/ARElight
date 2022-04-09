@@ -48,11 +48,11 @@ In order to infer sentiment attitudes from a mass-media document,
 
 For the `BERT` (NOTE: pretrained version by default has not been fine-tuned):
 ```bash
-python3.6 run_infer_bert.py --from-file data/texts-inosmi-rus/e1.txt
+python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt
 ```
 For the pretrained `PCNN` model:
 ```bash
-python3.6 run_infer_nn.py --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
     --model-state-dir models/ \
     --terms-per-context 50 \
@@ -80,12 +80,12 @@ In order to infer sentiment attitudes, use the `run_serialize.py` script as foll
 
 For the `BERT` model:
 ```bash
-python3.6 run_serialize_bert.py --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt \
 ```
 
 For the other neural networks (including embedding and other features):
 ```bash
-python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
+python3.6 run_serialize_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
@@ -103,7 +103,7 @@ python3.6 run_serialize_nn.py --from-file data/texts-inosmi-rus/e1.txt \
 
 # Papers
 
-* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021)](Language Models Application in Sentiment Attitude Extraction Task)
+* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021)](https://nicolay-r.github.io/website/data/rusnachenko2021language.pdf)
 
 # Powered by
 
