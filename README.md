@@ -38,22 +38,17 @@ python standalone.py
 
 # Inference
 
-In order to infer sentiment attitudes from a mass-media document, 
+Infer sentiment attitudes from a mass-media document(s).
 
+Using the `BERT` fine-tuned model version:
+```bash
+python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt
+```
 <p align="center">
     <img src="docs/inference-bert-e1.png"/>
 </p>
 
-For the `BERT`, fine-tuned model version:
-```bash
-python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt
-```
-
-<p align="center">
-    <img src="docs/inference-pcnn-e1.png"/>
-</p>
-
-For the pretrained `PCNN` model:
+Using the pretrained `PCNN` model (including frames annotation):
 ```bash
 python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
@@ -71,15 +66,11 @@ python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     -o output/brat_inference_output
 ```
 
-# Serialization 
-
 <p align="center">
-    <img src="docs/samples.png"/>
+    <img src="docs/inference-pcnn-e1.png"/>
 </p>
 
-> Figure: The result of samples that might be utilized for ML training in further for a given [Mass-Media document example](data/texts-inosmi-rus/e0.txt).
-
-In order to infer sentiment attitudes, use the `run_serialize.py` script as follows.
+# Serialization 
 
 For the `BERT` model:
 ```bash
@@ -96,6 +87,10 @@ python3.6 run_serialize_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --synonyms-filepath data/synonyms.txt \
     --frames ruattitudes-20 
 ```
+
+<p align="center">
+    <img src="docs/samples.png"/>
+</p>
 
 # Other Examples
 
