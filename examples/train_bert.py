@@ -30,7 +30,7 @@ if __name__ == '__main__':
     BertSaveFilepathArg.add_argument(parser, default=join(BERT_DEFAULT_FINETUNED, BERT_DEFAULT_STATE_NAME))
     InputSamplesFilepath.add_argument(parser, default=join(OUTPUT_DIR, join("rsr-v1_1-fx-nobalance-tpc50-bert_3l", "sample-train-0.tsv.gz")))
     SynonymsCollectionArg.add_argument(parser, default=None)
-    LearningRateArg.add_argument(parser, default=1e-4)
+    LearningRateArg.add_argument(parser, default=2e-5)
     EpochsCountArg.add_argument(parser, default=4)
     BatchSizeArg.add_argument(parser, default=6)
 
