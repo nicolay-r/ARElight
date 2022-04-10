@@ -85,7 +85,7 @@ python3.6 run_serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt
 ```
 
 <p align="center">
-    <img src="docs/samples-bert">
+    <img src="docs/samples-bert.png">
 </p>
 
 For the other neural networks (including embedding and other features):
