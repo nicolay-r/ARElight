@@ -1,3 +1,4 @@
+from arekit.contrib.bert.samplers.types import SampleFormattersService
 from arekit.contrib.experiment_rusentrel.entities.types import EntityFormattersService
 from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
 from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
@@ -253,6 +254,21 @@ class TermsPerContextArg(BaseArg):
                                  'creation process!'.format(default))
 
 
+class TokensPerContextArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.tokens_per_context
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--tokens-per-context',
+                            dest='tokens_per_context',
+                            type=int,
+                            default=default,
+                            nargs='?')
+
+
 class SynonymsCollectionArg(BaseArg):
 
     @staticmethod
@@ -433,3 +449,21 @@ class InputSamplesFilepath(BaseArg):
                             type=str,
                             default=default,
                             help='Input Samples')
+
+
+class BertTextBFormatTypeArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return SampleFormattersService.name_to_type(args.text_b_type)
+
+    @staticmethod
+    def add_argument(parser, default):
+        assert(isinstance(default, str))
+        assert(SampleFormattersService.is_supported(default))
+        parser.add_argument('--text-b-type',
+                            dest='text_b_type',
+                            type=str,
+                            default=default,
+                            choices=list(SampleFormattersService.iter_names()),
+                            help='TextB format type (Default: {})'.format(default))

@@ -1,6 +1,7 @@
 from os.path import join
 from arekit.contrib.source import utils
-from network.args.const import EMBEDDING_FILEPATH, SYNONYMS_FILEPATH, BERT_MODEL_PATH
+from network.args.const import EMBEDDING_FILEPATH, SYNONYMS_FILEPATH, BERT_PRETRAINED_MODEL_PATH, \
+    BERT_FINETUNED_MODEL_PATH
 
 
 def download_examples_data():
@@ -10,7 +11,10 @@ def download_examples_data():
         EMBEDDING_FILEPATH: "http://rusvectores.org/static/models/rusvectores2/news_mystem_skipgram_1000_20_2015.bin.gz",
         SYNONYMS_FILEPATH: "https://raw.githubusercontent.com/nicolay-r/RuSentRel/v1.1/synonyms.txt",
         # NOTE: this is a pre-trained model and it is expected to be fine-tunned.
-        BERT_MODEL_PATH: "https://www.dropbox.com/s/cr6nejxjiqbyd5o/ra-20-srubert-large-neut-nli-pretrained-3l.tar.gz?dl=1"
+        BERT_PRETRAINED_MODEL_PATH: "https://www.dropbox.com/s/cr6nejxjiqbyd5o/ra-20-srubert-large-neut-nli-pretrained-3l.tar.gz?dl=1",
+        # Fine-tuned on RuSentRel collection.
+        BERT_FINETUNED_MODEL_PATH: "https://www.dropbox.com/s/g73osmwyrqtr2at/ra-20-srubert-large-neut-nli-pretrained-3l-finetuned.tar.gz?dl=1"
+
     }
 
     # Perform downloading ...

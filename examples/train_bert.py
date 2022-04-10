@@ -6,12 +6,11 @@ sys.path.append('../')
 
 from arekit.common.pipeline.base import BasePipeline
 from network.args import const
-from network.args.common import TermsPerContextArg, SynonymsCollectionArg, EntitiesParserArg, \
-    EntityFormatterTypesArg, BertConfigFilepathArg, BertCheckpointFilepathArg, BertVocabFilepathArg, \
-    BertSaveFilepathArg, InputSamplesFilepath
-from network.args.const import BERT_CONFIG_PATH, BERT_CKPT_PATH, BERT_VOCAB_PATH, OUTPUT_DIR, BERT_MODEL_PATH, \
-    BERT_DEFAULT_STATE_NAME, BERT_DEFAULT_FINETUNED
-from network.args.train import EpochsCountArg, BatchSizeArg, LearningRateArg
+from network.args.common import BertConfigFilepathArg, BertCheckpointFilepathArg, BertVocabFilepathArg, \
+    BertSaveFilepathArg, InputSamplesFilepath, TokensPerContextArg
+from network.args.const import BERT_CONFIG_PATH, BERT_CKPT_PATH, BERT_VOCAB_PATH, OUTPUT_DIR, \
+    BERT_DEFAULT_STATE_NAME, BERT_TARGET_DIR
+from network.args.train import EpochsCountArg, BatchSizeArg, LearningRateArg, DoLowercaseArg
 from pipelines.train_bert import BertFinetunePipelineItem
 
 if __name__ == '__main__':
@@ -21,18 +20,16 @@ if __name__ == '__main__':
                                                  "required for inference and training.")
 
     # Provide arguments.
-    EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    TokensPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     BertConfigFilepathArg.add_argument(parser, default=BERT_CONFIG_PATH)
     BertCheckpointFilepathArg.add_argument(parser, default=BERT_CKPT_PATH)
     BertVocabFilepathArg.add_argument(parser, default=BERT_VOCAB_PATH)
-    BertSaveFilepathArg.add_argument(parser, default=join(BERT_DEFAULT_FINETUNED, BERT_DEFAULT_STATE_NAME))
+    BertSaveFilepathArg.add_argument(parser, default=join(BERT_TARGET_DIR, BERT_DEFAULT_STATE_NAME))
     InputSamplesFilepath.add_argument(parser, default=join(OUTPUT_DIR, join("rsr-v1_1-fx-nobalance-tpc50-bert_3l", "sample-train-0.tsv.gz")))
-    SynonymsCollectionArg.add_argument(parser, default=None)
     LearningRateArg.add_argument(parser, default=2e-5)
     EpochsCountArg.add_argument(parser, default=4)
     BatchSizeArg.add_argument(parser, default=6)
+    DoLowercaseArg.add_argument(parser, default=False)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -42,8 +39,8 @@ if __name__ == '__main__':
         BertFinetunePipelineItem(bert_config_file=BertConfigFilepathArg.read_argument(args),
                                  model_checkpoint_path=BertCheckpointFilepathArg.read_argument(args),
                                  vocab_filepath=BertVocabFilepathArg.read_argument(args),
-                                 do_lowercase=False,
-                                 max_seq_length=96,
+                                 do_lowercase=DoLowercaseArg.read_argument(args),
+                                 max_seq_length=TokensPerContextArg.read_argument(args),
                                  learning_rate=LearningRateArg.read_argument(args),
                                  save_path=BertSaveFilepathArg.read_argument(args))
     ])

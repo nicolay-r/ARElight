@@ -12,7 +12,7 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 
 from network.args import const
 from network.args.common import InputTextArg, EntitiesParserArg, TermsPerContextArg, \
-    SynonymsCollectionArg, FromFilesArg, EntityFormatterTypesArg
+    SynonymsCollectionArg, FromFilesArg, EntityFormatterTypesArg, BertTextBFormatTypeArg
 from network.args.const import DEFAULT_TEXT_FILEPATH
 from pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
@@ -28,6 +28,7 @@ if __name__ == '__main__':
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     SynonymsCollectionArg.add_argument(parser, default=None)
+    BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -42,6 +43,7 @@ if __name__ == '__main__':
             entities_parser=EntitiesParserArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"),
             entity_fmt=create_entity_formatter(EntityFormatterTypesArg.read_argument(args)),
+            text_b_type=BertTextBFormatTypeArg.read_argument(args),
             opin_annot=DefaultAnnotator(annot_algo=PairBasedAnnotationAlgorithm(
                 dist_in_terms_bound=None,
                 label_provider=ConstantLabelProvider(label_instance=NoLabel()))),

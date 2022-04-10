@@ -15,8 +15,9 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from network.args import const
 from network.args.common import LabelsCountArg, InputTextArg, FromFilesArg, SynonymsCollectionArg, \
     EntityFormatterTypesArg, EntitiesParserArg, TermsPerContextArg, PredictOutputFilepathArg, BertConfigFilepathArg, \
-    BertCheckpointFilepathArg, BertVocabFilepathArg
+    BertCheckpointFilepathArg, BertVocabFilepathArg, BertTextBFormatTypeArg, TokensPerContextArg
 from network.args.const import BERT_FINETUNED_CKPT_PATH, BERT_VOCAB_PATH, BERT_CONFIG_PATH
+from network.args.train import DoLowercaseArg
 from pipelines.backend import BratBackendPipelineItem
 from pipelines.inference_bert import BertInferencePipelineItem
 from pipelines.serialize_bert import BertTextsSerializationPipelineItem
@@ -32,12 +33,15 @@ if __name__ == '__main__':
     SynonymsCollectionArg.add_argument(parser, default=None)
     LabelsCountArg.add_argument(parser, default=3)
     TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    TokensPerContextArg.add_argument(parser, default=128)
     EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     PredictOutputFilepathArg.add_argument(parser, default=None)
     BertCheckpointFilepathArg.add_argument(parser, default=BERT_FINETUNED_CKPT_PATH)
     BertConfigFilepathArg.add_argument(parser, default=BERT_CONFIG_PATH)
     BertVocabFilepathArg.add_argument(parser, default=BERT_VOCAB_PATH)
+    BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    DoLowercaseArg.add_argument(parser, default=False)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -62,6 +66,7 @@ if __name__ == '__main__':
             entities_parser=EntitiesParserArg.read_argument(args),
             entity_fmt=create_entity_formatter(EntityFormatterTypesArg.read_argument(args)),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
+            text_b_type=BertTextBFormatTypeArg.read_argument(args),
             opin_annot=DefaultAnnotator(
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,
@@ -70,11 +75,13 @@ if __name__ == '__main__':
                                    supported_data_types=[DataType.Test])),
 
         BertInferencePipelineItem(
+            data_type=DataType.Test,
             predict_writer=TsvPredictWriter(),
             bert_config_file=BertConfigFilepathArg.read_argument(args),
             model_checkpoint_path=BertCheckpointFilepathArg.read_argument(args),
             vocab_filepath=BertVocabFilepathArg.read_argument(args),
-            data_type=DataType.Test,
+            max_seq_length=TokensPerContextArg.read_argument(args),
+            do_lowercase=DoLowercaseArg.read_argument(args),
             labels_scaler=labels_scaler),
 
         BratBackendPipelineItem(label_to_rel={

@@ -62,6 +62,25 @@ class EpochsCountArg(BaseArg):
                             help='Epochs count (Default: {})'.format(default))
 
 
+class DoLowercaseArg(BaseArg):
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def read_argument(args):
+        return args.do_lowercase
+
+    @staticmethod
+    def add_argument(parser, default):
+        assert(isinstance(default, int))
+        parser.add_argument('--do-lowercase',
+                            dest='do_lowercase',
+                            type=bool,
+                            default=default,
+                            nargs='?')
+
+
 class BatchSizeArg(BaseArg):
 
     def __init__(self):

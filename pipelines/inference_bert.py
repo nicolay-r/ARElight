@@ -2,6 +2,7 @@ from os.path import join
 
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
+from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.networks.core.predict.base_writer import BasePredictWriter
@@ -15,22 +16,25 @@ from exp.exp_io import InferIOUtils
 class BertInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, bert_config_file, model_checkpoint_path, vocab_filepath,
-                 data_type, predict_writer, labels_scaler):
+                 data_type, predict_writer, labels_scaler, max_seq_length, do_lowercase):
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
+        assert(isinstance(labels_scaler, BaseLabelScaler))
+        assert(isinstance(do_lowercase, bool))
+        assert(isinstance(max_seq_length, int))
 
         # Model classifier.
         self.__model = bert_classifier.BertClassifierModel(
             bert_config_file=bert_config_file,
             load_path=model_checkpoint_path,
             keep_prob=1.0,
-            n_classes=3,
+            n_classes=labels_scaler.LabelsCount,
             save_path="")
 
         # Setup processor.
         self.__proc = BertPreprocessor(vocab_file=vocab_filepath,
-                                       do_lower_case=False,
-                                       max_seq_length=128)
+                                       do_lower_case=do_lowercase,
+                                       max_seq_length=max_seq_length)
 
         self.__writer = predict_writer
         self.__data_type = data_type

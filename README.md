@@ -42,7 +42,12 @@ Infer sentiment attitudes from a mass-media document(s).
 
 Using the `BERT` fine-tuned model version:
 ```bash
-python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt
+python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt \
+    --labels-count 3 \
+    --terms-per-context 50 \
+    --tokens-per-context 128 \
+    --text-b-type nli_m \
+    -o output/brat_inference_output
 ```
 <p align="center">
     <img src="docs/inference-bert-e1.png"/>
@@ -74,8 +79,14 @@ python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 
 For the `BERT` model:
 ```bash
-python3.6 run_serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 run_serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt 
+    --entities-parser bert-ontonotes \
+    --terms-per-context 50 
 ```
+
+<p align="center">
+    <img src="docs/samples-bert">
+</p>
 
 For the other neural networks (including embedding and other features):
 ```bash
@@ -89,7 +100,7 @@ python3.6 run_serialize_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 ```
 
 <p align="center">
-    <img src="docs/samples.png"/>
+    <img src="docs/samples-nn.png"/>
 </p>
 
 # Other Examples

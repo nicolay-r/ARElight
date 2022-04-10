@@ -25,7 +25,7 @@ from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 from network.args import const
 from network.args.common import TermsPerContextArg, SynonymsCollectionArg, EntitiesParserArg, InputTextArg, \
     FromFilesArg, RusVectoresEmbeddingFilepathArg, EntityFormatterTypesArg, UseBalancingArg, \
-    DistanceInTermsBetweenAttitudeEndsArg, StemmerArg
+    DistanceInTermsBetweenAttitudeEndsArg, StemmerArg, BertTextBFormatTypeArg
 from network.args.const import DEFAULT_TEXT_FILEPATH
 from network.bert.ctx import BertSerializationContext
 from utils import create_labels_scaler
@@ -55,6 +55,7 @@ if __name__ == '__main__':
     UseBalancingArg.add_argument(parser, default=True)
     DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
     EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
     StemmerArg.add_argument(parser, default="mystem")
 
     # Parsing arguments.
@@ -119,7 +120,7 @@ if __name__ == '__main__':
         opin_ops=experiment.OpinionOperations,
         sample_labels_fmt=ExperimentBERTTextBThreeScaleLabelsFormatter(),
         annot_labels_fmt=experiment.OpinionOperations.LabelsFormatter,
-        sample_provider_type=BertSampleProviderTypes.NLI_M,
+        sample_provider_type=BertTextBFormatTypeArg.read_argument(args),
         entity_formatter=experiment.ExperimentContext.StringEntityFormatter,
         value_to_group_id_func=synonyms.get_synonym_group_index,
         balance_train_samples=use_balancing)

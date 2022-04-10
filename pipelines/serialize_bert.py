@@ -23,12 +23,13 @@ from pipelines.utils import input_to_docs
 class BertTextsSerializationPipelineItem(BasePipelineItem):
 
     def __init__(self, terms_per_context, entities_parser, synonyms, opin_annot, name_provider,
-                 entity_fmt, data_folding):
+                 entity_fmt, text_b_type, data_folding):
         assert(isinstance(entities_parser, BasePipelineItem))
         assert(isinstance(entity_fmt, StringEntitiesFormatter))
         assert(isinstance(synonyms, SynonymsCollection))
         assert(isinstance(terms_per_context, int))
         assert(isinstance(data_folding, BaseDataFolding))
+        assert(isinstance(text_b_type, BertSampleProviderTypes))
         assert(isinstance(name_provider, ExperimentNameProvider))
 
         # Label provider setup.
@@ -67,7 +68,7 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
             opin_ops=exp.OpinionOperations,
             sample_labels_fmt=labels_fmt,
             annot_labels_fmt=labels_fmt,
-            sample_provider_type=BertSampleProviderTypes.NLI_M,
+            sample_provider_type=text_b_type,
             entity_formatter=self.__exp_ctx.StringEntityFormatter,
             value_to_group_id_func=synonyms.get_synonym_group_index,
             balance_train_samples=True)
