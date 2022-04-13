@@ -1,6 +1,6 @@
 import importlib
 
-from src.text.ner_base import BaseNER
+from arelight.text.ner_base import BaseNER
 
 
 class BertOntonotesNER(BaseNER):

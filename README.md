@@ -36,13 +36,15 @@ python3.6 download.py
 python standalone.py
 ```
 
+Usage: proceed with the `examples` folder.
+
 # Inference
 
 Infer sentiment attitudes from a mass-media document(s).
 
 Using the `BERT` fine-tuned model version:
 ```bash
-python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 infer_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt \
     --labels-count 3 \
     --terms-per-context 50 \
     --tokens-per-context 128 \
@@ -55,7 +57,7 @@ python3.6 run_infer_bert.py --from-files data/texts-inosmi-rus/e1.txt \
 
 Using the pretrained `PCNN` model (including frames annotation):
 ```bash
-python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 infer_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
     --model-state-dir models/ \
     --terms-per-context 50 \
@@ -79,7 +81,7 @@ python3.6 run_infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 
 For the `BERT` model:
 ```bash
-python3.6 run_serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt 
+python3.6 serialize_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt 
     --entities-parser bert-ontonotes \
     --terms-per-context 50 
 ```
@@ -90,7 +92,7 @@ python3.6 run_serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt
 
 For the other neural networks (including embedding and other features):
 ```bash
-python3.6 run_serialize_nn.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 serialize_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \

@@ -9,6 +9,9 @@ from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsServi
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
 from arekit.processing.lemmatization.mystem import MystemWrapper
+from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
+
+from arelight.text.pipeline_entities_default import TextEntitiesParser
 
 from examples.args.base import BaseArg
 
