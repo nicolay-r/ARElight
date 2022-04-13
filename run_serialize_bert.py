@@ -9,12 +9,10 @@ from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
+from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
-from network.args import const
-from network.args.common import InputTextArg, EntitiesParserArg, TermsPerContextArg, \
-    SynonymsCollectionArg, FromFilesArg, EntityFormatterTypesArg, BertTextBFormatTypeArg
-from network.args.const import DEFAULT_TEXT_FILEPATH
-from pipelines.serialize_bert import BertTextsSerializationPipelineItem
+from examples.args import const, common
+from examples.args.const import DEFAULT_TEXT_FILEPATH
 
 if __name__ == '__main__':
 
@@ -22,28 +20,28 @@ if __name__ == '__main__':
                                                  "required for inference and training.")
 
     # Provide arguments.
-    InputTextArg.add_argument(parser, default=None)
-    FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
-    EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
-    SynonymsCollectionArg.add_argument(parser, default=None)
-    BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    common.InputTextArg.add_argument(parser, default=None)
+    common.FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
+    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
 
     # Parsing arguments.
     args = parser.parse_args()
 
-    text_from_arg = InputTextArg.read_argument(args)
-    texts_from_files = FromFilesArg.read_argument(args)
+    text_from_arg = common.InputTextArg.read_argument(args)
+    texts_from_files = common.FromFilesArg.read_argument(args)
 
     ppl = BasePipeline([
         BertTextsSerializationPipelineItem(
-            terms_per_context=TermsPerContextArg.read_argument(args),
-            synonyms=SynonymsCollectionArg.read_argument(args),
-            entities_parser=EntitiesParserArg.read_argument(args),
+            terms_per_context=common.TermsPerContextArg.read_argument(args),
+            synonyms=common.SynonymsCollectionArg.read_argument(args),
+            entities_parser=common.EntitiesParserArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"),
-            entity_fmt=create_entity_formatter(EntityFormatterTypesArg.read_argument(args)),
-            text_b_type=BertTextBFormatTypeArg.read_argument(args),
+            entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
+            text_b_type=common.BertTextBFormatTypeArg.read_argument(args),
             opin_annot=DefaultAnnotator(annot_algo=PairBasedAnnotationAlgorithm(
                 dist_in_terms_bound=None,
                 label_provider=ConstantLabelProvider(label_instance=NoLabel()))),

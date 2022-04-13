@@ -5,7 +5,7 @@ from arekit.common.folding.nofold import NoFolding
 from arekit.contrib.experiment_rusentrel.exp_ds.utils import read_ruattitudes_in_memory
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelIOUtils
 
-from network.nn.embedding import RusvectoresEmbedding
+from arelight.network.nn.embedding import RusvectoresEmbedding
 
 
 class Common:

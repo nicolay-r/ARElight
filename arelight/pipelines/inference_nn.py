@@ -20,8 +20,8 @@ from arekit.contrib.networks.factory import create_network_and_network_config_fu
 from arekit.contrib.networks.shapes import NetworkInputShapes
 from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
 
-from exp.exp_io import InferIOUtils
-from network.args.const import BAG_SIZE
+from examples.args.const import BAG_SIZE
+from arelight.exp.exp_io import InferIOUtils
 
 
 class TensorflowNetworkInferencePipelineItem(BasePipelineItem):

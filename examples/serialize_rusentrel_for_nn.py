@@ -1,8 +1,9 @@
-import sys
 import argparse
 
-sys.path.append('../')
+from arelight.network.nn.common import create_and_fill_variant_collection
+from arelight.network.nn.ctx import NetworkSerializationContext
 
+from examples.args import const, common
 from utils import create_labels_scaler
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
@@ -23,12 +24,6 @@ from arekit.processing.pos.mystem_wrap import POSMystemWrapper
 from arekit.processing.text.pipeline_frames_lemmatized import LemmasBasedFrameVariantsParser
 from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
 
-from network.args import const
-from network.args.common import LabelsCountArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, UseBalancingArg, DistanceInTermsBetweenAttitudeEndsArg, FramesColectionArg, EntityFormatterTypesArg
-from network.nn.common import create_and_fill_variant_collection
-from network.nn.ctx import NetworkSerializationContext
-
 from examples.rusentrel.common import Common
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
@@ -37,27 +32,27 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="RuSentRel dataset serialization script")
 
     # Provide arguments.
-    LabelsCountArg.add_argument(parser, default=3)
-    RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
-    StemmerArg.add_argument(parser, default="mystem")
-    UseBalancingArg.add_argument(parser, default=True)
-    DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
-    FramesColectionArg.add_argument(parser)
+    common.LabelsCountArg.add_argument(parser, default=3)
+    common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
+    common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
+    common.StemmerArg.add_argument(parser, default="mystem")
+    common.UseBalancingArg.add_argument(parser, default=True)
+    common.DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
+    common.FramesColectionArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading arguments.
-    embedding_filepath = RusVectoresEmbeddingFilepathArg.read_argument(args)
-    labels_count = LabelsCountArg.read_argument(args)
-    terms_per_context = TermsPerContextArg.read_argument(args)
-    entity_fmt = EntityFormatterTypesArg.read_argument(args)
-    stemmer = StemmerArg.read_argument(args)
-    use_balancing = UseBalancingArg.read_argument(args)
-    dist_in_terms_between_attitude_ends = DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
-    frames_collection = FramesColectionArg.read_argument(args)
+    embedding_filepath = common.RusVectoresEmbeddingFilepathArg.read_argument(args)
+    labels_count = common.LabelsCountArg.read_argument(args)
+    terms_per_context = common.TermsPerContextArg.read_argument(args)
+    entity_fmt = common.EntityFormatterTypesArg.read_argument(args)
+    stemmer = common.StemmerArg.read_argument(args)
+    use_balancing = common.UseBalancingArg.read_argument(args)
+    dist_in_terms_between_attitude_ends = common.DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
+    frames_collection = common.FramesColectionArg.read_argument(args)
     pos_tagger = POSMystemWrapper(MystemWrapper().MystemInstance)
 
     # Default parameters

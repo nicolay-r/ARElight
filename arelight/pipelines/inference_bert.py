@@ -10,7 +10,7 @@ from arekit.contrib.networks.core.predict.provider import BasePredictProvider
 from deeppavlov.models.bert import bert_classifier
 from deeppavlov.models.preprocessors.bert_preprocessor import BertPreprocessor
 
-from exp.exp_io import InferIOUtils
+from arelight.exp.exp_io import InferIOUtils
 
 
 class BertInferencePipelineItem(BasePipelineItem):

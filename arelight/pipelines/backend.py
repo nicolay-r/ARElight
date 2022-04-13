@@ -5,7 +5,7 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.items.base import BasePipelineItem
 
 from brat_backend import BratBackend
-from exp.exp_io import InferIOUtils
+from arelight.exp.exp_io import InferIOUtils
 
 
 class BratBackendPipelineItem(BasePipelineItem):

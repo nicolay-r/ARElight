@@ -16,56 +16,54 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 
-from network.args import const
-from network.args.common import ModelNameArg, LabelsCountArg, RusVectoresEmbeddingFilepathArg, SynonymsCollectionArg, \
-    InputTextArg, TermsPerContextArg, VocabFilepathArg, EmbeddingMatrixFilepathArg, ModelLoadDirArg, EntitiesParserArg, \
-    StemmerArg, PredictOutputFilepathArg, FramesColectionArg, FromFilesArg, EntityFormatterTypesArg
-from network.args.train import ModelInputTypeArg, BagsPerMinibatchArg
-from network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
-from pipelines.backend import BratBackendPipelineItem
-from pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
-from pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
+from examples.args import const, common
+from examples.args.train import BagsPerMinibatchArg, ModelInputTypeArg
 from utils import create_labels_scaler
+
+from arelight.pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
+from arelight.pipelines.backend import BratBackendPipelineItem
+from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
+from arelight.network.nn.common import create_full_model_name, create_network_model_io, create_bags_collection_type
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    InputTextArg.add_argument(parser, default=None)
-    FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
-    SynonymsCollectionArg.add_argument(parser, default=None)
-    RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
+    common.InputTextArg.add_argument(parser, default=None)
+    common.FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
+    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
-    LabelsCountArg.add_argument(parser, default=3)
-    ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
+    common.LabelsCountArg.add_argument(parser, default=3)
+    common.ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
     ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
-    VocabFilepathArg.add_argument(parser, default=None)
-    EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
-    ModelLoadDirArg.add_argument(parser, default=const.NEURAL_NETWORKS_TARGET_DIR)
-    EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    StemmerArg.add_argument(parser, default="mystem")
-    PredictOutputFilepathArg.add_argument(parser, default=None)
-    FramesColectionArg.add_argument(parser)
+    common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
+    common.VocabFilepathArg.add_argument(parser, default=None)
+    common.EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
+    common.ModelLoadDirArg.add_argument(parser, default=const.NEURAL_NETWORKS_TARGET_DIR)
+    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.StemmerArg.add_argument(parser, default="mystem")
+    common.PredictOutputFilepathArg.add_argument(parser, default=None)
+    common.FramesColectionArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading provided arguments.
-    model_name = ModelNameArg.read_argument(args)
+    model_name = common.ModelNameArg.read_argument(args)
     model_input_type = ModelInputTypeArg.read_argument(args)
-    model_load_dir = ModelLoadDirArg.read_argument(args)
-    frames_collection = FramesColectionArg.read_argument(args)
+    model_load_dir = common.ModelLoadDirArg.read_argument(args)
+    frames_collection = common.FramesColectionArg.read_argument(args)
 
     # Reading text-related parameters.
-    texts_from_files = FromFilesArg.read_argument(args)
-    text_from_arg = InputTextArg.read_argument(args)
+    texts_from_files = common.FromFilesArg.read_argument(args)
+    text_from_arg = common.InputTextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else texts_from_files
 
     # Implement extra structures.
-    labels_scaler = create_labels_scaler(LabelsCountArg.read_argument(args))
+    labels_scaler = create_labels_scaler(common.LabelsCountArg.read_argument(args))
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -77,22 +75,22 @@ if __name__ == '__main__':
 
     nn_io = create_network_model_io(
         full_model_name=full_model_name,
-        embedding_filepath=EmbeddingMatrixFilepathArg.read_argument(args),
+        embedding_filepath=common.EmbeddingMatrixFilepathArg.read_argument(args),
         source_dir=model_load_dir,
         target_dir=model_load_dir,
-        vocab_filepath=VocabFilepathArg.read_argument(args),
+        vocab_filepath=common.VocabFilepathArg.read_argument(args),
         model_name_tag=u'')
 
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[
         NetworkTextsSerializationPipelineItem(
             frames_collection=frames_collection,
-            synonyms=SynonymsCollectionArg.read_argument(args),
-            terms_per_context=TermsPerContextArg.read_argument(args),
-            embedding_path=RusVectoresEmbeddingFilepathArg.read_argument(args),
-            entities_parser=EntitiesParserArg.read_argument(args),
-            entity_fmt=create_entity_formatter(EntityFormatterTypesArg.read_argument(args)),
-            stemmer=StemmerArg.read_argument(args),
+            synonyms=common.SynonymsCollectionArg.read_argument(args),
+            terms_per_context=common.TermsPerContextArg.read_argument(args),
+            embedding_path=common.RusVectoresEmbeddingFilepathArg.read_argument(args),
+            entities_parser=common.EntitiesParserArg.read_argument(args),
+            entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
+            stemmer=common.StemmerArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example", suffix="infer"),
             opin_annot=DefaultAnnotator(
                 PairBasedAnnotationAlgorithm(
@@ -122,7 +120,7 @@ if __name__ == '__main__':
         )
     ])
 
-    backend_template = PredictOutputFilepathArg.read_argument(args)
+    backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
     ppl.run(actual_content, {
         "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,

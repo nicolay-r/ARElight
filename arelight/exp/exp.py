@@ -1,6 +1,6 @@
 from arekit.common.experiment.api.base import BaseExperiment
 
-from exp.opin_ops import CustomOpinionOperations
+from arelight.exp.opin_ops import CustomOpinionOperations
 
 
 class CustomExperiment(BaseExperiment):

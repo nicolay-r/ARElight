@@ -5,8 +5,7 @@ from arekit.common.news.parser import NewsParser
 from arekit.common.news.sentence import BaseNewsSentence
 from arekit.common.text.parser import BaseTextParser
 from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
-
-from text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 
 class BertOntonotesPipelineItemTest(unittest.TestCase):

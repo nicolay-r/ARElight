@@ -18,13 +18,14 @@ from arekit.processing.text.pipeline_frames_lemmatized import LemmasBasedFrameVa
 from arekit.processing.text.pipeline_frames_negation import FrameVariantsSentimentNegation
 from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
 from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
-from exp.doc_ops import CustomDocOperations
-from exp.exp import CustomExperiment
-from exp.exp_io import InferIOUtils
-from network.nn.common import create_and_fill_variant_collection
-from network.nn.ctx import NetworkSerializationContext
-from network.nn.embedding import RusvectoresEmbedding
-from pipelines.utils import input_to_docs
+
+from arelight.exp.doc_ops import CustomDocOperations
+from arelight.exp.exp import CustomExperiment
+from arelight.exp.exp_io import InferIOUtils
+from arelight.network.nn.common import create_and_fill_variant_collection
+from arelight.network.nn.ctx import NetworkSerializationContext
+from arelight.network.nn.embedding import RusvectoresEmbedding
+from arelight.pipelines.utils import input_to_docs
 
 
 class NetworkTextsSerializationPipelineItem(BasePipelineItem):

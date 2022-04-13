@@ -1,7 +1,4 @@
 import argparse
-import sys
-
-sys.path.append('../')
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -11,7 +8,6 @@ from arekit.common.folding.types import FoldingType
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.contrib.bert.handlers.serializer import BertExperimentInputSerializerIterationHandler
-from arekit.contrib.bert.samplers.types import BertSampleProviderTypes
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 from arekit.contrib.experiment_rusentrel.factory import create_experiment
 from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNeutralLabel, ExperimentPositiveLabel, \
@@ -20,15 +16,14 @@ from arekit.contrib.experiment_rusentrel.synonyms.provider import RuSentRelSynon
 from arekit.contrib.experiment_rusentrel.types import ExperimentTypes
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 
+from examples.args import const, common
+from examples.args.const import DEFAULT_TEXT_FILEPATH
 from examples.rusentrel.common import Common
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
-from network.args import const
-from network.args.common import TermsPerContextArg, SynonymsCollectionArg, EntitiesParserArg, InputTextArg, \
-    FromFilesArg, RusVectoresEmbeddingFilepathArg, EntityFormatterTypesArg, UseBalancingArg, \
-    DistanceInTermsBetweenAttitudeEndsArg, StemmerArg, BertTextBFormatTypeArg
-from network.args.const import DEFAULT_TEXT_FILEPATH
-from network.bert.ctx import BertSerializationContext
+
 from utils import create_labels_scaler
+
+from arelight.network.bert.ctx import BertSerializationContext
 
 
 class ExperimentBERTTextBThreeScaleLabelsFormatter(StringLabelsFormatter):
@@ -46,29 +41,29 @@ if __name__ == '__main__':
                                                  "required for inference and training.")
 
     # Provide arguments.
-    InputTextArg.add_argument(parser, default=None)
-    FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
-    EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    SynonymsCollectionArg.add_argument(parser, default=None)
-    UseBalancingArg.add_argument(parser, default=True)
-    DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
-    BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
-    StemmerArg.add_argument(parser, default="mystem")
+    common.InputTextArg.add_argument(parser, default=None)
+    common.FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
+    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
+    common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.UseBalancingArg.add_argument(parser, default=True)
+    common.DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
+    common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    common.StemmerArg.add_argument(parser, default="mystem")
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading arguments.
-    text_from_arg = InputTextArg.read_argument(args)
-    texts_from_files = FromFilesArg.read_argument(args)
-    terms_per_context = TermsPerContextArg.read_argument(args)
-    use_balancing = UseBalancingArg.read_argument(args)
-    stemmer = StemmerArg.read_argument(args)
-    entity_fmt = EntityFormatterTypesArg.read_argument(args)
-    dist_in_terms_between_attitude_ends = DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
+    text_from_arg = common.InputTextArg.read_argument(args)
+    texts_from_files = common.FromFilesArg.read_argument(args)
+    terms_per_context = common.TermsPerContextArg.read_argument(args)
+    use_balancing = common.UseBalancingArg.read_argument(args)
+    stemmer = common.StemmerArg.read_argument(args)
+    entity_fmt = common.EntityFormatterTypesArg.read_argument(args)
+    dist_in_terms_between_attitude_ends = common.DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
 
     # Predefined parameters.
     labels_count = 3
@@ -120,7 +115,7 @@ if __name__ == '__main__':
         opin_ops=experiment.OpinionOperations,
         sample_labels_fmt=ExperimentBERTTextBThreeScaleLabelsFormatter(),
         annot_labels_fmt=experiment.OpinionOperations.LabelsFormatter,
-        sample_provider_type=BertTextBFormatTypeArg.read_argument(args),
+        sample_provider_type=common.BertTextBFormatTypeArg.read_argument(args),
         entity_formatter=experiment.ExperimentContext.StringEntityFormatter,
         value_to_group_id_func=synonyms.get_synonym_group_index,
         balance_train_samples=use_balancing)

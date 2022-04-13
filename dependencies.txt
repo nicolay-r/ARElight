@@ -2,6 +2,6 @@ gensim==3.2.0
 deeppavlov==0.11.0
 rusenttokenize
 # DeepPavlov bert-dp dependencies:
-git+https://github.com/deepmipt/bert.git@feat/multi_gpu
+bert_dp @ git+https://github.com/deepmipt/bert.git@feat/multi_gpu
 # Install arekit
-git+https://github.com/nicolay-r/AREkit@0.22.0-rc
+arekit @ git+https://github.com/nicolay-r/AREkit@0.22.0-rc

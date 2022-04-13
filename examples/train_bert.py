@@ -1,17 +1,10 @@
 import argparse
-import sys
 from os.path import join
 
-sys.path.append('../')
-
 from arekit.common.pipeline.base import BasePipeline
-from network.args import const
-from network.args.common import BertConfigFilepathArg, BertCheckpointFilepathArg, BertVocabFilepathArg, \
-    BertSaveFilepathArg, InputSamplesFilepath, TokensPerContextArg
-from network.args.const import BERT_CONFIG_PATH, BERT_CKPT_PATH, BERT_VOCAB_PATH, OUTPUT_DIR, \
-    BERT_DEFAULT_STATE_NAME, BERT_TARGET_DIR
-from network.args.train import EpochsCountArg, BatchSizeArg, LearningRateArg, DoLowercaseArg
-from pipelines.train_bert import BertFinetunePipelineItem
+from arelight.pipelines.train_bert import BertFinetunePipelineItem
+
+from examples.args import train, common, const
 
 if __name__ == '__main__':
 
@@ -20,31 +13,31 @@ if __name__ == '__main__':
                                                  "required for inference and training.")
 
     # Provide arguments.
-    TokensPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    BertConfigFilepathArg.add_argument(parser, default=BERT_CONFIG_PATH)
-    BertCheckpointFilepathArg.add_argument(parser, default=BERT_CKPT_PATH)
-    BertVocabFilepathArg.add_argument(parser, default=BERT_VOCAB_PATH)
-    BertSaveFilepathArg.add_argument(parser, default=join(BERT_TARGET_DIR, BERT_DEFAULT_STATE_NAME))
-    InputSamplesFilepath.add_argument(parser, default=join(OUTPUT_DIR, join("rsr-v1_1-fx-nobalance-tpc50-bert_3l", "sample-train-0.tsv.gz")))
-    LearningRateArg.add_argument(parser, default=2e-5)
-    EpochsCountArg.add_argument(parser, default=4)
-    BatchSizeArg.add_argument(parser, default=6)
-    DoLowercaseArg.add_argument(parser, default=False)
+    common.TokensPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
+    common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_CKPT_PATH)
+    common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
+    common.BertSaveFilepathArg.add_argument(parser, default=join(const.BERT_TARGET_DIR, const.BERT_DEFAULT_STATE_NAME))
+    common.InputSamplesFilepath.add_argument(parser, default=join(const.OUTPUT_DIR, join("rsr-v1_1-fx-nobalance-tpc50-bert_3l", "sample-train-0.tsv.gz")))
+    train.LearningRateArg.add_argument(parser, default=2e-5)
+    train.EpochsCountArg.add_argument(parser, default=4)
+    train.BatchSizeArg.add_argument(parser, default=6)
+    train.DoLowercaseArg.add_argument(parser, default=False)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Compose pipeline item.
     ppl = BasePipeline([
-        BertFinetunePipelineItem(bert_config_file=BertConfigFilepathArg.read_argument(args),
-                                 model_checkpoint_path=BertCheckpointFilepathArg.read_argument(args),
-                                 vocab_filepath=BertVocabFilepathArg.read_argument(args),
-                                 do_lowercase=DoLowercaseArg.read_argument(args),
-                                 max_seq_length=TokensPerContextArg.read_argument(args),
-                                 learning_rate=LearningRateArg.read_argument(args),
-                                 save_path=BertSaveFilepathArg.read_argument(args))
+        BertFinetunePipelineItem(bert_config_file=common.BertConfigFilepathArg.read_argument(args),
+                                 model_checkpoint_path=common.BertCheckpointFilepathArg.read_argument(args),
+                                 vocab_filepath=common.BertVocabFilepathArg.read_argument(args),
+                                 do_lowercase=train.DoLowercaseArg.read_argument(args),
+                                 max_seq_length=common.TokensPerContextArg.read_argument(args),
+                                 learning_rate=train.LearningRateArg.read_argument(args),
+                                 save_path=common.BertSaveFilepathArg.read_argument(args))
     ])
 
-    ppl.run(InputSamplesFilepath.read_argument(args),
-            params_dict={"epochs_count": EpochsCountArg.read_argument(args),
-                         "batch_size": BatchSizeArg.read_argument(args)})
+    ppl.run(common.InputSamplesFilepath.read_argument(args),
+            params_dict={"epochs_count": train.EpochsCountArg.read_argument(args),
+                         "batch_size": train.BatchSizeArg.read_argument(args)})

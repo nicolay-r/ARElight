@@ -1,11 +1,11 @@
-import sys
 import argparse
 
-sys.path.append('../')
-
+from arelight.network.nn.common import create_bags_collection_type, create_full_model_name, create_network_model_io
 from utils import create_labels_scaler
 
+from examples.args import const, train
 from examples.rusentrel.common import Common
+from examples.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
 from examples.rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
@@ -27,14 +27,7 @@ from arekit.contrib.networks.handlers.training import NetworksTrainingIterationH
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
 
-from network.args import const
-from network.args.common import LabelsCountArg, TermsPerContextArg, \
-    DistanceInTermsBetweenAttitudeEndsArg, ModelNameArg, VocabFilepathArg, \
-    EmbeddingMatrixFilepathArg, ModelLoadDirArg
-from network.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
-from network.args.train import BagsPerMinibatchArg, ModelInputTypeArg, DropoutKeepProbArg, \
-    LearningRateArg, EpochsCountArg
-from network.nn.common import create_bags_collection_type, create_network_model_io, create_full_model_name
+from examples.args import common
 
 if __name__ == '__main__':
 
@@ -42,35 +35,35 @@ if __name__ == '__main__':
                                                  "based on the RuSentRel and RuAttitudes datasets (optionally)")
 
     # Composing cmd arguments.
-    LabelsCountArg.add_argument(parser, default=3)
-    BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
-    ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
-    ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
-    DropoutKeepProbArg.add_argument(parser, default=0.5)
-    LearningRateArg.add_argument(parser, default=0.1)
-    EpochsCountArg.add_argument(parser, default=150)
-    VocabFilepathArg.add_argument(parser, default=None)
-    EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
-    ModelLoadDirArg.add_argument(parser, default=None)
+    common.LabelsCountArg.add_argument(parser, default=3)
+    common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
+    common.ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
+    common.VocabFilepathArg.add_argument(parser, default=None)
+    common.EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
+    common.ModelLoadDirArg.add_argument(parser, default=None)
+    train.ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
+    train.BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
+    train.DropoutKeepProbArg.add_argument(parser, default=0.5)
+    train.LearningRateArg.add_argument(parser, default=0.1)
+    train.EpochsCountArg.add_argument(parser, default=150)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading arguments.
-    labels_count = LabelsCountArg.read_argument(args)
-    model_input_type = ModelInputTypeArg.read_argument(args)
-    model_name = ModelNameArg.read_argument(args)
-    embedding_matrix_filepath = EmbeddingMatrixFilepathArg.read_argument(args)
-    vocab_filepath = VocabFilepathArg.read_argument(args)
-    dropout_keep_prob = DropoutKeepProbArg.read_argument(args)
-    bags_per_minibatch = BagsPerMinibatchArg.read_argument(args)
-    terms_per_context = TermsPerContextArg.read_argument(args)
-    learning_rate = LearningRateArg.read_argument(args)
-    dist_in_terms_between_attitude_ends = DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
-    epochs_count = EpochsCountArg.read_argument(args)
-    model_load_dir = ModelLoadDirArg.read_argument(args)
+    labels_count = common.LabelsCountArg.read_argument(args)
+    model_name = common.ModelNameArg.read_argument(args)
+    embedding_matrix_filepath = common.EmbeddingMatrixFilepathArg.read_argument(args)
+    vocab_filepath = common.VocabFilepathArg.read_argument(args)
+    terms_per_context = common.TermsPerContextArg.read_argument(args)
+    dist_in_terms_between_attitude_ends = common.DistanceInTermsBetweenAttitudeEndsArg.read_argument(args)
+    model_load_dir = common.ModelLoadDirArg.read_argument(args)
+    model_input_type = train.ModelInputTypeArg.read_argument(args)
+    bags_per_minibatch = train.BagsPerMinibatchArg.read_argument(args)
+    dropout_keep_prob = train.DropoutKeepProbArg.read_argument(args)
+    learning_rate = train.LearningRateArg.read_argument(args)
+    epochs_count = train.EpochsCountArg.read_argument(args)
 
     # Utilize predefined versions and folding format.
     exp_type = ExperimentTypes.RuSentRel

@@ -12,15 +12,14 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNegativeLabel, ExperimentPositiveLabel
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 
-from network.args import const
-from network.args.common import LabelsCountArg, InputTextArg, FromFilesArg, SynonymsCollectionArg, \
-    EntityFormatterTypesArg, EntitiesParserArg, TermsPerContextArg, PredictOutputFilepathArg, BertConfigFilepathArg, \
-    BertCheckpointFilepathArg, BertVocabFilepathArg, BertTextBFormatTypeArg, TokensPerContextArg
-from network.args.const import BERT_FINETUNED_CKPT_PATH, BERT_VOCAB_PATH, BERT_CONFIG_PATH
-from network.args.train import DoLowercaseArg
-from pipelines.backend import BratBackendPipelineItem
-from pipelines.inference_bert import BertInferencePipelineItem
-from pipelines.serialize_bert import BertTextsSerializationPipelineItem
+from arelight.pipelines.backend import BratBackendPipelineItem
+from arelight.pipelines.inference_bert import BertInferencePipelineItem
+from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
+
+from examples.args import common
+from examples.args import train
+from examples.args import const
+from examples.args.train import DoLowercaseArg
 from utils import create_labels_scaler
 
 if __name__ == '__main__':
@@ -28,31 +27,31 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    InputTextArg.add_argument(parser, default=None)
-    FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
-    SynonymsCollectionArg.add_argument(parser, default=None)
-    LabelsCountArg.add_argument(parser, default=3)
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    TokensPerContextArg.add_argument(parser, default=128)
-    EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
-    PredictOutputFilepathArg.add_argument(parser, default=None)
-    BertCheckpointFilepathArg.add_argument(parser, default=BERT_FINETUNED_CKPT_PATH)
-    BertConfigFilepathArg.add_argument(parser, default=BERT_CONFIG_PATH)
-    BertVocabFilepathArg.add_argument(parser, default=BERT_VOCAB_PATH)
-    BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
-    DoLowercaseArg.add_argument(parser, default=False)
+    common.InputTextArg.add_argument(parser, default=None)
+    common.FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
+    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.LabelsCountArg.add_argument(parser, default=3)
+    common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.TokensPerContextArg.add_argument(parser, default=128)
+    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    common.PredictOutputFilepathArg.add_argument(parser, default=None)
+    common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_FINETUNED_CKPT_PATH)
+    common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
+    common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
+    common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    train.DoLowercaseArg.add_argument(parser, default=False)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading text-related parameters.
-    texts_from_files = FromFilesArg.read_argument(args)
-    text_from_arg = InputTextArg.read_argument(args)
+    texts_from_files = common.FromFilesArg.read_argument(args)
+    text_from_arg = common.InputTextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else texts_from_files
 
     # Implement extra structures.
-    labels_scaler = create_labels_scaler(LabelsCountArg.read_argument(args))
+    labels_scaler = create_labels_scaler(common.LabelsCountArg.read_argument(args))
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -61,12 +60,12 @@ if __name__ == '__main__':
     ppl = BasePipeline(pipeline=[
 
         BertTextsSerializationPipelineItem(
-            synonyms=SynonymsCollectionArg.read_argument(args),
-            terms_per_context=TermsPerContextArg.read_argument(args),
-            entities_parser=EntitiesParserArg.read_argument(args),
-            entity_fmt=create_entity_formatter(EntityFormatterTypesArg.read_argument(args)),
+            synonyms=common.SynonymsCollectionArg.read_argument(args),
+            terms_per_context=common.TermsPerContextArg.read_argument(args),
+            entities_parser=common.EntitiesParserArg.read_argument(args),
+            entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
-            text_b_type=BertTextBFormatTypeArg.read_argument(args),
+            text_b_type=common.BertTextBFormatTypeArg.read_argument(args),
             opin_annot=DefaultAnnotator(
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,
@@ -77,10 +76,10 @@ if __name__ == '__main__':
         BertInferencePipelineItem(
             data_type=DataType.Test,
             predict_writer=TsvPredictWriter(),
-            bert_config_file=BertConfigFilepathArg.read_argument(args),
-            model_checkpoint_path=BertCheckpointFilepathArg.read_argument(args),
-            vocab_filepath=BertVocabFilepathArg.read_argument(args),
-            max_seq_length=TokensPerContextArg.read_argument(args),
+            bert_config_file=common.BertConfigFilepathArg.read_argument(args),
+            model_checkpoint_path=common.BertCheckpointFilepathArg.read_argument(args),
+            vocab_filepath=common.BertVocabFilepathArg.read_argument(args),
+            max_seq_length=common.TokensPerContextArg.read_argument(args),
             do_lowercase=DoLowercaseArg.read_argument(args),
             labels_scaler=labels_scaler),
 
@@ -93,7 +92,7 @@ if __name__ == '__main__':
         )
     ])
 
-    backend_template = PredictOutputFilepathArg.read_argument(args)
+    backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
     ppl.run(actual_content, {
         "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,

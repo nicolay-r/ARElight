@@ -10,12 +10,11 @@ from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 
-from network.args import const
-from network.args.common import InputTextArg, EntitiesParserArg, RusVectoresEmbeddingFilepathArg, TermsPerContextArg, \
-    StemmerArg, SynonymsCollectionArg, FramesColectionArg, FromFilesArg, EntityFormatterTypesArg
-from network.args.const import DEFAULT_TEXT_FILEPATH
-from pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
+from examples.args import const
+from examples.args import common
+from examples.args.const import DEFAULT_TEXT_FILEPATH
 
+from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
 
 if __name__ == '__main__':
 
@@ -23,36 +22,36 @@ if __name__ == '__main__':
                                                  "required for inference and training.")
 
     # Provide arguments.
-    InputTextArg.add_argument(parser, default=None)
-    FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
-    EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
-    TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
-    StemmerArg.add_argument(parser, default="mystem")
-    SynonymsCollectionArg.add_argument(parser, default=None)
-    FramesColectionArg.add_argument(parser)
+    common.InputTextArg.add_argument(parser, default=None)
+    common.FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
+    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
+    common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
+    common.EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
+    common.StemmerArg.add_argument(parser, default="mystem")
+    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.FramesColectionArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     ppl = BasePipeline([
         NetworkTextsSerializationPipelineItem(
-            terms_per_context=TermsPerContextArg.read_argument(args),
-            synonyms=SynonymsCollectionArg.read_argument(args),
-            entities_parser=EntitiesParserArg.read_argument(args),
-            embedding_path=RusVectoresEmbeddingFilepathArg.read_argument(args),
+            terms_per_context=common.TermsPerContextArg.read_argument(args),
+            synonyms=common.SynonymsCollectionArg.read_argument(args),
+            entities_parser=common.EntitiesParserArg.read_argument(args),
+            embedding_path=common.RusVectoresEmbeddingFilepathArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example", suffix="serialize"),
-            entity_fmt=create_entity_formatter(EntityFormatterTypesArg.read_argument(args)),
+            entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
             opin_annot=DefaultAnnotator(annot_algo=PairBasedAnnotationAlgorithm(
                 dist_in_terms_bound=None,
                 label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
-            stemmer=StemmerArg.read_argument(args),
-            frames_collection=FramesColectionArg.read_argument(args),
+            stemmer=common.StemmerArg.read_argument(args),
+            frames_collection=common.FramesColectionArg.read_argument(args),
             data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]))
     ])
 
-    text_from_arg = InputTextArg.read_argument(args)
-    text_from_file = FromFilesArg.read_argument(args)
+    text_from_arg = common.InputTextArg.read_argument(args)
+    text_from_file = common.FromFilesArg.read_argument(args)
 
     ppl.run(text_from_arg if text_from_arg is not None else text_from_file)
