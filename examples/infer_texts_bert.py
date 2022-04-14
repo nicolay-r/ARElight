@@ -1,4 +1,5 @@
 import argparse
+from os.path import join
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -20,7 +21,7 @@ from examples.args import common
 from examples.args import train
 from examples.args import const
 from examples.args.train import DoLowercaseArg
-from utils import create_labels_scaler
+from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
 
@@ -95,6 +96,7 @@ if __name__ == '__main__':
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
     ppl.run(actual_content, {
+        "template_filepath": join(const.DATA_DIR, "brat_template.html"),
         "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,
         "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None
     })

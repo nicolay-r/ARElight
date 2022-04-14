@@ -1,2 +1,0 @@
-model_checkpoint_path: "./fx_ctx_pcnn"
-all_model_checkpoint_paths: "./fx_ctx_pcnn"

@@ -4,7 +4,7 @@ from os.path import join
 from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.items.base import BasePipelineItem
 
-from brat_backend import BratBackend
+from arelight.brat_backend import BratBackend
 from arelight.exp.exp_io import InferIOUtils
 
 
@@ -26,6 +26,7 @@ class BratBackendPipelineItem(BasePipelineItem):
             samples_data_filepath=input_data.create_samples_writer_target(DataType.Test),
             obj_color_types=self.__obj_color_types,
             rel_color_types=self.__rel_color_types,
+            template_filepath=pipeline_ctx.provide_or_none("template_filepath"),
             label_to_rel=self.__label_to_rel)
 
         # Setup predicted result writer.
