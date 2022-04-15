@@ -34,14 +34,14 @@ if __name__ == '__main__':
     common.LabelsCountArg.add_argument(parser, default=3)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.TokensPerContextArg.add_argument(parser, default=128)
-    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.EntitiesParserArg.add_argument(parser, default=const.DEFAULT_ENTITIES_PARSER)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     common.PredictOutputFilepathArg.add_argument(parser, default=None)
     common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_FINETUNED_CKPT_PATH)
     common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
     common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
-    train.DoLowercaseArg.add_argument(parser, default=False)
+    train.DoLowercaseArg.add_argument(parser, default=const.BERT_DO_LOWERCASE)
 
     # Parsing arguments.
     args = parser.parse_args()

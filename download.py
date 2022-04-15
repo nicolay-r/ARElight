@@ -1,7 +1,6 @@
 import os
 import tarfile
 from arekit.contrib.source import utils
-
 from examples.args import const
 
 
@@ -27,7 +26,6 @@ def download_examples_data():
 
     # Extracting tar files ...
     for local_name in data.keys():
-        print(local_name)
         if not os.path.exists(local_name):
             continue
         if not tarfile.is_tarfile(local_name):
@@ -35,6 +33,9 @@ def download_examples_data():
         with tarfile.open(local_name) as f:
             target = os.path.dirname(local_name)
             f.extractall(path=target)
+
+        # Remove .tar file
+        os.remove(local_name)
 
 
 if __name__ == '__main__':

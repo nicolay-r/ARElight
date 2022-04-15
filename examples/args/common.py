@@ -295,11 +295,11 @@ class SynonymsCollectionArg(BaseArg):
                                                  debug=False)
 
     @staticmethod
-    def add_argument(parser, default):
+    def add_argument(parser, default=None):
         parser.add_argument('--synonyms-filepath',
                             dest='synonyms_filepath',
                             type=str,
-                            default=None,
+                            default=default,
                             help="List of synonyms provided in lines of the source text file.")
 
 

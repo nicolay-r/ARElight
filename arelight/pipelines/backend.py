@@ -39,3 +39,5 @@ class BratBackendPipelineItem(BasePipelineItem):
         # Save results.
         with open(template_fp, "w") as output:
             output.write(template)
+
+        return template

@@ -4,7 +4,6 @@ from arelight.network.nn.common import create_and_fill_variant_collection
 from arelight.network.nn.ctx import NetworkSerializationContext
 
 from examples.args import const, common
-from utils import create_labels_scaler
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -26,6 +25,7 @@ from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
 
 from examples.rusentrel.common import Common
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
+from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
 

@@ -21,9 +21,8 @@ from examples.args.const import DEFAULT_TEXT_FILEPATH
 from examples.rusentrel.common import Common
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
-from utils import create_labels_scaler
-
 from arelight.network.bert.ctx import BertSerializationContext
+from examples.utils import create_labels_scaler
 
 
 class ExperimentBERTTextBThreeScaleLabelsFormatter(StringLabelsFormatter):

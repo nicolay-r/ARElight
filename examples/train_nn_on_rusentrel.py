@@ -1,7 +1,6 @@
 import argparse
 
 from arelight.network.nn.common import create_bags_collection_type, create_full_model_name, create_network_model_io
-from utils import create_labels_scaler
 
 from examples.args import const, train
 from examples.rusentrel.common import Common
@@ -28,6 +27,7 @@ from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
 
 from examples.args import common
+from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
 

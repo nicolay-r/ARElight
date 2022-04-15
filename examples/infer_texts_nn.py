@@ -19,12 +19,12 @@ from arekit.contrib.networks.enum_name_types import ModelNames
 
 from examples.args import const, common
 from examples.args.train import BagsPerMinibatchArg, ModelInputTypeArg
-from utils import create_labels_scaler
 
 from arelight.pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
 from arelight.pipelines.backend import BratBackendPipelineItem
 from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
 from arelight.network.nn.common import create_full_model_name, create_network_model_io, create_bags_collection_type
+from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     common.VocabFilepathArg.add_argument(parser, default=None)
     common.EmbeddingMatrixFilepathArg.add_argument(parser, default=None)
     common.ModelLoadDirArg.add_argument(parser, default=const.NEURAL_NETWORKS_TARGET_DIR)
-    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.EntitiesParserArg.add_argument(parser, default=const.DEFAULT_ENTITIES_PARSER)
     common.StemmerArg.add_argument(parser, default="mystem")
     common.PredictOutputFilepathArg.add_argument(parser, default=None)
     common.FramesColectionArg.add_argument(parser)

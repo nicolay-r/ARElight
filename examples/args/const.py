@@ -6,6 +6,7 @@ current_dir = dirname(realpath(__file__))
 TERMS_PER_CONTEXT = 50
 BAGS_PER_MINIBATCH = 2
 BAG_SIZE = 1
+DEFAULT_ENTITIES_PARSER = "bert-ontonotes"
 
 DATA_DIR = join(current_dir, "../../data")
 DEFAULT_TEXT_FILEPATH = join(DATA_DIR, "texts-inosmi-rus/e1.txt")
@@ -25,6 +26,7 @@ BERT_PRETRAINED_MODEL_TAR = BERT_PRETRAINED_MODEL_PATHDIR + '.tar.gz'
 BERT_CONFIG_PATH = join(BERT_PRETRAINED_MODEL_PATHDIR, "bert_config.json")
 BERT_CKPT_PATH = join(BERT_PRETRAINED_MODEL_PATHDIR, "model.ckpt-30238")
 BERT_VOCAB_PATH = join(BERT_PRETRAINED_MODEL_PATHDIR, "vocab.txt")
+BERT_DO_LOWERCASE = False
 
 # Default Fine-tuned BERT.
 BERT_TARGET_DIR = DEFAULT_MODEL_DIR
