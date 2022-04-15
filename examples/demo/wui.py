@@ -7,7 +7,7 @@ import json
 import sys
 import os
 
-from examples.demo.infer_texts_bert import infer_texts_bert
+from arelight.demo.infer_bert_rus import demo_infer_texts_bert
 
 ip_address = os.environ['IP_ADDRESS']
 morph_port = int(os.environ['MORPH_PORT'])
@@ -44,6 +44,8 @@ if not text:
     cgi_output(template)
     exit(0)
 
-brat_json = infer_texts_bert(text="... сша пытается ввести санкции против россии ...")
+brat_json = demo_infer_texts_bert(text="... сша пытается ввести санкции против россии ...",
+                                  model_dir="/arekit/data/models")
+
 template = prepare_template(brat_json, text, bratUrl)
 cgi_output(template)
