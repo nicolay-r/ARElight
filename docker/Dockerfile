@@ -25,7 +25,8 @@ RUN ls -la
 RUN pip install /arelight/. -r /arelight/dependencies.txt
 
 # Download required resources.
-# RUN python /arelight/download.py
+COPY examples /arelight/examples
+RUN python /arelight/download.py
 
 EXPOSE 80
 
