@@ -20,6 +20,7 @@ from arekit.processing.lemmatization.mystem import MystemWrapper
 from arelight.pipelines.backend import BratBackendPipelineItem
 from arelight.pipelines.inference_bert import BertInferencePipelineItem
 from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
+from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 current_dir = dirname(realpath(__file__))
 
@@ -32,7 +33,6 @@ def iter_groups(filepath):
 
 def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
                           terms_per_context=50,
-                          entities_parser='bert-ontonotes',
                           state_name="ra-20-srubert-large-neut-nli-pretrained-3l",
                           finetuned_state_name="ra-20-srubert-large-neut-nli-pretrained-3l-finetuned",
                           do_lowercase=False,
@@ -60,7 +60,8 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
         BertTextsSerializationPipelineItem(
             synonyms=synonyms,
             terms_per_context=terms_per_context,
-            entities_parser=entities_parser,
+            entities_parser=BertOntonotesNERPipelineItem(
+                lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
             text_b_type="nli_m",
