@@ -8,6 +8,7 @@ from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.pipeline.base import BasePipeline
+from arekit.contrib.bert.samplers.types import SampleFormattersService
 from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 from arekit.contrib.experiment_rusentrel.entities.types import EntityFormatterTypes
 from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
@@ -64,7 +65,7 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
                 lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
-            text_b_type="nli_m",
+            text_b_type=SampleFormattersService.name_to_type("nli_m"),
             output_dir=output_dir,
             opin_annot=DefaultAnnotator(
                 PairBasedAnnotationAlgorithm(
