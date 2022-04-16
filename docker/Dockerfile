@@ -48,6 +48,11 @@ RUN chmod 777 -R /root/.pyenv && chmod 777 /root
 # Setup entrypoint
 COPY entrypoint.sh /entrypoint.sh
 
+# Modify a home folder to the demo.
+usermod -d /var/www/demo www-data
+# Granting www-data permissions in demo.
+chown -R www-data:www-data /var/www/demo
+
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["apache2ctl", "-D", "FOREGROUND"]
