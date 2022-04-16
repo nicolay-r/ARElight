@@ -43,6 +43,7 @@ if not text:
 
 brat_json = demo_infer_texts_bert(text=text,
                                   model_dir="/arelight/data/models",
+                                  output_dir=".",
                                   synonyms_filepath="/arelight/data/synonyms.txt")
 
 template = prepare_template(brat_json, text, bratUrl)

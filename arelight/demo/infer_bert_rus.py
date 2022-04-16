@@ -30,7 +30,7 @@ def iter_groups(filepath):
             yield group
 
 
-def demo_infer_texts_bert(text, model_dir, synonyms_filepath,
+def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
                           terms_per_context=50,
                           entities_parser='bert-ontonotes',
                           state_name="ra-20-srubert-large-neut-nli-pretrained-3l",
@@ -39,6 +39,7 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath,
                           max_seq_length=128):
     assert(isinstance(text, str))
     assert(isinstance(model_dir, str))
+    assert(isinstance(output_dir, str))
     assert(isinstance(synonyms_filepath, str))
 
     model_pathdir = join(model_dir, state_name)
@@ -63,6 +64,7 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath,
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
             text_b_type="nli_m",
+            output_dir=output_dir,
             opin_annot=DefaultAnnotator(
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,
