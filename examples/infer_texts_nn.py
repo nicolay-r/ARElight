@@ -17,13 +17,12 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 
-from examples.args import const, common
-from examples.args.train import BagsPerMinibatchArg, ModelInputTypeArg
-
 from arelight.pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
 from arelight.pipelines.backend import BratBackendPipelineItem
 from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
 from arelight.network.nn.common import create_full_model_name, create_network_model_io, create_bags_collection_type
+
+from examples.args import const, common, train
 from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
@@ -35,10 +34,8 @@ if __name__ == '__main__':
     common.FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
     common.SynonymsCollectionArg.add_argument(parser, default=None)
     common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
-    BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
     common.LabelsCountArg.add_argument(parser, default=3)
     common.ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
-    ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
     common.VocabFilepathArg.add_argument(parser, default=None)
@@ -48,13 +45,15 @@ if __name__ == '__main__':
     common.StemmerArg.add_argument(parser, default="mystem")
     common.PredictOutputFilepathArg.add_argument(parser, default=None)
     common.FramesColectionArg.add_argument(parser)
+    train.BagsPerMinibatchArg.add_argument(parser, default=const.BAGS_PER_MINIBATCH)
+    train.ModelInputTypeArg.add_argument(parser, default=ModelInputType.SingleInstance)
 
     # Parsing arguments.
     args = parser.parse_args()
 
     # Reading provided arguments.
     model_name = common.ModelNameArg.read_argument(args)
-    model_input_type = ModelInputTypeArg.read_argument(args)
+    model_input_type = train.ModelInputTypeArg.read_argument(args)
     model_load_dir = common.ModelLoadDirArg.read_argument(args)
     frames_collection = common.FramesColectionArg.read_argument(args)
 
@@ -97,13 +96,14 @@ if __name__ == '__main__':
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,
                     label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
+            output_dir=const.OUTPUT_DIR,
             data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
                                    supported_data_types=[DataType.Test])),
         TensorflowNetworkInferencePipelineItem(
             nn_io=nn_io,
             model_name=model_name,
             data_type=DataType.Test,
-            bags_per_minibatch=BagsPerMinibatchArg.read_argument(args),
+            bags_per_minibatch=train.BagsPerMinibatchArg.read_argument(args),
             bags_collection_type=create_bags_collection_type(model_input_type=model_input_type),
             model_input_type=model_input_type,
             labels_scaler=labels_scaler,

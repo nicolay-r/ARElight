@@ -23,7 +23,7 @@ from arelight.pipelines.utils import input_to_docs
 class BertTextsSerializationPipelineItem(BasePipelineItem):
 
     def __init__(self, terms_per_context, entities_parser, synonyms, opin_annot, name_provider,
-                 entity_fmt, text_b_type, data_folding):
+                 entity_fmt, text_b_type, data_folding, output_dir):
         assert(isinstance(entities_parser, BasePipelineItem))
         assert(isinstance(entity_fmt, StringEntitiesFormatter))
         assert(isinstance(synonyms, SynonymsCollection))
@@ -31,6 +31,7 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
         assert(isinstance(data_folding, BaseDataFolding))
         assert(isinstance(text_b_type, BertSampleProviderTypes))
         assert(isinstance(name_provider, ExperimentNameProvider))
+        assert(isinstance(output_dir, str))
 
         # Label provider setup.
         labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
@@ -43,7 +44,7 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
             name_provider=name_provider,
             data_folding=data_folding)
 
-        self.__exp_io = InferIOUtils(self.__exp_ctx)
+        self.__exp_io = InferIOUtils(exp_ctx=self.__exp_ctx, output_dir=output_dir)
 
         text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),

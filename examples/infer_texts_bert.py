@@ -67,6 +67,7 @@ if __name__ == '__main__':
             entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
             text_b_type=common.BertTextBFormatTypeArg.read_argument(args),
+            output_dir=const.OUTPUT_DIR,
             opin_annot=DefaultAnnotator(
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,

@@ -31,7 +31,7 @@ from arelight.pipelines.utils import input_to_docs
 class NetworkTextsSerializationPipelineItem(BasePipelineItem):
 
     def __init__(self, terms_per_context, entities_parser, synonyms, opin_annot, name_provider,
-                 embedding_path, frames_collection, entity_fmt, stemmer, data_folding):
+                 embedding_path, frames_collection, entity_fmt, stemmer, data_folding, output_dir):
         assert(isinstance(frames_collection, RuSentiFramesCollection))
         assert(isinstance(entities_parser, BasePipelineItem))
         assert(isinstance(entity_fmt, StringEntitiesFormatter))
@@ -41,6 +41,7 @@ class NetworkTextsSerializationPipelineItem(BasePipelineItem):
         assert(isinstance(stemmer, Stemmer))
         assert(isinstance(data_folding, BaseDataFolding))
         assert(isinstance(name_provider, ExperimentNameProvider))
+        assert(isinstance(output_dir, str))
 
         # Initalize embedding.
         embedding = RusvectoresEmbedding.from_word2vec_format(filepath=embedding_path, binary=True)
@@ -79,7 +80,7 @@ class NetworkTextsSerializationPipelineItem(BasePipelineItem):
             frame_variant_collection=frame_variants_collection,
             data_folding=data_folding)
 
-        self.__exp_io = InferIOUtils(self.__exp_ctx)
+        self.__exp_io = InferIOUtils(exp_ctx=self.__exp_ctx, output_dir=output_dir)
 
         self.__doc_ops = CustomDocOperations(exp_ctx=self.__exp_ctx,
                                              text_parser=self.__text_parser)
