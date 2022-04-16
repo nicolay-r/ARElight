@@ -41,7 +41,9 @@ if not text:
     cgi_output(template)
     exit(0)
 
-brat_json = demo_infer_texts_bert(text=text, model_dir="/arekit/data/models")
+brat_json = demo_infer_texts_bert(text=text,
+                                  model_dir="/arekit/data/models",
+                                  synonyms_filepath="/arekit/data/synonyms.txt")
 
 template = prepare_template(brat_json, text, bratUrl)
 cgi_output(template)

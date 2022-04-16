@@ -12,9 +12,9 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 from arekit.contrib.experiment_rusentrel.entities.types import EntityFormatterTypes
 from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
 from arekit.contrib.experiment_rusentrel.labels.types import ExperimentPositiveLabel, ExperimentNegativeLabel
-from arekit.contrib.experiment_rusentrel.synonyms.provider import RuSentRelSynonymsCollectionProvider
+from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
-from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
+from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
 from arekit.processing.lemmatization.mystem import MystemWrapper
 
 from arelight.pipelines.backend import BratBackendPipelineItem
@@ -24,7 +24,13 @@ from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 current_dir = dirname(realpath(__file__))
 
 
-def demo_infer_texts_bert(text, model_dir,
+def iter_groups(filepath):
+    with open(filepath, 'r') as file:
+        for group in iter_synonym_groups(file):
+            yield group
+
+
+def demo_infer_texts_bert(text, model_dir, synonyms_filepath,
                           terms_per_context=50,
                           entities_parser='bert-ontonotes',
                           state_name="ra-20-srubert-large-neut-nli-pretrained-3l",
@@ -33,6 +39,7 @@ def demo_infer_texts_bert(text, model_dir,
                           max_seq_length=128):
     assert(isinstance(text, str))
     assert(isinstance(model_dir, str))
+    assert(isinstance(synonyms_filepath, str))
 
     model_pathdir = join(model_dir, state_name)
     bert_config_path = join(model_pathdir, "bert_config.json")
@@ -40,10 +47,10 @@ def demo_infer_texts_bert(text, model_dir,
     bert_finetuned_model_pathdir = join(model_dir, finetuned_state_name)
     bert_finetuned_ckpt_path = join(bert_finetuned_model_pathdir, state_name)
 
-    synonyms = RuSentRelSynonymsCollectionProvider.load_collection(
+    synonyms = StemmerBasedSynonymCollection(
+        iter_group_values_lists=iter_groups(synonyms_filepath),
         stemmer=MystemWrapper(),
-        version=RuSentRelVersions.V11,
-        is_read_only=False)
+        is_read_only=False, debug=False)
 
     labels_scaler = ThreeLabelScaler()
 
