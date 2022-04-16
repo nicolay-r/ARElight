@@ -25,7 +25,7 @@ current_dir = dirname(realpath(__file__))
 
 
 def iter_groups(filepath):
-    with open(filepath, 'r') as file:
+    with open(filepath, 'r', encoding='utf-8') as file:
         for group in iter_synonym_groups(file):
             yield group
 
