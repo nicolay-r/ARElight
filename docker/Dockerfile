@@ -41,7 +41,7 @@ COPY demo /var/www/demo
 RUN chmod +x /var/www/demo/wui.py
 
 # Copy BRAT toolkit.
-COPY brat /var/www/demo/brat
+COPY brat /var/www/brat
 
 RUN chmod 777 -R /root/.pyenv && chmod 777 /root
 

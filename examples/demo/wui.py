@@ -10,8 +10,7 @@ import os
 from arelight.demo.infer_bert_rus import demo_infer_texts_bert
 
 ip_address = os.environ['IP_ADDRESS']
-
-bratUrl = '/demo/brat/'
+bratUrl = '/brat/'
 
 
 def cgi_output(data):
@@ -39,7 +38,9 @@ inputData = cgi.FieldStorage()
 text = inputData.getfirst("text")
 
 if not text:
-    template = prepare_template(data={}, text="США вводит санкции против РФ", bratUrl=bratUrl)
+    template = prepare_template(data={},
+                                text="США вводит санкции против РФ",
+                                bratUrl=bratUrl)
     cgi_output(template)
     exit(0)
 
