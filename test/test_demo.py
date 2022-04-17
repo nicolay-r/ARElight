@@ -8,10 +8,12 @@ from arelight.demo.infer_bert_rus import demo_infer_texts_bert
 class TestDemo(unittest.TestCase):
 
     current_dir = dirname(realpath(__file__))
+    TEST_DATA_DIR = join(current_dir, "data")
     ORIGIN_DATA_DIR = join(current_dir, "../data")
 
     @staticmethod
-    def __prepare_template(data, text, template_filepath):
+    def __prepare_template(data, text, template_filepath, brat_url):
+        assert(isinstance(brat_url, str))
         assert(isinstance(data, dict))
 
         with open(template_filepath, "r") as template_file:
@@ -19,12 +21,13 @@ class TestDemo(unittest.TestCase):
 
         template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data', '')))
         template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data', '')))
+        template_local = template_local.replace("$____BRAT_URL____", brat_url)
         template_local = template_local.replace("$____TEXT____", text)
 
         return template_local
 
     def test_demo_rus_bert(self):
-        text = "США вводит сакнции против РФ"
+        text = "США вводит санкции против РФ"
         contents = demo_infer_texts_bert(
             text=text,
             output_dir=".",
@@ -35,9 +38,11 @@ class TestDemo(unittest.TestCase):
 
         template = TestDemo.__prepare_template(
             data=contents, text=text,
-            template_filepath=join(TestDemo.ORIGIN_DATA_DIR, "brat_template.html"))
+            template_filepath=join(TestDemo.ORIGIN_DATA_DIR, "brat_template.html"),
+            brat_url="http://localhost:8001/")
 
-        print(template)
+        with open(join(self.TEST_DATA_DIR, "demo-rus-bert-output.html"), "w") as output:
+            output.write(template)
 
 
 if __name__ == '__main__':

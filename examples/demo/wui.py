@@ -39,7 +39,7 @@ inputData = cgi.FieldStorage()
 text = inputData.getfirst("text")
 
 if not text:
-    template = prepare_template(data={}, text="США вводит сакнции против РФ", bratUrl=bratUrl)
+    template = prepare_template(data={}, text="США вводит санкции против РФ", bratUrl=bratUrl)
     cgi_output(template)
     exit(0)
 
