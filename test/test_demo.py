@@ -12,18 +12,19 @@ class TestDemo(unittest.TestCase):
 
     @staticmethod
     def __prepare_template(data, text, template_filepath):
+        assert(isinstance(data, dict))
 
         with open(template_filepath, "r") as template_file:
             template_local = template_file.read()
 
-        template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data_sem', '')))
-        template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data_sem', '')))
+        template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data', '')))
+        template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data', '')))
         template_local = template_local.replace("$____TEXT____", text)
 
         return template_local
 
     def test_demo_rus_bert(self):
-        text = "сша вводит сакнции против рф"
+        text = "США вводит сакнции против РФ"
         contents = demo_infer_texts_bert(
             text=text,
             output_dir=".",

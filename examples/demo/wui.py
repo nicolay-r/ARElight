@@ -20,12 +20,13 @@ def cgi_output(data):
 
 
 def prepare_template(data, text, bratUrl):
+    assert (isinstance(data, dict))
 
     with open("index.tmpl", "r") as template_file:
         template_local = template_file.read()
 
-    template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data_sem', '')))
-    template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data_sem', '')))
+    template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data', '')))
+    template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data', '')))
 
     template_local = template_local.replace("$____TEXT____", text)
     template_local = template_local.replace("$____BRAT_URL____", bratUrl)
@@ -38,7 +39,7 @@ inputData = cgi.FieldStorage()
 text = inputData.getfirst("text")
 
 if not text:
-    template = prepare_template(data={}, text="", bratUrl=bratUrl)
+    template = prepare_template(data={}, text="США вводит сакнции против РФ", bratUrl=bratUrl)
     cgi_output(template)
     exit(0)
 
