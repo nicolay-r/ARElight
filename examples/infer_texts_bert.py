@@ -13,7 +13,8 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNegativeLabel, ExperimentPositiveLabel
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 
-from arelight.pipelines.backend import BratBackendPipelineItem
+from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.inference_bert import BertInferencePipelineItem
 from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
@@ -85,13 +86,15 @@ if __name__ == '__main__':
             do_lowercase=DoLowercaseArg.read_argument(args),
             labels_scaler=labels_scaler),
 
-        BratBackendPipelineItem(label_to_rel={
+        BratBackendContentsPipelineItem(label_to_rel={
                 str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
                 str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"
             },
             obj_color_types={"ORG": '#7fa2ff', "GPE": "#7fa200", "PERSON": "#7f00ff", "Frame": "#00a2ff"},
             rel_color_types={"POS": "GREEN", "NEG": "RED"},
-        )
+        ),
+
+        BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
     ])
 
     backend_template = common.PredictOutputFilepathArg.read_argument(args)

@@ -17,8 +17,9 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 
+from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
-from arelight.pipelines.backend import BratBackendPipelineItem
 from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
 from arelight.network.nn.common import create_full_model_name, create_network_model_io, create_bags_collection_type
 
@@ -83,6 +84,7 @@ if __name__ == '__main__':
 
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[
+
         NetworkTextsSerializationPipelineItem(
             frames_collection=frames_collection,
             synonyms=common.SynonymsCollectionArg.read_argument(args),
@@ -99,6 +101,7 @@ if __name__ == '__main__':
             output_dir=const.OUTPUT_DIR,
             data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
                                    supported_data_types=[DataType.Test])),
+
         TensorflowNetworkInferencePipelineItem(
             nn_io=nn_io,
             model_name=model_name,
@@ -112,13 +115,16 @@ if __name__ == '__main__':
                 TrainingLimiterCallback(train_acc_limit=0.99),
                 TrainingStatProviderCallback(),
             ]),
-        BratBackendPipelineItem(label_to_rel={
+
+        BratBackendContentsPipelineItem(label_to_rel={
                 str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
                 str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"
             },
             obj_color_types={"ORG": '#7fa2ff', "GPE": "#7fa200", "PERSON": "#7f00ff", "Frame": "#00a2ff"},
             rel_color_types={"POS": "GREEN", "NEG": "RED"},
-        )
+        ),
+
+        BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
     ])
 
     backend_template = common.PredictOutputFilepathArg.read_argument(args)

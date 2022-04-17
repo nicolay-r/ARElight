@@ -20,8 +20,9 @@ def cgi_output(data):
 
 
 def prepare_template(data, text, bratUrl):
-    template_file = open("index.tmpl", "r")
-    template_local = template_file.read()
+
+    with open("index.tmpl", "r") as template_file:
+        template_local = template_file.read()
 
     template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data_sem', '')))
     template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data_sem', '')))
@@ -44,6 +45,8 @@ if not text:
 brat_json = demo_infer_texts_bert(text=text,
                                   model_dir="/arelight/data/models",
                                   output_dir=".",
+                                  state_name="ra-20-srubert-large-neut-nli-pretrained-3l",
+                                  finetuned_state_name="ra-20-srubert-large-neut-nli-pretrained-3l-finetuned",
                                   synonyms_filepath="/arelight/data/synonyms.txt")
 
 template = prepare_template(brat_json, text, bratUrl)

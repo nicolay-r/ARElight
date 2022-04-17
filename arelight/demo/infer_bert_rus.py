@@ -1,4 +1,4 @@
-from os.path import join, dirname, realpath
+from os.path import join
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -18,12 +18,10 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
 from arekit.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.pipelines.backend import BratBackendPipelineItem
+from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.inference_bert import BertInferencePipelineItem
 from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
-
-current_dir = dirname(realpath(__file__))
 
 
 def iter_groups(filepath):
@@ -33,9 +31,8 @@ def iter_groups(filepath):
 
 
 def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
+                          state_name, finetuned_state_name,
                           terms_per_context=50,
-                          state_name="ra-20-srubert-large-neut-nli-pretrained-3l",
-                          finetuned_state_name="ra-20-srubert-large-neut-nli-pretrained-3l-finetuned",
                           do_lowercase=False,
                           max_seq_length=128):
     assert(isinstance(text, str))
@@ -83,7 +80,7 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
             do_lowercase=do_lowercase,
             labels_scaler=labels_scaler),
 
-        BratBackendPipelineItem(label_to_rel={
+        BratBackendContentsPipelineItem(label_to_rel={
             str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
             str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"
         },
@@ -92,10 +89,6 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
         )
     ])
 
-    filled_template = ppl.run(text, {
-        "template_filepath": join(current_dir, "index.tmpl"),
-        "predict_fp": None,
-        "brat_vis_fp": None
-    })
+    contents = ppl.run([text], {"predict_fp": None, "brat_vis_fp": None})
 
-    return filled_template
+    return contents

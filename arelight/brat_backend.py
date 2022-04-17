@@ -1,8 +1,7 @@
-import collections
-import json
-from os.path import dirname, realpath, join
-
 from tqdm import tqdm
+
+import collections
+from os.path import dirname, realpath, join
 
 from arekit.common.data import const
 from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
@@ -342,10 +341,8 @@ class BratBackend(object):
 
         return text, coll_data, doc_data
 
-    def to_html(self, obj_color_types, rel_color_types, template_filepath,
-                samples_data_filepath, result_data_filepath,
-                label_to_rel, docs_range=None, brat_url="http://localhost:8001/"):
-        assert(isinstance(template_filepath, str))
+    def to_data(self, obj_color_types, rel_color_types, samples_data_filepath,
+                result_data_filepath, label_to_rel, docs_range=None):
         assert(isinstance(docs_range, tuple) or docs_range is None)
         assert(isinstance(label_to_rel, dict))
 
@@ -357,14 +354,5 @@ class BratBackend(object):
             label_to_rel=label_to_rel,
             docs_range=docs_range)
 
-        # Loading template file.
-        with open(template_filepath, "r") as templateFile:
-            template = templateFile.read()
+        return {"text": text, "coll_data": coll_data, "doc_data": doc_data}
 
-        # Replace template placeholders.
-        template = template.replace("$____COL_DATA_SEM____", json.dumps(coll_data))
-        template = template.replace("$____DOC_DATA_SEM____", json.dumps(doc_data))
-        template = template.replace("$____TEXT____", text)
-        template = template.replace("$____BRAT_URL____", brat_url)
-
-        return template
