@@ -44,7 +44,7 @@ if not text:
     cgi_output(template)
     exit(0)
 
-brat_json = demo_infer_texts_bert(text=text,
+brat_json = demo_infer_texts_bert(text=text.strip(),
                                   model_dir="/arelight/data/models",
                                   output_dir=".",
                                   state_name="ra-20-srubert-large-neut-nli-pretrained-3l",

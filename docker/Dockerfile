@@ -24,13 +24,18 @@ COPY arelight /arelight
 RUN ls -la
 RUN pip install /arelight/. -r /arelight/dependencies.txt
 
+# Download DeepPavlov resources in advance.
+COPY deeppavlov_data.sh /deeppavlov_data.sh
+RUN chmod +x deeppavlov_data.sh
+RUN /deeppavlov_data.sh
+
 # Download required resources.
 RUN python /arelight/download.py
 
 EXPOSE 80
 
 # Setup apache configs.
-RUN apt-get clean && apt-get update && apt-get install -y apache2 python
+RUN apt-get clean && apt-get update && apt-get install -y apache2 python unzip
 RUN a2enmod cgi
 RUN echo export PATH=/root/.pyenv/shims:/root/.pyenv/bin:$PATH >> /etc/apache2/envvars
 
