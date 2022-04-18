@@ -22,7 +22,7 @@ def cgi_output(data):
 def prepare_template(data, text, bratUrl):
     assert (isinstance(data, dict))
 
-    with open("index.tmpl", "r") as template_file:
+    with open("bert-index-template.html", "r") as template_file:
         template_local = template_file.read()
 
     template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data', '')))

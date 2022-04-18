@@ -1,7 +1,29 @@
 <html>
-<h3> ARElight demo </h3>
+<h1>ARElight Demo Project</h1>
+<img src="https://nicolay-r.github.io/website/images/logo_arelight.png">
+<h3>SentRuBERT</h3>
+<h4>(ra-20-srubert-large-neut-nli-pretrained-3l-finetuned)</h3>
+
+
 <meta charset="utf-8"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style>
+body {
+    text-align: center;
+}
+form {
+    display: inline-block;
+}
+input[type=submit] {
+  background-color: #8800e8;
+  border: none;
+  color: #ffe86f;
+  padding: 4px 8px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+</style>
 
 <body onload="visualize();">
 
@@ -9,18 +31,10 @@
 <link rel="stylesheet" type="text/css" href="$____BRAT_URL____style-vis.css"/>
 
 <form action="./wui.py" method="post" accept-charset="UTF-8">
-Text: <p><textarea rows="10" cols="70" name="text">$____TEXT____</textarea></p>
+<p><textarea rows="10" cols="120" name="text">$____TEXT____</textarea></p>
 
-<br>
-
-<input type="submit" value="Submit">
+<input type="submit" value="Annotate">
 </form>
-
-<br>
-
-Result: <br>
-<div id = "visual_syn">
-</div>
 
 <br>
 
