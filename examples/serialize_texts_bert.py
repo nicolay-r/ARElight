@@ -1,4 +1,5 @@
 import argparse
+from os.path import join
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -13,6 +14,7 @@ from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
 from examples.args import const, common
 from examples.args.const import DEFAULT_TEXT_FILEPATH
+from examples.utils import read_synonyms_collection
 
 if __name__ == '__main__':
 
@@ -25,7 +27,7 @@ if __name__ == '__main__':
     common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
-    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
 
     # Parsing arguments.
@@ -34,10 +36,14 @@ if __name__ == '__main__':
     text_from_arg = common.InputTextArg.read_argument(args)
     texts_from_files = common.FromFilesArg.read_argument(args)
 
+    synonyms_collection = read_synonyms_collection(
+        filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
+
     ppl = BasePipeline([
         BertTextsSerializationPipelineItem(
             terms_per_context=common.TermsPerContextArg.read_argument(args),
-            synonyms=common.SynonymsCollectionArg.read_argument(args),
+            synonyms=synonyms_collection,
+            output_dir=const.OUTPUT_DIR,
             entities_parser=common.EntitiesParserArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"),
             entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),

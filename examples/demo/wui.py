@@ -6,8 +6,9 @@ import cgi
 import json
 import sys
 import os
+from os.path import join
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert
+from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 
 ip_address = os.environ['IP_ADDRESS']
 bratUrl = '/brat/'
@@ -44,12 +45,20 @@ if not text:
     cgi_output(template)
     exit(0)
 
-brat_json = demo_infer_texts_bert(text=text.strip(),
-                                  model_dir="/arelight/data/models",
-                                  output_dir=".",
-                                  state_name="ra-20-srubert-large-neut-nli-pretrained-3l",
-                                  finetuned_state_name="ra-20-srubert-large-neut-nli-pretrained-3l-finetuned",
-                                  synonyms_filepath="/arelight/data/synonyms.txt")
+
+model_dir = "/arelight/data/models"
+state_name = "ra-20-srubert-large-neut-nli-pretrained-3l"
+finetuned_state_name = "ra-20-srubert-large-neut-nli-pretrained-3l-finetuned"
+
+ppl = demo_infer_texts_bert_pipeline(
+    texts_count=1,
+    output_dir=".",
+    bert_config_path=join(model_dir, state_name, "bert_config.json"),
+    bert_vocab_path=join(model_dir, state_name, "vocab.txt"),
+    bert_finetuned_ckpt_path=join(model_dir, finetuned_state_name, state_name),
+    synonyms_filepath="/arelight/data/synonyms.txt")
+
+brat_json = ppl.run([text.strip()])
 
 template = prepare_template(brat_json, text, bratUrl)
 cgi_output(template)

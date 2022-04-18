@@ -2,7 +2,7 @@ import json
 import unittest
 from os.path import dirname, realpath, join
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert
+from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 
 
 class TestDemo(unittest.TestCase):
@@ -28,13 +28,20 @@ class TestDemo(unittest.TestCase):
 
     def test_demo_rus_bert(self):
         text = "США вводит санкции против РФ"
-        contents = demo_infer_texts_bert(
-            text=text,
+
+        model_dir = join(self.ORIGIN_DATA_DIR, "models")
+        state_name = "ra-20-srubert-large-neut-nli-pretrained-3l"
+        finetuned_state_name = "ra-20-srubert-large-neut-nli-pretrained-3l-finetuned"
+
+        ppl = demo_infer_texts_bert_pipeline(
+            texts_count=1,
             output_dir=".",
-            state_name="ra-20-srubert-large-neut-nli-pretrained-3l",
-            finetuned_state_name="ra-20-srubert-large-neut-nli-pretrained-3l-finetuned",
-            model_dir=join(TestDemo.ORIGIN_DATA_DIR, "models"),
+            bert_vocab_path=join(model_dir, state_name, "vocab.txt"),
+            bert_config_path=join(model_dir, state_name, "bert_config.json"),
+            bert_finetuned_ckpt_path=join(model_dir, finetuned_state_name, state_name),
             synonyms_filepath=join(TestDemo.ORIGIN_DATA_DIR, "synonyms.txt"))
+
+        contents = ppl.run([text])
 
         template = TestDemo.__prepare_template(
             data=contents, text=text,

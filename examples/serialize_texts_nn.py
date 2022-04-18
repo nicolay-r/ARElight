@@ -1,4 +1,5 @@
 import argparse
+from os.path import join
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
@@ -15,6 +16,7 @@ from examples.args import common
 from examples.args.const import DEFAULT_TEXT_FILEPATH
 
 from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
+from examples.utils import read_synonyms_collection
 
 if __name__ == '__main__':
 
@@ -24,21 +26,25 @@ if __name__ == '__main__':
     # Provide arguments.
     common.InputTextArg.add_argument(parser, default=None)
     common.FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
+    common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
     common.StemmerArg.add_argument(parser, default="mystem")
-    common.SynonymsCollectionArg.add_argument(parser, default=None)
     common.FramesColectionArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
 
+    synonyms_collection = read_synonyms_collection(
+        filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
+
     ppl = BasePipeline([
         NetworkTextsSerializationPipelineItem(
             terms_per_context=common.TermsPerContextArg.read_argument(args),
-            synonyms=common.SynonymsCollectionArg.read_argument(args),
+            synonyms=synonyms_collection,
+            output_dir=const.OUTPUT_DIR,
             entities_parser=common.EntitiesParserArg.read_argument(args),
             embedding_path=common.RusVectoresEmbeddingFilepathArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example", suffix="serialize"),

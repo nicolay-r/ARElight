@@ -45,7 +45,6 @@ if __name__ == '__main__':
     common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
-    common.SynonymsCollectionArg.add_argument(parser, default=None)
     common.UseBalancingArg.add_argument(parser, default=True)
     common.DistanceInTermsBetweenAttitudeEndsArg.add_argument(parser, default=None)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")

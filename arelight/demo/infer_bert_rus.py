@@ -1,5 +1,3 @@
-from os.path import join
-
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
 from arekit.common.experiment.data_type import DataType
@@ -30,28 +28,25 @@ def iter_groups(filepath):
             yield group
 
 
-def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
-                          state_name, finetuned_state_name,
-                          terms_per_context=50,
-                          do_lowercase=False,
-                          max_seq_length=128):
-    assert(isinstance(text, str))
-    assert(isinstance(model_dir, str))
+def demo_infer_texts_bert_pipeline(texts_count,
+                                   synonyms_filepath,
+                                   output_dir,
+                                   bert_config_path,
+                                   bert_vocab_path,
+                                   bert_finetuned_ckpt_path,
+                                   text_b_type=SampleFormattersService.name_to_type("nli_m"),
+                                   labels_scaler=ThreeLabelScaler(),
+                                   terms_per_context=50,
+                                   do_lowercase=False,
+                                   max_seq_length=128):
+    assert(isinstance(texts_count, int))
     assert(isinstance(output_dir, str))
     assert(isinstance(synonyms_filepath, str))
-
-    model_pathdir = join(model_dir, state_name)
-    bert_config_path = join(model_pathdir, "bert_config.json")
-    bert_vocab_path = join(model_pathdir, "vocab.txt")
-    bert_finetuned_model_pathdir = join(model_dir, finetuned_state_name)
-    bert_finetuned_ckpt_path = join(bert_finetuned_model_pathdir, state_name)
 
     synonyms = StemmerBasedSynonymCollection(
         iter_group_values_lists=iter_groups(synonyms_filepath),
         stemmer=MystemWrapper(),
         is_read_only=False, debug=False)
-
-    labels_scaler = ThreeLabelScaler()
 
     ppl = BasePipeline(pipeline=[
 
@@ -62,13 +57,14 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
                 lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
-            text_b_type=SampleFormattersService.name_to_type("nli_m"),
+            text_b_type=text_b_type,
             output_dir=output_dir,
             opin_annot=DefaultAnnotator(
                 PairBasedAnnotationAlgorithm(
                     dist_in_terms_bound=None,
                     label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
-            data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test])),
+            data_folding=NoFolding(doc_ids_to_fold=list(range(texts_count)),
+                                   supported_data_types=[DataType.Test])),
 
         BertInferencePipelineItem(
             data_type=DataType.Test,
@@ -89,6 +85,4 @@ def demo_infer_texts_bert(text, model_dir, synonyms_filepath, output_dir,
         )
     ])
 
-    contents = ppl.run([text], {"predict_fp": None, "brat_vis_fp": None})
-
-    return contents
+    return ppl

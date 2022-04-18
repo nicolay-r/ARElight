@@ -1,27 +1,13 @@
 import argparse
 from os.path import join
 
-from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
-from arekit.common.experiment.annot.default import DefaultAnnotator
-from arekit.common.experiment.data_type import DataType
-from arekit.common.experiment.name_provider import ExperimentNameProvider
-from arekit.common.folding.nofold import NoFolding
-from arekit.common.labels.base import NoLabel
-from arekit.common.labels.provider.constant import ConstantLabelProvider
-from arekit.common.pipeline.base import BasePipeline
-from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
-from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNegativeLabel, ExperimentPositiveLabel
-from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 
+from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
-from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
-from arelight.pipelines.inference_bert import BertInferencePipelineItem
-from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
 from examples.args import common
 from examples.args import train
 from examples.args import const
-from examples.args.train import DoLowercaseArg
 from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
@@ -31,7 +17,7 @@ if __name__ == '__main__':
     # Providing arguments.
     common.InputTextArg.add_argument(parser, default=None)
     common.FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
-    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.LabelsCountArg.add_argument(parser, default=3)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.TokensPerContextArg.add_argument(parser, default=128)
@@ -52,50 +38,22 @@ if __name__ == '__main__':
     text_from_arg = common.InputTextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else texts_from_files
 
-    # Implement extra structures.
-    labels_scaler = create_labels_scaler(common.LabelsCountArg.read_argument(args))
+    ppl = demo_infer_texts_bert_pipeline(
+        texts_count=len(texts_from_files),
+        output_dir=const.OUTPUT_DIR,
+        labels_scaler=create_labels_scaler(common.LabelsCountArg.read_argument(args)),
+        synonyms_filepath=common.SynonymsCollectionFilepathArg.read_argument(args),
+        bert_config_path=common.BertConfigFilepathArg.read_argument(args),
+        bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
+        bert_finetuned_ckpt_path=common.BertCheckpointFilepathArg.read_argument(args),
+        terms_per_context=common.TermsPerContextArg.read_argument(args),
+        do_lowercase=train.DoLowercaseArg.read_argument(args),
+        max_seq_length=common.TokensPerContextArg.read_argument(args)
+    )
 
-    # Parsing arguments.
-    args = parser.parse_args()
-
-    # Declaring pipeline.
-    ppl = BasePipeline(pipeline=[
-
-        BertTextsSerializationPipelineItem(
-            synonyms=common.SynonymsCollectionArg.read_argument(args),
-            terms_per_context=common.TermsPerContextArg.read_argument(args),
-            entities_parser=common.EntitiesParserArg.read_argument(args),
-            entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
-            name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
-            text_b_type=common.BertTextBFormatTypeArg.read_argument(args),
-            output_dir=const.OUTPUT_DIR,
-            opin_annot=DefaultAnnotator(
-                PairBasedAnnotationAlgorithm(
-                    dist_in_terms_bound=None,
-                    label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
-            data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
-                                   supported_data_types=[DataType.Test])),
-
-        BertInferencePipelineItem(
-            data_type=DataType.Test,
-            predict_writer=TsvPredictWriter(),
-            bert_config_file=common.BertConfigFilepathArg.read_argument(args),
-            model_checkpoint_path=common.BertCheckpointFilepathArg.read_argument(args),
-            vocab_filepath=common.BertVocabFilepathArg.read_argument(args),
-            max_seq_length=common.TokensPerContextArg.read_argument(args),
-            do_lowercase=DoLowercaseArg.read_argument(args),
-            labels_scaler=labels_scaler),
-
-        BratBackendContentsPipelineItem(label_to_rel={
-                str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
-                str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"
-            },
-            obj_color_types={"ORG": '#7fa2ff', "GPE": "#7fa200", "PERSON": "#7f00ff", "Frame": "#00a2ff"},
-            rel_color_types={"POS": "GREEN", "NEG": "RED"},
-        ),
-
+    ppl.append(
         BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
-    ])
+    )
 
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 

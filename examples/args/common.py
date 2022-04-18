@@ -2,11 +2,9 @@ from arekit.contrib.bert.samplers.types import SampleFormattersService
 from arekit.contrib.experiment_rusentrel.entities.types import EntityFormattersService
 from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
 from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
-from arekit.contrib.experiment_rusentrel.synonyms.provider import RuSentRelSynonymsCollectionProvider
 from arekit.contrib.networks.enum_name_types import ModelNamesService
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
-from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
 from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
 from arekit.processing.lemmatization.mystem import MystemWrapper
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
@@ -270,32 +268,14 @@ class TokensPerContextArg(BaseArg):
                             nargs='?')
 
 
-class SynonymsCollectionArg(BaseArg):
-
-    @staticmethod
-    def __iter_groups(filepath):
-        with open(filepath, 'r') as file:
-            for group in iter_synonym_groups(file):
-                yield group
+class SynonymsCollectionFilepathArg(BaseArg):
 
     @staticmethod
     def read_argument(args):
-        filepath = args.synonyms_filepath
-        stemmer = MystemWrapper()
-        if filepath is None:
-            # Provide RuSentRel collection by default.
-            return RuSentRelSynonymsCollectionProvider.load_collection(stemmer=stemmer,
-                                                                       version=RuSentRelVersions.V11,
-                                                                       is_read_only=False)
-        else:
-            # Provide collection from file.
-            return StemmerBasedSynonymCollection(iter_group_values_lists=SynonymsCollectionArg.__iter_groups(filepath),
-                                                 stemmer=stemmer,
-                                                 is_read_only=False,
-                                                 debug=False)
+        return args.synonyms_filepath
 
     @staticmethod
-    def add_argument(parser, default=None):
+    def add_argument(parser, default):
         parser.add_argument('--synonyms-filepath',
                             dest='synonyms_filepath',
                             type=str,

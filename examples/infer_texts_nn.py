@@ -24,7 +24,7 @@ from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineIte
 from arelight.network.nn.common import create_full_model_name, create_network_model_io, create_bags_collection_type
 
 from examples.args import const, common, train
-from examples.utils import create_labels_scaler
+from examples.utils import create_labels_scaler, read_synonyms_collection
 
 if __name__ == '__main__':
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # Providing arguments.
     common.InputTextArg.add_argument(parser, default=None)
     common.FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
-    common.SynonymsCollectionArg.add_argument(parser, default=None)
+    common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     common.LabelsCountArg.add_argument(parser, default=3)
     common.ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
@@ -82,12 +82,15 @@ if __name__ == '__main__':
         vocab_filepath=common.VocabFilepathArg.read_argument(args),
         model_name_tag=u'')
 
+    synonyms_collection = read_synonyms_collection(
+        filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
+
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[
 
         NetworkTextsSerializationPipelineItem(
             frames_collection=frames_collection,
-            synonyms=common.SynonymsCollectionArg.read_argument(args),
+            synonyms=synonyms_collection,
             terms_per_context=common.TermsPerContextArg.read_argument(args),
             embedding_path=common.RusVectoresEmbeddingFilepathArg.read_argument(args),
             entities_parser=common.EntitiesParserArg.read_argument(args),
