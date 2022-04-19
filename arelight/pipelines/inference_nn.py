@@ -20,15 +20,15 @@ from arekit.contrib.networks.factory import create_network_and_network_config_fu
 from arekit.contrib.networks.shapes import NetworkInputShapes
 from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
 
-from examples.args.const import BAG_SIZE
 from arelight.exp.exp_io import InferIOUtils
 
 
 class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, model_name, bags_collection_type, model_input_type, predict_writer,
-                 data_type, bags_per_minibatch, nn_io, labels_scaler, callbacks):
+                 data_type, bag_size, bags_per_minibatch, nn_io, labels_scaler, callbacks):
         assert(isinstance(callbacks, list))
+        assert(isinstance(bag_size, int))
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
 
@@ -40,7 +40,7 @@ class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
         self.__network = network_func()
         self.__config = config_func()
         self.__config.modify_classes_count(labels_scaler.LabelsCount)
-        self.__config.modify_bag_size(BAG_SIZE)
+        self.__config.modify_bag_size(bag_size)
         self.__config.modify_bags_per_minibatch(bags_per_minibatch)
         self.__config.set_class_weights([1, 1, 1])
         self.__config.set_pos_count(PartOfSpeechTypesService.get_mystem_pos_count())
