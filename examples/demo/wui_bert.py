@@ -5,12 +5,10 @@ import cgitb
 import cgi
 import json
 import sys
-import os
 from os.path import join
 
 from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 
-ip_address = os.environ['IP_ADDRESS']
 bratUrl = '/brat/'
 
 
@@ -22,8 +20,14 @@ def cgi_output(data):
 def prepare_template(data, text, bratUrl):
     assert (isinstance(data, dict))
 
-    with open("bert-index-template.html", "r") as template_file:
+    with open("index-template.html", "r") as template_file:
         template_local = template_file.read()
+
+    template_local = template_local.replace("$____MODEL_NAME____",
+                                            "SentRuBERT")
+
+    template_local = template_local.replace("$____MODEL_DESCRIPTION____",
+                                            "(ra-20-srubert-large-neut-nli-pretrained-3l-finetuned)")
 
     template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data', '')))
     template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data', '')))

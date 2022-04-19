@@ -1,11 +1,9 @@
 from arekit.contrib.bert.samplers.types import SampleFormattersService
 from arekit.contrib.experiment_rusentrel.entities.types import EntityFormattersService
 from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
-from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
 from arekit.contrib.networks.enum_name_types import ModelNamesService
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
-from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
 from arekit.processing.lemmatization.mystem import MystemWrapper
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 

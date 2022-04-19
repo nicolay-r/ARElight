@@ -11,21 +11,14 @@ from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_f
 from arekit.contrib.experiment_rusentrel.entities.types import EntityFormatterTypes
 from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
 from arekit.contrib.experiment_rusentrel.labels.types import ExperimentPositiveLabel, ExperimentNegativeLabel
-from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
-from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
 from arekit.processing.lemmatization.mystem import MystemWrapper
 
+from arelight.demo.utils import read_synonyms_collection
 from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.inference_bert import BertInferencePipelineItem
 from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
-
-
-def iter_groups(filepath):
-    with open(filepath, 'r', encoding='utf-8') as file:
-        for group in iter_synonym_groups(file):
-            yield group
 
 
 def demo_infer_texts_bert_pipeline(texts_count,
@@ -34,6 +27,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
                                    bert_config_path,
                                    bert_vocab_path,
                                    bert_finetuned_ckpt_path,
+                                   stemmer=MystemWrapper(),
                                    text_b_type=SampleFormattersService.name_to_type("nli_m"),
                                    labels_scaler=ThreeLabelScaler(),
                                    terms_per_context=50,
@@ -43,15 +37,10 @@ def demo_infer_texts_bert_pipeline(texts_count,
     assert(isinstance(output_dir, str))
     assert(isinstance(synonyms_filepath, str))
 
-    synonyms = StemmerBasedSynonymCollection(
-        iter_group_values_lists=iter_groups(synonyms_filepath),
-        stemmer=MystemWrapper(),
-        is_read_only=False, debug=False)
-
     ppl = BasePipeline(pipeline=[
 
         BertTextsSerializationPipelineItem(
-            synonyms=synonyms,
+            synonyms=read_synonyms_collection(synonyms_filepath=synonyms_filepath, stemmer=stemmer),
             terms_per_context=terms_per_context,
             entities_parser=BertOntonotesNERPipelineItem(
                 lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
