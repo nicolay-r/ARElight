@@ -5,7 +5,7 @@ import cgitb
 import cgi
 import json
 import sys
-from os.path import join
+from os.path import join, basename
 
 from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
 from arekit.contrib.networks.enum_input_types import ModelInputType
@@ -33,6 +33,8 @@ def prepare_template(data, text, bratUrl, model_name):
 
     template_local = template_local.replace("$____MODEL_NAME____", model_name.value)
     template_local = template_local.replace("$____MODEL_DESCRIPTION____", "(RuSentRel finetuned)")
+
+    template_local = template_local.replace("$____SCRIPT_NAME____", basename(__file__))
 
     template_local = template_local.replace("$____COL_DATA_SEM____", json.dumps(data.get('coll_data', '')))
     template_local = template_local.replace("$____DOC_DATA_SEM____", json.dumps(data.get('doc_data', '')))
