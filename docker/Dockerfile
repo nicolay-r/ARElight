@@ -43,7 +43,8 @@ COPY apache_configs/* /etc/apache2/sites-enabled/
 
 # Copy apache-based arelight demo.
 COPY demo /var/www/demo
-RUN chmod +x /var/www/demo/wui.py
+RUN chmod +x /var/www/demo/wui_bert.py
+RUN chmod +x /var/www/demo/wui_nn.py
 
 # Copy BRAT toolkit.
 COPY brat /var/www/brat
