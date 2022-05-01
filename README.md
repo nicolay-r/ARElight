@@ -1,6 +1,6 @@
 # ARElight 0.22.0
 
-#### :point_right: [DEMO](#docker-verion-quick) :point_left:
+### :point_right: [DEMO](#docker-verion-quick) :point_left:
 
 This is a DEMO project of sentiment relations annotation, 
 commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
@@ -24,7 +24,6 @@ for Named Entity Recognition in text sentences (BertOntoNotes model).
 # Installation
 
 ## Docker verion (Quick)
-![](docs/demo.png)
 
 * Download [nicolay-r-arelight-0.1.1.tar](https://drive.google.com/file/d/1hd6EOcN5haEJM0dp_sdsNCX36lGG-y8Y/view?usp=sharing)
 * Import container: 
@@ -39,6 +38,8 @@ docker attach <CONTAINER_ID>
 service apache2 start
 ```
 * Proceed with demo: http://172.17.0.2/examples/demo/wui_bert.py
+
+![](docs/demo.png)
 
 ## Full 
 * ARElight:
