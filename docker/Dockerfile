@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y git curl wget zlib1g-dev libssl-dev \
 RUN curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
 ENV PYENV_ROOT /root/.pyenv
 ENV PATH /root/.pyenv/shims:/root/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-RUN pyenv install 3.6.0
-RUN pyenv global 3.6.0
+RUN pyenv install 3.6.2
+RUN pyenv global 3.6.2
 
 # Locales.
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
