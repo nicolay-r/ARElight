@@ -33,7 +33,6 @@ docker run -itd --gpus all nicolay-r/arelight:0.1.1
 ```
 * Run hosting (replace with your `CONTAINER_ID`): 
 ```bash
-# run apache demo hosting
 docker attach <CONTAINER_ID>
 service apache2 start
 ```
