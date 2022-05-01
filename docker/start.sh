@@ -3,4 +3,4 @@
 echo "Cleaning up previous containers"
 docker rm -f arelight || true
 
-docker run --gpus all -e IP_ADDRESS=localhost nicolay-r/arelight
+docker run --gpus all -e nicolay-r/arelight
