@@ -46,6 +46,10 @@ COPY demo /var/www/demo
 RUN chmod +x /var/www/demo/wui_bert.py
 RUN chmod +x /var/www/demo/wui_nn.py
 
+# Mystem3 fix
+RUN git clone https://github.com/nlpub/pymystem3.git
+RUN cp /pymystem3/pymystem3/mystem.py/ /root/.pyenv/versions/3.6.2/lib/python3.6/site-packages/pymystem3/
+
 # Copy BRAT toolkit.
 COPY brat /var/www/brat
 
