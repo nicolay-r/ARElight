@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 # Requirements for python installation, resource downloading tools, etc.
 RUN apt-get update && apt-get install -y git curl wget zlib1g-dev libssl-dev \
                                          build-essential libsqlite3-dev \
-                                         libicu-dev locales libbz2-dev
+                                         libicu-dev locales libbz2-dev zip
 
 # Python 3.6
 RUN curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
@@ -54,9 +54,9 @@ RUN chmod 777 -R /root/.pyenv && chmod 777 /root
 COPY entrypoint.sh /entrypoint.sh
 
 # Modify a home folder to the demo.
-usermod -d /var/www/demo www-data
+RUN usermod -d /var/www/demo www-data
 # Granting www-data permissions in demo.
-chown -R www-data:www-data /var/www/demo
+RUN chown -R www-data:www-data /var/www/demo
 
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
