@@ -17,13 +17,17 @@ commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
 * deeppavlov == 0.11.0
 * rusenttokenize
 * brat-v1.3 [[github]](https://github.com/nlplab/brat)
+* CUDA
 
 We adopt [DeepPavlov](https://github.com/deepmipt/DeepPavlov) 
 for Named Entity Recognition in text sentences (BertOntoNotes model).
 
 # Installation
 
+
 ## Docker verion (Quick)
+
+> NOTE: Requires NVidia-docker
 
 * Download [nicolay-r-arelight-0.1.1.tar](https://drive.google.com/u/0/uc?id=1hd6EOcN5haEJM0dp_sdsNCX36lGG-y8Y&amp;export=download&amp;confirm=t)
 * Import container: 
