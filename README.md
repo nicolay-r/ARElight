@@ -30,14 +30,11 @@ for Named Entity Recognition in text sentences (BertOntoNotes model).
 > NOTE: Requires NVidia-docker
 
 * Download [nicolay-r-arelight-0.1.1.tar](https://drive.google.com/u/0/uc?id=1hd6EOcN5haEJM0dp_sdsNCX36lGG-y8Y&amp;export=download&amp;confirm=t)
-* Import container: 
+* Import container and start Apache hosting: 
 ```bash
 docker import nicolay-r-arelight-0.1.1.tar 
-docker run -itd --gpus all nicolay-r/arelight:0.1.1
-```
-* Run hosting (replace with your `CONTAINER_ID`): 
-```bash
-docker attach <CONTAINER_ID>
+docker run --name arelight -itd --gpus all nicolay-r/arelight:0.1.1
+docker attach arelight
 service apache2 start
 ```
 * Proceed with demo: http://172.17.0.2/examples/demo/wui_bert.py
