@@ -37,9 +37,14 @@ docker run --name arelight -itd --gpus all nicolay-r/arelight:0.1.1
 docker attach arelight
 service apache2 start
 ```
-* Proceed with demo: http://172.17.0.2/examples/demo/wui_bert.py
+* Proceed with BERT demo: http://172.17.0.2/examples/demo/wui_bert.py
 
 ![](docs/demo.png)
+
+* PCNN example, finetuned on [RuSentRel](https://github.com/nicolay-r/RuSentRel):
+http://172.17.0.2/examples/demo/wui_nn.py
+
+![](docs/demo_pcnn.png)
 
 ## Full 
 * ARElight:
@@ -140,9 +145,7 @@ python3.6 serialize_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 # Powered by
 
 * AREkit [[github]](https://github.com/nicolay-r/AREkit)
-* DeepPavlov [[github]](https://github.com/deepmipt/DeepPavlov)
 
 <p float="left">
 <a href="https://github.com/nicolay-r/AREkit"><img src="docs/arekit_logo.png"/></a>
-<a href="https://github.com/deepmipt/DeepPavlov"><img src="docs/deeppavlov_logo.png"/></a>
 </p>
