@@ -3,6 +3,7 @@ from os.path import dirname, join, realpath
 
 from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
 from arekit.common.experiment.annot.default import DefaultAnnotator
+from arekit.common.experiment.api.base import BaseExperiment
 from arekit.common.experiment.data_type import DataType
 from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
@@ -26,8 +27,8 @@ from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
 from ru_sent_tokenize import ru_sent_tokenize
 
 from arelight.exp.doc_ops import CustomDocOperations
-from arelight.exp.exp import CustomExperiment
 from arelight.exp.exp_io import InferIOUtils
+from arelight.exp.opin_ops import CustomOpinionOperations
 from arelight.network.bert.ctx import BertSerializationContext
 from arelight.pipelines.utils import input_to_docs
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
@@ -113,14 +114,13 @@ class BertTestSerialization(unittest.TestCase):
         labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
         exp_io = InferIOUtils(exp_ctx=exp_ctx, output_dir=self.TEST_DATA_DIR)
         doc_ops = CustomDocOperations(exp_ctx, text_parser=text_parser)
-
-        exp = CustomExperiment(
-            synonyms=synonyms,
-            exp_io=exp_io,
-            exp_ctx=exp_ctx,
-            doc_ops=doc_ops,
+        opin_ops = CustomOpinionOperations(
             labels_formatter=labels_fmt,
+            exp_io=exp_io,
+            synonyms=synonyms,
             neutral_labels_fmt=labels_fmt)
+
+        exp = BaseExperiment(exp_io=exp_io, exp_ctx=exp_ctx, doc_ops=doc_ops, opin_ops=opin_ops)
 
         handler = BertExperimentInputSerializerIterationHandler(
             exp_io=exp_io,

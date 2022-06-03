@@ -1,4 +1,5 @@
 from arekit.common.entities.str_fmt import StringEntitiesFormatter
+from arekit.common.experiment.api.base import BaseExperiment
 from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.base import BaseDataFolding
@@ -14,8 +15,8 @@ from arekit.contrib.bert.samplers.types import BertSampleProviderTypes
 from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
 
 from arelight.exp.doc_ops import CustomDocOperations
-from arelight.exp.exp import CustomExperiment
 from arelight.exp.exp_io import InferIOUtils
+from arelight.exp.opin_ops import CustomOpinionOperations
 from arelight.network.bert.ctx import BertSerializationContext
 from arelight.pipelines.utils import input_to_docs
 
@@ -54,13 +55,17 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
         self.__doc_ops = CustomDocOperations(exp_ctx=self.__exp_ctx,
                                              text_parser=text_parser)
 
-        exp = CustomExperiment(
+        self.__opin_ops = CustomOpinionOperations(
+            labels_formatter=labels_fmt,
+            exp_io=self.__exp_io,
             synonyms=synonyms,
+            neutral_labels_fmt=labels_fmt)
+
+        exp = BaseExperiment(
             exp_io=self.__exp_io,
             exp_ctx=self.__exp_ctx,
             doc_ops=self.__doc_ops,
-            labels_formatter=labels_fmt,
-            neutral_labels_fmt=labels_fmt)
+            opin_ops=self.__opin_ops)
 
         self.__handler = BertExperimentInputSerializerIterationHandler(
             exp_io=self.__exp_io,

@@ -1,4 +1,5 @@
 from arekit.common.entities.str_fmt import StringEntitiesFormatter
+from arekit.common.experiment.api.base import BaseExperiment
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.base import BaseDataFolding
 from arekit.common.labels.base import NoLabel
@@ -20,8 +21,8 @@ from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
 from arekit.processing.text.pipeline_tokenizer import DefaultTextTokenizer
 
 from arelight.exp.doc_ops import CustomDocOperations
-from arelight.exp.exp import CustomExperiment
 from arelight.exp.exp_io import InferIOUtils
+from arelight.exp.opin_ops import CustomOpinionOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
 from arelight.network.nn.ctx import NetworkSerializationContext
 from arelight.network.nn.embedding import RusvectoresEmbedding
@@ -85,13 +86,16 @@ class NetworkTextsSerializationPipelineItem(BasePipelineItem):
         self.__doc_ops = CustomDocOperations(exp_ctx=self.__exp_ctx,
                                              text_parser=self.__text_parser)
 
-        self.__exp = CustomExperiment(
-            exp_io=self.__exp_io,
-            exp_ctx=self.__exp_ctx,
-            doc_ops=self.__doc_ops,
+        self.__opin_ops = CustomOpinionOperations(
             labels_formatter=self.__labels_fmt,
-            synonyms=self.__synonyms,
+            exp_io=self.__exp_io,
+            synonyms=synonyms,
             neutral_labels_fmt=self.__labels_fmt)
+
+        self.__exp = BaseExperiment(exp_io=self.__exp_io,
+                                    exp_ctx=self.__exp_ctx,
+                                    doc_ops=self.__doc_ops,
+                                    opin_ops=self.__opin_ops)
 
     @staticmethod
     def get_synonym_group_index(synonyms, value):
