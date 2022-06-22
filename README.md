@@ -2,15 +2,21 @@
 
 ### :point_right: [DEMO](#docker-verion-quick) :point_left:
 
-This is a DEMO project of sentiment relations annotation, 
-commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
+> **Supported Languages**: Russian
+
+ARElight is an application for a granular view onto sentiments between mentioned named entities in a mass-media texts written in Russian.
+
+This project is commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
+
+for Named Entity Recognition in text sentences, 
+we adopt [DeepPavlov](https://github.com/deepmipt/DeepPavlov)  (BertOntoNotes model).
 
 <p align="center">
     <img src="logo.png"/>
 </p>
 
 
-## Dependencies
+# Dependencies
 
 * arekit == 0.22.0
 * gensim == 3.2.0
@@ -19,15 +25,15 @@ commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
 * brat-v1.3 [[github]](https://github.com/nlplab/brat)
 * CUDA
 
-We adopt [DeepPavlov](https://github.com/deepmipt/DeepPavlov) 
-for Named Entity Recognition in text sentences (BertOntoNotes model).
 
 # Installation
 
 
 ## Docker verion (Quick)
 
-> NOTE: Requires NVidia-docker
+> **Supported Languages**: Russian
+
+> **Other Requirements**: NVidia-docker
 
 * Download [nicolay-r-arelight-0.1.1.tar](https://drive.google.com/u/0/uc?id=1hd6EOcN5haEJM0dp_sdsNCX36lGG-y8Y&amp;export=download&amp;confirm=t)
 * Import container and start Apache hosting: 
@@ -39,10 +45,14 @@ service apache2 start
 ```
 * Proceed with BERT demo: http://172.17.0.2/examples/demo/wui_bert.py
 
+> **Supported Languages**: Russian
+
 ![](docs/demo.png)
 
 * PCNN example, finetuned on [RuSentRel](https://github.com/nicolay-r/RuSentRel):
 http://172.17.0.2/examples/demo/wui_nn.py
+
+> **Supported Languages**: Russian
 
 ![](docs/demo_pcnn.png)
 
@@ -65,6 +75,7 @@ python standalone.py
 Usage: proceed with the `examples` folder.
 
 # Inference
+
 
 Infer sentiment attitudes from a mass-media document(s).
 
@@ -105,6 +116,8 @@ python3.6 infer_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 
 # Serialization 
 
+> **Supported Languages**: Any
+
 For the `BERT` model:
 ```bash
 python3.6 serialize_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt 
@@ -115,6 +128,8 @@ python3.6 serialize_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt
 <p align="center">
     <img src="docs/samples-bert.png">
 </p>
+
+> **Supported Languages**: Russian by default (depends on embedding)
 
 For the other neural networks (including embedding and other features):
 ```bash
@@ -140,7 +155,7 @@ python3.6 serialize_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 
 # Papers
 
-* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021)](https://nicolay-r.github.io/website/data/rusnachenko2021language.pdf)
+* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021) [RUS]](https://nicolay-r.github.io/website/data/rusnachenko2021language.pdf)
 
 # Powered by
 
