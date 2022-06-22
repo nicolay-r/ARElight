@@ -76,6 +76,7 @@ Usage: proceed with the `examples` folder.
 
 # Inference
 
+> **Supported Languages**: Russian
 
 Infer sentiment attitudes from a mass-media document(s).
 
@@ -91,6 +92,8 @@ python3.6 infer_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt \
 <p align="center">
     <img src="docs/inference-bert-e1.png"/>
 </p>
+
+> **Supported Languages**: Russian
 
 Using the pretrained `PCNN` model (including frames annotation):
 ```bash
