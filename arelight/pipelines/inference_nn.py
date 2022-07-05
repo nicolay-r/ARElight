@@ -44,6 +44,7 @@ class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
         self.__config.modify_bags_per_minibatch(bags_per_minibatch)
         self.__config.set_class_weights([1, 1, 1])
         self.__config.set_pos_count(PartOfSpeechTypesService.get_mystem_pos_count())
+        self.__config.reinit_config_dependent_parameters()
 
         # intialize model context.
         self.__create_model_ctx = lambda inference_ctx: TensorflowModelContext(
