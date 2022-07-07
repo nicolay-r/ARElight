@@ -26,16 +26,17 @@ def download_examples_data():
 
     # Extracting tar files ...
     for local_name in data.keys():
-        if not os.path.exists(local_name):
+        dest_filepath = os.path.join(root_dir, local_name)
+        if not os.path.exists(dest_filepath):
             continue
-        if not tarfile.is_tarfile(local_name):
+        if not tarfile.is_tarfile(dest_filepath):
             continue
-        with tarfile.open(local_name) as f:
-            target = os.path.dirname(local_name)
+        with tarfile.open(dest_filepath) as f:
+            target = os.path.dirname(dest_filepath)
             f.extractall(path=target)
 
         # Remove .tar file
-        os.remove(local_name)
+        os.remove(dest_filepath)
 
 
 if __name__ == '__main__':
