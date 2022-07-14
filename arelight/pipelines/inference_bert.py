@@ -48,12 +48,21 @@ class BertInferencePipelineItem(BasePipelineItem):
         def __iter_predict_result():
             samples = BaseRowsStorage.from_tsv(samples_filepath)
 
+            used_row_ids = set()
+            
             data = {"text_a": [], "text_b": [], "row_ids": []}
 
             for row_ind, row in samples:
+                
+                # Considering unique rows only.
+                if row["id"] in used_row_ids:
+                    continue
+
                 data["text_a"].append(row['text_a'])
                 data["text_b"].append(row['text_b'])
                 data["row_ids"].append(row_ind)
+                
+                used_row_ids.add(row["id"])
 
             batch_size = 10
 
