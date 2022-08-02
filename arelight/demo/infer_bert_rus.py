@@ -10,6 +10,7 @@ from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
+from arelight.demo.labels.base import NegativeLabel, PositiveLabel
 from arelight.demo.utils import read_synonyms_collection
 from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.inference_bert import BertInferencePipelineItem
@@ -67,8 +68,8 @@ def demo_infer_texts_bert_pipeline(texts_count,
             labels_scaler=labels_scaler),
 
         BratBackendContentsPipelineItem(label_to_rel={
-            str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
-            str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"
+            str(labels_scaler.label_to_uint(PositiveLabel())): "POS",
+            str(labels_scaler.label_to_uint(NegativeLabel())): "NEG"
         },
             obj_color_types={"ORG": '#7fa2ff', "GPE": "#7fa200", "PERSON": "#7f00ff", "Frame": "#00a2ff"},
             rel_color_types={"POS": "GREEN", "NEG": "RED"},

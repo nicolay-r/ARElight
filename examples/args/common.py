@@ -3,10 +3,13 @@ from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollecti
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
+from arelight.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.samplers.types import SampleFormattersService
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 from arelight.text.pipeline_entities_default import TextEntitiesParser
 
 from examples.args.base import BaseArg
+from examples.entities.types import EntityFormattersService
 
 
 class InputTextArg(BaseArg):

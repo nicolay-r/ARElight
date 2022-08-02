@@ -6,10 +6,13 @@ from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
+from arekit.contrib.utils.entities.formatters.str_simple_fmt import StringEntitiesSimpleFormatter
+from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 
 from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-from arelight.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.demo.labels.scalers import ThreeLabelScaler
 from examples.args import const
 
 
@@ -45,6 +48,7 @@ class TestDemo(unittest.TestCase):
             texts_count=1,
             output_dir=".",
             model_name=ModelNames.PCNN,
+            entity_fmt=StringEntitiesSimpleFormatter(),
             synonyms_filepath=join(TestDemo.ORIGIN_DATA_DIR, "synonyms.txt"),
             model_load_dir=const.NEURAL_NETWORKS_TARGET_DIR,
             model_input_type=ModelInputType.SingleInstance,
@@ -69,6 +73,8 @@ class TestDemo(unittest.TestCase):
         ppl = demo_infer_texts_bert_pipeline(
             texts_count=1,
             output_dir=".",
+            labels_scaler=ThreeLabelScaler(),
+            entity_fmt=SharpPrefixedEntitiesSimpleFormatter(),
             bert_vocab_path=join(model_dir, state_name, "vocab.txt"),
             bert_config_path=join(model_dir, state_name, "bert_config.json"),
             bert_finetuned_ckpt_path=join(model_dir, finetuned_state_name, state_name),

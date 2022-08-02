@@ -2,10 +2,9 @@ import json
 import unittest
 from os.path import join, dirname, realpath
 
-from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
-from arekit.contrib.experiment_rusentrel.labels.types import ExperimentNegativeLabel, ExperimentPositiveLabel
-
 from arelight.brat_backend import BratBackend
+from arelight.demo.labels.base import NegativeLabel, PositiveLabel
+from arelight.demo.labels.scalers import ThreeLabelScaler
 
 
 class TestBratEmbedding(unittest.TestCase):
@@ -33,8 +32,8 @@ class TestBratEmbedding(unittest.TestCase):
         contents = brat_be.to_data(
             result_data_filepath=result_data_filepath,
             samples_data_filepath=samples_data_filepath,
-            label_to_rel={str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
-                          str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"},
+            label_to_rel={str(labels_scaler.label_to_uint(PositiveLabel())): "POS",
+                          str(labels_scaler.label_to_uint(NegativeLabel())): "NEG"},
             obj_color_types={"ORG": '#7fa2ff',
                              "GPE": "#7fa200",
                              "PER": "#7f00ff",

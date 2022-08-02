@@ -12,6 +12,7 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
+from arelight.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.demo.labels.scalers import ThreeLabelScaler
 from arelight.demo.utils import read_synonyms_collection
 from arelight.network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
@@ -45,6 +46,12 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
         vocab_filepath=vocab_filepath,
         model_name_tag=u'')
 
+    PairBasedOpinionAnnotationAlgorithm(
+        dist_in_terms_bound=None,
+        label_provider=ConstantLabelProvider(label_instance=NoLabel()))
+
+    opin_annot = BaseOpinionAnnotator()
+
     # Declaring pipeline.
     ppl = BasePipeline(pipeline=[
 
@@ -57,10 +64,6 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
             entity_fmt=entity_fmt,
             stemmer=stemmer,
             name_provider=exp_name_provider,
-            opin_annot=BaseOpinionAnnotator(
-                PairBasedOpinionAnnotationAlgorithm(
-                    dist_in_terms_bound=None,
-                    label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             output_dir=output_dir,
             data_folding=NoFolding(doc_ids_to_fold=list(range(texts_count)),
                                    supported_data_types=[DataType.Test])),
@@ -81,8 +84,8 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
             ]),
 
         BratBackendContentsPipelineItem(label_to_rel={
-            str(labels_scaler.label_to_uint(ExperimentPositiveLabel())): "POS",
-            str(labels_scaler.label_to_uint(ExperimentNegativeLabel())): "NEG"
+            str(labels_scaler.label_to_uint(PositiveLabel())): "POS",
+            str(labels_scaler.label_to_uint(NegativeLabel())): "NEG"
         },
             obj_color_types={"ORG": '#7fa2ff', "GPE": "#7fa200", "PERSON": "#7f00ff", "Frame": "#00a2ff"},
             rel_color_types={"POS": "GREEN", "NEG": "RED"},

@@ -1,18 +1,18 @@
 from tqdm import tqdm
-
 import collections
+
 from os.path import dirname, realpath, join
 
+from arekit.common.context.token import Token
 from arekit.common.data import const
 from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.entities.base import Entity
 from arekit.common.frames.variants.base import FrameVariant
 from arekit.common.news.entity import DocumentEntity
+from arekit.contrib.utils.processing.text.tokens import Tokens
 from arekit.contrib.networks.core.input.const import FrameVariantIndices
 from arekit.contrib.networks.core.input.rows_parser import ParsedSampleRow
-from arekit.processing.text.token import Token
-from arekit.processing.text.tokens import Tokens
 
 
 class BratBackend(object):

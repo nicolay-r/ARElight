@@ -24,7 +24,7 @@ class CustomNeuralNetworkSerializationContext(NetworkSerializationContext):
         self.__word_embedding = embedding
         self.__frames_collection = frames_collection
         self.__frame_variant_collection = frame_variant_collection
-        self.__frame_roles_label_scaler = ThreeLabelScaler()
+        self.__frame_roles_label_scaler = None # ThreeLabelScaler()
         self.__frames_connotation_provider = RuSentiFramesConnotationProvider(collection=self.__frames_collection)
 
     @property
