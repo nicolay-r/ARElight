@@ -1,5 +1,8 @@
 import argparse
 
+from arekit.contrib.utils.np_utils.writer import NpzDataWriter
+from arekit.contrib.utils.processing.languages.ru.pos_service import PartOfSpeechTypesService
+
 from arelight.network.nn.common import create_bags_collection_type, create_full_model_name, create_network_model_io
 
 from examples.args import const, train
@@ -8,11 +11,8 @@ from examples.args.const import NEURAL_NETWORKS_TARGET_DIR, BAG_SIZE
 from examples.rusentrel.config_setups import optionally_modify_config_for_experiment, modify_config_for_model
 from examples.rusentrel.exp_io import CustomRuSentRelNetworkExperimentIO
 
-from arekit.common.experiment.api.ctx_training import ExperimentTrainingContext
-from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.types import FoldingType
-from arekit.contrib.experiment_rusentrel.types import ExperimentTypes
 from arekit.contrib.networks.context.configurations.base.base import DefaultNetworkConfig
 from arekit.contrib.networks.core.callback.hidden import HiddenStatesWriterCallback
 from arekit.contrib.networks.core.callback.hidden_input import InputHiddenStatesWriterCallback
@@ -21,10 +21,7 @@ from arekit.contrib.networks.core.callback.train_limiter import TrainingLimiterC
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.networks.factory import create_network_and_network_config_funcs
-from arekit.contrib.networks.np_utils.writer import NpzDataWriter
-from arekit.contrib.networks.handlers.training import NetworksTrainingIterationHandler
 from arekit.contrib.source.rusentrel.io_utils import RuSentRelVersions
-from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
 
 from examples.args import common
 from examples.utils import create_labels_scaler
@@ -66,6 +63,7 @@ if __name__ == '__main__':
     epochs_count = train.EpochsCountArg.read_argument(args)
 
     # Utilize predefined versions and folding format.
+    # TODO. This is outdated.
     exp_type = ExperimentTypes.RuSentRel
     rusentrel_version = RuSentRelVersions.V11
     folding_type = FoldingType.Fixed
@@ -153,6 +151,7 @@ if __name__ == '__main__':
         InputHiddenStatesWriterCallback(log_dir=model_target_dir, writer=data_writer)
     ]
 
+    # TODO. Switch to pipeline.
     training_handler = NetworksTrainingIterationHandler(
         load_model=model_load_dir is not None,
         exp_ctx=exp_ctx,
@@ -163,6 +162,7 @@ if __name__ == '__main__':
         network_callbacks=nework_callbacks,
         training_epochs=epochs_count)
 
+    # TODO. Engine does not exists anymore.
     engine = ExperimentEngine(exp_ctx.DataFolding)
 
     engine.run(handlers=[training_handler])

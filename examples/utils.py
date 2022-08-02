@@ -1,8 +1,4 @@
-from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
-from arekit.contrib.experiment_rusentrel.labels.scalers.two import TwoLabelScaler
-from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
-from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
-from arekit.processing.lemmatization.mystem import MystemWrapper
+from arelight.labels.scalers import ThreeLabelScaler
 
 
 def create_labels_scaler(labels_count):

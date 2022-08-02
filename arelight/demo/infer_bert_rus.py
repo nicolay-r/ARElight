@@ -1,18 +1,13 @@
-from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
-from arekit.common.experiment.annot.default import DefaultAnnotator
 from arekit.common.experiment.data_type import DataType
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
+from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
+from arekit.common.opinions.annot.base import BaseOpinionAnnotator
 from arekit.common.pipeline.base import BasePipeline
-from arekit.contrib.bert.samplers.types import SampleFormattersService
-from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
-from arekit.contrib.experiment_rusentrel.entities.types import EntityFormatterTypes
-from arekit.contrib.experiment_rusentrel.labels.scalers.three import ThreeLabelScaler
-from arekit.contrib.experiment_rusentrel.labels.types import ExperimentPositiveLabel, ExperimentNegativeLabel
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
-from arekit.processing.lemmatization.mystem import MystemWrapper
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
 from arelight.demo.utils import read_synonyms_collection
 from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
@@ -48,8 +43,8 @@ def demo_infer_texts_bert_pipeline(texts_count,
             name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
             text_b_type=text_b_type,
             output_dir=output_dir,
-            opin_annot=DefaultAnnotator(
-                PairBasedAnnotationAlgorithm(
+            opin_annot=BaseOpinionAnnotator(
+                PairBasedOpinionAnnotationAlgorithm(
                     dist_in_terms_bound=None,
                     label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             data_folding=NoFolding(doc_ids_to_fold=list(range(texts_count)),

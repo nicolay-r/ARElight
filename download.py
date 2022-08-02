@@ -1,6 +1,8 @@
 import os
 import tarfile
-from arekit.contrib.source import utils
+
+from arekit.common import utils
+
 from examples.args import const
 
 
@@ -8,7 +10,6 @@ def download_examples_data():
     root_dir = utils.get_default_download_dir()
 
     data = {
-        const.EMBEDDING_FILEPATH: "http://rusvectores.org/static/models/rusvectores2/news_mystem_skipgram_1000_20_2015.bin.gz",
         const.SYNONYMS_FILEPATH: "https://raw.githubusercontent.com/nicolay-r/RuSentRel/v1.1/synonyms.txt",
         # PCNN: pretrained model dir.
         const.PCNN_DEFAULT_MODEL_TAR: "https://www.dropbox.com/s/ceqy69vj59te534/fx_ctx_pcnn.tar.gz?dl=1",

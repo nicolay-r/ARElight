@@ -2,7 +2,7 @@ from arekit.common.data import const
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.synonyms import SynonymsCollection
+from arekit.common.synonyms.base import SynonymsCollection
 from deeppavlov.models.bert import bert_classifier
 from deeppavlov.models.preprocessors.bert_preprocessor import BertPreprocessor
 from tqdm import tqdm

@@ -7,14 +7,13 @@ import json
 import sys
 from os.path import join, basename
 
-from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
 
 from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-
+from arelight.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
 
 bratUrl = '/brat/'
 
@@ -74,7 +73,6 @@ ppl = demo_infer_texts_tensorflow_nn_pipeline(
     model_input_type=ModelInputType.SingleInstance,
     synonyms_filepath=join(data_dir, "synonyms.txt"),
     model_load_dir=join(data_dir, "models"),
-    embedding_filepath=join(data_dir, "news_mystem_skipgram_1000_20_2015.bin.gz"),
     frames_collection=frames_collection)
 
 brat_json = ppl.run([text.strip()])

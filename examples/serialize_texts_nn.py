@@ -1,15 +1,14 @@
 import argparse
 from os.path import join
 
-from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
-from arekit.common.experiment.annot.default import DefaultAnnotator
 from arekit.common.experiment.data_type import DataType
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
+from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
+from arekit.common.opinions.annot.base import BaseOpinionAnnotator
 from arekit.common.pipeline.base import BasePipeline
-from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 
 from examples.args import const
 from examples.args import common
@@ -28,7 +27,6 @@ if __name__ == '__main__':
     common.FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
     common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
-    common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-simple-eng")
     common.StemmerArg.add_argument(parser, default="mystem")
@@ -46,10 +44,9 @@ if __name__ == '__main__':
             synonyms=synonyms_collection,
             output_dir=const.OUTPUT_DIR,
             entities_parser=common.EntitiesParserArg.read_argument(args),
-            embedding_path=common.RusVectoresEmbeddingFilepathArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example", suffix="serialize"),
             entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
-            opin_annot=DefaultAnnotator(annot_algo=PairBasedAnnotationAlgorithm(
+            opin_annot=BaseOpinionAnnotator(annot_algo=PairBasedOpinionAnnotationAlgorithm(
                 dist_in_terms_bound=None,
                 label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             stemmer=common.StemmerArg.read_argument(args),

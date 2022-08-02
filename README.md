@@ -1,4 +1,4 @@
-# ARElight 0.22.0
+# ARElight 0.22.1
 
 ### :point_right: [DEMO](#docker-verion-quick) :point_left:
 
@@ -18,7 +18,7 @@ we adopt [DeepPavlov](https://github.com/deepmipt/DeepPavlov)  (BertOntoNotes mo
 
 # Dependencies
 
-* arekit == 0.22.0
+* arekit == 0.22.1
 * gensim == 3.2.0
 * deeppavlov == 0.11.0
 * rusenttokenize
@@ -151,8 +151,6 @@ python3.6 serialize_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 
 # Other Examples
 
-* Serialize RuSentRel collection for BERT [[code]](examples/serialize_rusentrel_for_bert.py)
-* Serialize RuSentRel collection for Neural Networks [[code]](examples/serialize_rusentrel_for_nn.py)
 * Finetune BERT on samples [[code]](examples/train_bert.py)
 * Finetune Neural Networks on RuSentRel [[code]](examples/train_nn_on_rusentrel.py)
 

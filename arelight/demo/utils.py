@@ -1,6 +1,6 @@
 from arekit.common.text.stemmer import Stemmer
-from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
-from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
+from arekit.contrib.source.synonyms.utils import iter_synonym_groups
+from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
 
 def iter_groups(filepath):

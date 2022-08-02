@@ -1,6 +1,4 @@
 from arekit.common.entities.str_fmt import StringEntitiesFormatter
-from arekit.common.experiment.api.base import BaseExperiment
-from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.base import BaseDataFolding
 from arekit.common.labels.base import NoLabel
@@ -8,11 +6,9 @@ from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.synonyms import SynonymsCollection
+from arekit.common.synonyms.base import SynonymsCollection
 from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.bert.handlers.serializer import BertExperimentInputSerializerIterationHandler
-from arekit.contrib.bert.samplers.types import BertSampleProviderTypes
-from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
 from arelight.exp.doc_ops import CustomDocOperations
 from arelight.exp.exp_io import InferIOUtils
@@ -23,7 +19,7 @@ from arelight.pipelines.utils import input_to_docs
 
 class BertTextsSerializationPipelineItem(BasePipelineItem):
 
-    def __init__(self, terms_per_context, entities_parser, synonyms, opin_annot, name_provider,
+    def __init__(self, terms_per_context, entities_parser, synonyms, name_provider,
                  entity_fmt, text_b_type, data_folding, output_dir):
         assert(isinstance(entities_parser, BasePipelineItem))
         assert(isinstance(entity_fmt, StringEntitiesFormatter))
@@ -37,13 +33,9 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
         # Label provider setup.
         labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
 
-        self.__exp_ctx = BertSerializationContext(
-            label_scaler=SingleLabelScaler(NoLabel()),
-            annotator=opin_annot,
-            terms_per_context=terms_per_context,
-            str_entity_formatter=entity_fmt,
-            name_provider=name_provider,
-            data_folding=data_folding)
+        self.__exp_ctx = BertSerializationContext(label_scaler=SingleLabelScaler(NoLabel()),
+                                                  terms_per_context=terms_per_context,
+                                                  name_provider=name_provider)
 
         self.__exp_io = InferIOUtils(exp_ctx=self.__exp_ctx, output_dir=output_dir)
 
@@ -67,6 +59,7 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
             doc_ops=self.__doc_ops,
             opin_ops=self.__opin_ops)
 
+        # TODO. Handler does not exist anymore.
         self.__handler = BertExperimentInputSerializerIterationHandler(
             exp_io=self.__exp_io,
             exp_ctx=self.__exp_ctx,
@@ -75,7 +68,7 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
             sample_labels_fmt=labels_fmt,
             annot_labels_fmt=labels_fmt,
             sample_provider_type=text_b_type,
-            entity_formatter=self.__exp_ctx.StringEntityFormatter,
+            entity_formatter=entity_fmt,
             value_to_group_id_func=synonyms.get_synonym_group_index,
             balance_train_samples=True)
 
@@ -94,6 +87,7 @@ class BertTextsSerializationPipelineItem(BasePipelineItem):
         # Setup document.
         self.__doc_ops.set_docs(docs)
 
+        # TODO. Engine does not exist anymore.
         engine = ExperimentEngine(self.__exp_ctx.DataFolding)
         engine.run([self.__handler])
 

@@ -18,7 +18,7 @@ from arekit.contrib.networks.core.pipeline.item_predict_labeling import EpochLab
 from arekit.contrib.networks.core.predict.base_writer import BasePredictWriter
 from arekit.contrib.networks.factory import create_network_and_network_config_funcs
 from arekit.contrib.networks.shapes import NetworkInputShapes
-from arekit.processing.languages.ru.pos_service import PartOfSpeechTypesService
+from arekit.contrib.utils.processing.languages.ru.pos_service import PartOfSpeechTypesService
 
 from arelight.exp.exp_io import InferIOUtils
 
@@ -76,7 +76,7 @@ class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
         # Update for further pipeline items.
         pipeline_ctx.update("predict_fp", tgt)
 
-        # Fetch other required in furter information from input_data.
+        # Fetch other required in further information from input_data.
         samples_filepath = input_data.create_samples_writer_target(self.__data_type)
         embedding = input_data.load_embedding()
         vocab = input_data.load_vocab()

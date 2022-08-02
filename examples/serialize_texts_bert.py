@@ -1,15 +1,14 @@
 import argparse
 from os.path import join
 
-from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
-from arekit.common.experiment.annot.default import DefaultAnnotator
 from arekit.common.experiment.data_type import DataType
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
+from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
+from arekit.common.opinions.annot.base import BaseOpinionAnnotator
 from arekit.common.pipeline.base import BasePipeline
-from arekit.contrib.experiment_rusentrel.entities.factory import create_entity_formatter
 from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
 from examples.args import const, common
@@ -48,7 +47,7 @@ if __name__ == '__main__':
             name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"),
             entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
             text_b_type=common.BertTextBFormatTypeArg.read_argument(args),
-            opin_annot=DefaultAnnotator(annot_algo=PairBasedAnnotationAlgorithm(
+            opin_annot=BaseOpinionAnnotator(annot_algo=PairBasedOpinionAnnotationAlgorithm(
                 dist_in_terms_bound=None,
                 label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),

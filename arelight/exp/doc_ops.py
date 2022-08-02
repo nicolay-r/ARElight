@@ -1,13 +1,7 @@
-from arekit.common.experiment.api.enums import BaseDocumentTag
 from arekit.common.experiment.api.ops_doc import DocumentOperations
 
 
 class CustomDocOperations(DocumentOperations):
-
-    def iter_tagget_doc_ids(self, tag):
-        assert(isinstance(tag, BaseDocumentTag))
-        assert(tag == BaseDocumentTag.Annotate)
-        return self.__doc_ids
 
     def __init__(self, exp_ctx, text_parser):
         super(CustomDocOperations, self).__init__(exp_ctx, text_parser)

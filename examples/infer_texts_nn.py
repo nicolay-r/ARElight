@@ -19,7 +19,6 @@ if __name__ == '__main__':
     common.InputTextArg.add_argument(parser, default=None)
     common.FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
     common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
-    common.RusVectoresEmbeddingFilepathArg.add_argument(parser, default=const.EMBEDDING_FILEPATH)
     common.LabelsCountArg.add_argument(parser, default=3)
     common.ModelNameArg.add_argument(parser, default=ModelNames.PCNN.value)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
@@ -60,7 +59,6 @@ if __name__ == '__main__':
         frames_collection=common.FramesColectionArg.read_argument(args),
         vocab_filepath=common.VocabFilepathArg.read_argument(args),
         embedding_matrix_filepath=common.EmbeddingMatrixFilepathArg.read_argument(args),
-        embedding_filepath=common.RusVectoresEmbeddingFilepathArg.read_argument(args),
         model_load_dir=common.ModelLoadDirArg.read_argument(args),
         terms_per_context=common.TermsPerContextArg.read_argument(args),
         synonyms_filepath=common.SynonymsCollectionFilepathArg.read_argument(args),

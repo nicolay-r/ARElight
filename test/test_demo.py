@@ -2,7 +2,6 @@ import json
 import unittest
 from os.path import dirname, realpath, join
 
-from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
@@ -10,6 +9,7 @@ from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
 
 from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
+from arelight.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
 from examples.args import const
 
 
@@ -47,7 +47,6 @@ class TestDemo(unittest.TestCase):
             model_name=ModelNames.PCNN,
             synonyms_filepath=join(TestDemo.ORIGIN_DATA_DIR, "synonyms.txt"),
             model_load_dir=const.NEURAL_NETWORKS_TARGET_DIR,
-            embedding_filepath=const.EMBEDDING_FILEPATH,
             model_input_type=ModelInputType.SingleInstance,
             frames_collection=frames_collection)
 

@@ -1,11 +1,7 @@
 import unittest
 from os.path import dirname, join, realpath
 
-from arekit.common.experiment.annot.algo.pair_based import PairBasedAnnotationAlgorithm
-from arekit.common.experiment.annot.default import DefaultAnnotator
-from arekit.common.experiment.api.base import BaseExperiment
 from arekit.common.experiment.data_type import DataType
-from arekit.common.experiment.engine import ExperimentEngine
 from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
@@ -15,15 +11,12 @@ from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.news.base import News
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.news.sentence import BaseNewsSentence
+from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
 from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.bert.handlers.serializer import BertExperimentInputSerializerIterationHandler
-from arekit.contrib.bert.samplers.types import BertSampleProviderTypes
-from arekit.contrib.experiment_rusentrel.entities.str_simple_sharp_prefixed_fmt import \
-    SharpPrefixedEntitiesSimpleFormatter
-from arekit.contrib.experiment_rusentrel.synonyms.collection import StemmerBasedSynonymCollection
-from arekit.contrib.source.rusentrel.utils import iter_synonym_groups
-from arekit.processing.lemmatization.mystem import MystemWrapper
-from arekit.processing.text.pipeline_terms_splitter import TermsSplitterParser
+from arekit.contrib.source.synonyms.utils import iter_synonym_groups
+from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
+from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from ru_sent_tokenize import ru_sent_tokenize
 
 from arelight.exp.doc_ops import CustomDocOperations
@@ -95,7 +88,7 @@ class BertTestSerialization(unittest.TestCase):
         ])
 
         # Declaring algo.
-        algo = PairBasedAnnotationAlgorithm(
+        algo = PairBasedOpinionAnnotationAlgorithm(
             label_provider=ConstantLabelProvider(label_instance=NoLabel()),
             dist_in_terms_bound=None)
 
@@ -104,11 +97,9 @@ class BertTestSerialization(unittest.TestCase):
                                supported_data_types=[DataType.Test])
         exp_ctx = BertSerializationContext(
             label_scaler=SingleLabelScaler(NoLabel()),
-            annotator=DefaultAnnotator(algo),
+            # annotator=BaseOpinionAnnotator(algo),
             terms_per_context=50,
-            str_entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
-            name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"),
-            data_folding=no_folding)
+            name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"))
 
         # Composing labels formatter and experiment preparation.
         labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
@@ -120,8 +111,10 @@ class BertTestSerialization(unittest.TestCase):
             synonyms=synonyms,
             neutral_labels_fmt=labels_fmt)
 
+        # TODO. No exp anymore.
         exp = BaseExperiment(exp_io=exp_io, exp_ctx=exp_ctx, doc_ops=doc_ops, opin_ops=opin_ops)
 
+        # TODO. To pipeline.
         handler = BertExperimentInputSerializerIterationHandler(
             exp_io=exp_io,
             exp_ctx=exp_ctx,
@@ -136,11 +129,12 @@ class BertTestSerialization(unittest.TestCase):
             value_to_group_id_func=synonyms.get_synonym_group_index,
             balance_train_samples=True)
 
-        # Initilize documents.
+        # Initialize documents.
         docs = input_to_docs(texts)
         doc_ops.set_docs(docs)
 
         # Run.
+        # TODO. No experiment engine anymore.
         engine = ExperimentEngine(exp_ctx.DataFolding)  # Present folding limitation.
         engine.run([handler])
 

@@ -1,6 +1,6 @@
 import unittest
 
-from arekit.processing.entities.obj_desc import NerObjectDescriptor
+from arelight.ner_obj_desc import NerObjectDescriptor
 from arelight.text.ner_ontonotes import BertOntonotesNER
 
 
