@@ -7,6 +7,8 @@ import json
 import sys
 from os.path import join, basename
 
+from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
+
 from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 
 bratUrl = '/brat/'
@@ -59,6 +61,7 @@ finetuned_state_name = "ra-20-srubert-large-neut-nli-pretrained-3l-finetuned"
 ppl = demo_infer_texts_bert_pipeline(
     texts_count=1,
     output_dir=".",
+    entity_fmt=SharpPrefixedEntitiesSimpleFormatter(),
     bert_config_path=join(model_dir, state_name, "bert_config.json"),
     bert_vocab_path=join(model_dir, state_name, "vocab.txt"),
     bert_finetuned_ckpt_path=join(model_dir, finetuned_state_name, state_name),

@@ -12,6 +12,7 @@ from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
+from arelight.demo.labels.scalers import ThreeLabelScaler
 from arelight.demo.utils import read_synonyms_collection
 from arelight.network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
 from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
@@ -24,11 +25,11 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
                                             model_name, model_input_type, model_load_dir,
                                             frames_collection,
                                             output_dir,
+                                            entity_fmt,
                                             synonyms_filepath,
                                             embedding_matrix_filepath=None,
                                             vocab_filepath=None,
                                             bags_per_minibatch=2,
-                                            entity_fmt_type=EntityFormattersService.name_to_type("hidden-simple-eng"),
                                             exp_name_provider=ExperimentNameProvider(name="example", suffix="infer"),
                                             stemmer=MystemWrapper(),
                                             labels_scaler=ThreeLabelScaler(),
@@ -53,7 +54,7 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
             terms_per_context=terms_per_context,
             entities_parser=BertOntonotesNERPipelineItem(
                 lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
-            entity_fmt=create_entity_formatter(entity_fmt_type),
+            entity_fmt=entity_fmt,
             stemmer=stemmer,
             name_provider=exp_name_provider,
             opin_annot=BaseOpinionAnnotator(

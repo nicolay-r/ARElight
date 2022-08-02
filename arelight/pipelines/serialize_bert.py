@@ -15,6 +15,7 @@ from arelight.exp.exp_io import InferIOUtils
 from arelight.exp.opin_ops import CustomOpinionOperations
 from arelight.network.bert.ctx import BertSerializationContext
 from arelight.pipelines.utils import input_to_docs
+from arelight.samplers.types import BertSampleProviderTypes
 
 
 class BertTextsSerializationPipelineItem(BasePipelineItem):

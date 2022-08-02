@@ -13,6 +13,7 @@ from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
 
 from examples.args import const, common
 from examples.args.const import DEFAULT_TEXT_FILEPATH
+from examples.entities.factory import create_entity_formatter
 from examples.utils import read_synonyms_collection
 
 if __name__ == '__main__':
@@ -38,6 +39,12 @@ if __name__ == '__main__':
     synonyms_collection = read_synonyms_collection(
         filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
 
+    annot_algo = PairBasedOpinionAnnotationAlgorithm(
+        dist_in_terms_bound=None,
+        label_provider=ConstantLabelProvider(label_instance=NoLabel()))
+
+    opin_annot = BaseOpinionAnnotator()
+
     ppl = BasePipeline([
         BertTextsSerializationPipelineItem(
             terms_per_context=common.TermsPerContextArg.read_argument(args),
@@ -47,9 +54,6 @@ if __name__ == '__main__':
             name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"),
             entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
             text_b_type=common.BertTextBFormatTypeArg.read_argument(args),
-            opin_annot=BaseOpinionAnnotator(annot_algo=PairBasedOpinionAnnotationAlgorithm(
-                dist_in_terms_bound=None,
-                label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             data_folding=NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
                                    supported_data_types=[DataType.Test]))
     ])

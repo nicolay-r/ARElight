@@ -8,6 +8,8 @@ from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from examples.args import common
 from examples.args import train
 from examples.args import const
+from examples.entities.factory import create_entity_formatter
+from examples.entities.types import EntityFormatterTypes
 from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
@@ -40,6 +42,7 @@ if __name__ == '__main__':
     ppl = demo_infer_texts_bert_pipeline(
         texts_count=len(texts_from_files),
         output_dir=const.OUTPUT_DIR,
+        entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
         labels_scaler=create_labels_scaler(common.LabelsCountArg.read_argument(args)),
         synonyms_filepath=common.SynonymsCollectionFilepathArg.read_argument(args),
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),

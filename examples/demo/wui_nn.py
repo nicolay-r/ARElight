@@ -11,9 +11,10 @@ from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
+from arekit.contrib.utils.entities.formatters.str_simple_fmt import StringEntitiesSimpleFormatter
 
 from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-from arelight.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
 
 bratUrl = '/brat/'
 
@@ -71,6 +72,7 @@ ppl = demo_infer_texts_tensorflow_nn_pipeline(
     output_dir=".",
     model_name=model_name,
     model_input_type=ModelInputType.SingleInstance,
+    entity_fmt=StringEntitiesSimpleFormatter(),
     synonyms_filepath=join(data_dir, "synonyms.txt"),
     model_load_dir=join(data_dir, "models"),
     frames_collection=frames_collection)

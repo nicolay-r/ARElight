@@ -9,6 +9,7 @@ from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
 from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
 
 from examples.args import const, common, train
+from examples.entities.factory import create_entity_formatter
 from examples.utils import create_labels_scaler
 
 if __name__ == '__main__':
@@ -62,7 +63,7 @@ if __name__ == '__main__':
         model_load_dir=common.ModelLoadDirArg.read_argument(args),
         terms_per_context=common.TermsPerContextArg.read_argument(args),
         synonyms_filepath=common.SynonymsCollectionFilepathArg.read_argument(args),
-        entity_fmt_type=common.EntityFormatterTypesArg.read_argument(args),
+        entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
         stemmer=common.StemmerArg.read_argument(args),
         bags_per_minibatch=train.BagsPerMinibatchArg.read_argument(args)
     )

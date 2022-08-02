@@ -15,6 +15,7 @@ from examples.args import common
 from examples.args.const import DEFAULT_TEXT_FILEPATH
 
 from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
+from examples.entities.factory import create_entity_formatter
 from examples.utils import read_synonyms_collection
 
 if __name__ == '__main__':
@@ -38,6 +39,12 @@ if __name__ == '__main__':
     synonyms_collection = read_synonyms_collection(
         filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
 
+    opin_annot = BaseOpinionAnnotator()
+
+    annot_algo = PairBasedOpinionAnnotationAlgorithm(
+        dist_in_terms_bound=None,
+        label_provider=ConstantLabelProvider(label_instance=NoLabel()))
+
     ppl = BasePipeline([
         NetworkTextsSerializationPipelineItem(
             terms_per_context=common.TermsPerContextArg.read_argument(args),
@@ -46,9 +53,6 @@ if __name__ == '__main__':
             entities_parser=common.EntitiesParserArg.read_argument(args),
             name_provider=ExperimentNameProvider(name="example", suffix="serialize"),
             entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
-            opin_annot=BaseOpinionAnnotator(annot_algo=PairBasedOpinionAnnotationAlgorithm(
-                dist_in_terms_bound=None,
-                label_provider=ConstantLabelProvider(label_instance=NoLabel()))),
             stemmer=common.StemmerArg.read_argument(args),
             frames_collection=common.FramesColectionArg.read_argument(args),
             data_folding=NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]))
