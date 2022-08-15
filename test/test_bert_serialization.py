@@ -1,8 +1,10 @@
 import unittest
+
+from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
+from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
 
 from arekit.common.experiment.data_type import DataType
-from arekit.common.experiment.name_provider import ExperimentNameProvider
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
@@ -12,19 +14,33 @@ from arekit.common.news.base import News
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.news.sentence import BaseNewsSentence
 from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
+from arekit.common.pipeline.base import BasePipeline
+from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.source.synonyms.utils import iter_synonym_groups
+from arekit.common.opinions.annot.algo_based import AlgorithmBasedOpinionAnnotator
+from arekit.common.opinions.collection import OpinionCollection
+from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSerializerPipelineItem
+from arekit.contrib.bert.samplers.nli_m import NliMultipleSampleProvider
+from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
+from arekit.contrib.utils.pipelines.annot.base import attitude_extraction_default_pipeline
+from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
-from ru_sent_tokenize import ru_sent_tokenize
+from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
-from arelight.exp.doc_ops import CustomDocOperations
-from arelight.exp.exp_io import InferIOUtils
-from arelight.exp.opin_ops import CustomOpinionOperations
-from arelight.network.bert.ctx import BertSerializationContext
+from arelight.exp.doc_ops import InMemoryDocOperations
 from arelight.pipelines.utils import input_to_docs
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
+
+
+class EntityFilter(object):
+
+    def __init__(self):
+        pass
+
+    def is_ignored(self, entity, e_type):
+        raise NotImplementedError()
 
 
 class BertTestSerialization(unittest.TestCase):
@@ -36,12 +52,6 @@ class BertTestSerialization(unittest.TestCase):
     current_dir = dirname(realpath(__file__))
     ORIGIN_DATA_DIR = join(current_dir, "../data")
     TEST_DATA_DIR = join(current_dir, "data")
-
-    @staticmethod
-    def get_synonym_group_index(s, value):
-        if not s.contains_synonym_value(value):
-            s.add_synonym_value(value)
-        return s.get_synonym_group_index(value)
 
     @staticmethod
     def input_to_docs(texts):
@@ -58,6 +68,27 @@ class BertTestSerialization(unittest.TestCase):
         with open(filepath, 'r', encoding='utf-8') as file:
             for data in iter_synonym_groups(file):
                 yield data
+
+    @staticmethod
+    def __create_neutral_annot(dist_in_terms_bound, dist_in_sentences=0):
+        synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
+                                                 stemmer=MystemWrapper(),
+                                                 is_read_only=False,
+                                                 debug=False)
+
+        annotator = AlgorithmBasedOpinionAnnotator(
+            annot_algo=PairBasedOpinionAnnotationAlgorithm(
+                dist_in_sents=dist_in_sentences,
+                dist_in_terms_bound=dist_in_terms_bound,
+                label_provider=ConstantLabelProvider(NoLabel())),
+            create_empty_collection_func=lambda: OpinionCollection(
+                opinions=[],
+                synonyms=synonyms,
+                error_on_duplicates=True,
+                error_on_synonym_end_missed=False),
+            get_doc_existed_opinions_func=lambda _: None)
+
+        return annotator
 
     def test(self):
 
@@ -84,59 +115,54 @@ class BertTestSerialization(unittest.TestCase):
         text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
             BertOntonotesNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
-            EntitiesGroupingPipelineItem(lambda value: self.get_synonym_group_index(synonyms, value))
+            EntitiesGroupingPipelineItem(lambda value:
+                SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                    synonyms=synonyms, value=value))
         ])
 
-        # Declaring algo.
-        algo = PairBasedOpinionAnnotationAlgorithm(
-            label_provider=ConstantLabelProvider(label_instance=NoLabel()),
-            dist_in_terms_bound=None)
+        # Single label scaler.
+        single_label_scaler = SingleLabelScaler(NoLabel())
 
         # Declare folding and experiment context.
         no_folding = NoFolding(doc_ids_to_fold=list(range(len(texts))),
                                supported_data_types=[DataType.Test])
-        exp_ctx = BertSerializationContext(
-            label_scaler=SingleLabelScaler(NoLabel()),
-            # annotator=BaseOpinionAnnotator(algo),
-            terms_per_context=50,
-            name_provider=ExperimentNameProvider(name="example-bert", suffix="serialize"))
 
         # Composing labels formatter and experiment preparation.
         labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
-        exp_io = InferIOUtils(exp_ctx=exp_ctx, output_dir=self.TEST_DATA_DIR)
-        doc_ops = CustomDocOperations(exp_ctx, text_parser=text_parser)
-        opin_ops = CustomOpinionOperations(
-            labels_formatter=labels_fmt,
-            exp_io=exp_io,
-            synonyms=synonyms,
-            neutral_labels_fmt=labels_fmt)
+        doc_ops = InMemoryDocOperations(docs=input_to_docs(texts))
+        entity_fmt = SharpPrefixedEntitiesSimpleFormatter()
 
-        # TODO. No exp anymore.
-        exp = BaseExperiment(exp_io=exp_io, exp_ctx=exp_ctx, doc_ops=doc_ops, opin_ops=opin_ops)
+        rows_provider = NliMultipleSampleProvider(
+            label_scaler=single_label_scaler,
+            text_b_labels_fmt=labels_fmt,
+            text_terms_mapper=BertDefaultStringTextTermsMapper(
+                entity_formatter=entity_fmt
+            ))
 
-        # TODO. To pipeline.
-        handler = BertExperimentInputSerializerIterationHandler(
-            exp_io=exp_io,
-            exp_ctx=exp_ctx,
-            doc_ops=doc_ops,
-            opin_ops=exp.OpinionOperations,
-            ###
-            sample_provider_type=BertSampleProviderTypes.NLI_M,     # TODO. Part of TEXT_B
-            sample_labels_fmt=labels_fmt,                           # TODO. Part of TEXT_B
-            ###
-            annot_labels_fmt=labels_fmt,                            # TODO. To be removed in further.
-            entity_formatter=exp_ctx.StringEntityFormatter,
-            value_to_group_id_func=synonyms.get_synonym_group_index,
-            balance_train_samples=True)
+        pipeline = BasePipeline([
+            BertExperimentInputSerializerPipelineItem(
+                sample_rows_provider=rows_provider,
+                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR),
+                save_labels_func=lambda data_type: data_type != DataType.Test,
+                balance_func=lambda data_type: data_type == DataType.Train)
+        ])
 
-        # Initialize documents.
-        docs = input_to_docs(texts)
-        doc_ops.set_docs(docs)
+        # Initialize data processing pipeline.
+        test_pipeline = attitude_extraction_default_pipeline(
+            annotator=self.__create_neutral_annot(dist_in_terms_bound=50, dist_in_sentences=0),
+            get_doc_func=lambda doc_id: doc_ops.get_doc(doc_id),
+            text_parser=text_parser,
+            value_to_group_id_func=lambda value:
+                SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                    synonyms=synonyms, value=value),
+            terms_per_context=50,
+            entity_index_func=None)
 
-        # Run.
-        # TODO. No experiment engine anymore.
-        engine = ExperimentEngine(exp_ctx.DataFolding)  # Present folding limitation.
-        engine.run([handler])
+        pipeline.run(input_data=None,
+                     params_dict={
+                         "data_folding": no_folding,
+                         "data_type_pipelines": {DataType.Test: test_pipeline}
+                     })
 
 
 if __name__ == '__main__':

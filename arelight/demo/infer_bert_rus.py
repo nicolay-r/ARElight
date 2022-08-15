@@ -1,22 +1,51 @@
 from arekit.common.experiment.data_type import DataType
-from arekit.common.experiment.name_provider import ExperimentNameProvider
-from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.labels.scaler.base import BaseLabelScaler
+from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
-from arekit.common.opinions.annot.base import BaseOpinionAnnotator
+from arekit.common.opinions.annot.algo_based import AlgorithmBasedOpinionAnnotator
+from arekit.common.opinions.collection import OpinionCollection
 from arekit.common.pipeline.base import BasePipeline
+from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
+from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
-from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
+from arekit.contrib.utils.io_utils.samples import SamplesIO
+from arekit.contrib.utils.pipelines.annot.base import attitude_extraction_default_pipeline
 
 from arelight.demo.labels.base import NegativeLabel, PositiveLabel
-from arelight.demo.utils import read_synonyms_collection
 from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.inference_bert import BertInferencePipelineItem
-from arelight.pipelines.serialize_bert import BertTextsSerializationPipelineItem
+from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
+
+
+def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_context,
+                                       doc_ops, text_parser, dist_in_sentences=0):
+
+    annotator = AlgorithmBasedOpinionAnnotator(
+        annot_algo=PairBasedOpinionAnnotationAlgorithm(
+            dist_in_sents=dist_in_sentences,
+            dist_in_terms_bound=dist_in_terms_bound,
+            label_provider=ConstantLabelProvider(NoLabel())),
+        create_empty_collection_func=lambda: OpinionCollection(
+            opinions=[],
+            synonyms=synonyms,
+            error_on_duplicates=True,
+            error_on_synonym_end_missed=False),
+        get_doc_existed_opinions_func=lambda _: None)
+
+    annotation_pipeline = attitude_extraction_default_pipeline(
+        annotator=annotator,
+        get_doc_func=lambda doc_id: doc_ops.get_doc(doc_id),
+        text_parser=text_parser,
+        value_to_group_id_func=lambda value:
+            SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                synonyms=synonyms, value=value),
+        terms_per_context=terms_per_context,
+        entity_index_func=None)
+
+    return annotation_pipeline
 
 
 def demo_infer_texts_bert_pipeline(texts_count,
@@ -27,9 +56,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
                                    bert_finetuned_ckpt_path,
                                    entity_fmt,
                                    labels_scaler,
-                                   stemmer=MystemWrapper(),
                                    text_b_type=SampleFormattersService.name_to_type("nli_m"),
-                                   terms_per_context=50,
                                    do_lowercase=False,
                                    max_seq_length=128):
     assert(isinstance(texts_count, int))
@@ -37,28 +64,29 @@ def demo_infer_texts_bert_pipeline(texts_count,
     assert(isinstance(synonyms_filepath, str))
     assert(isinstance(labels_scaler, BaseLabelScaler))
 
+    labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
+
     PairBasedOpinionAnnotationAlgorithm(
         dist_in_terms_bound=None,
         label_provider=ConstantLabelProvider(label_instance=NoLabel()))
 
-    opin_annot = BaseOpinionAnnotator()
+    samples_io = SamplesIO(target_dir=output_dir)
 
-    ppl = BasePipeline(pipeline=[
+    pipeline = BasePipeline(pipeline=[
 
-        BertTextsSerializationPipelineItem(
-            synonyms=read_synonyms_collection(synonyms_filepath=synonyms_filepath, stemmer=stemmer),
-            terms_per_context=terms_per_context,
-            entities_parser=BertOntonotesNERPipelineItem(
-                lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
-            entity_fmt=entity_fmt,
-            name_provider=ExperimentNameProvider(name="example-bert", suffix="infer"),
-            text_b_type=text_b_type,
-            output_dir=output_dir,
-            data_folding=NoFolding(doc_ids_to_fold=list(range(texts_count)),
-                                   supported_data_types=[DataType.Test])),
+        BertExperimentInputSerializerPipelineItem(
+            sample_rows_provider=create_bert_sample_provider(
+                provider_type=text_b_type,
+                label_scaler=labels_scaler,
+                text_b_labels_fmt=labels_fmt,
+                entity_formatter=entity_fmt),
+            samples_io=samples_io,
+            save_labels_func=lambda data_type: data_type != DataType.Test,
+            balance_func=lambda data_type: data_type == DataType.Train),
 
         BertInferencePipelineItem(
             data_type=DataType.Test,
+            samples_io=samples_io,
             predict_writer=TsvPredictWriter(),
             bert_config_file=bert_config_path,
             model_checkpoint_path=bert_finetuned_ckpt_path,
@@ -76,4 +104,4 @@ def demo_infer_texts_bert_pipeline(texts_count,
         )
     ])
 
-    return ppl
+    return pipeline

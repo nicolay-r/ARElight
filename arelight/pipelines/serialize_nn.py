@@ -21,7 +21,7 @@ from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.processing.pos.mystem_wrap import POSMystemWrapper
 from arekit.contrib.utils.resources import load_embedding_news_mystem_skipgram_1000_20_2015
 
-from arelight.exp.doc_ops import CustomDocOperations
+from arelight.exp.doc_ops import InMemoryDocOperations
 from arelight.exp.exp_io import InferIOUtils
 from arelight.exp.opin_ops import CustomOpinionOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
@@ -79,8 +79,8 @@ class NetworkTextsSerializationPipelineItem(BasePipelineItem):
 
         self.__exp_io = InferIOUtils(exp_ctx=self.__exp_ctx, output_dir=output_dir)
 
-        self.__doc_ops = CustomDocOperations(exp_ctx=self.__exp_ctx,
-                                             text_parser=self.__text_parser)
+        self.__doc_ops = InMemoryDocOperations(exp_ctx=self.__exp_ctx,
+                                               text_parser=self.__text_parser)
 
         self.__opin_ops = CustomOpinionOperations(
             labels_formatter=self.__labels_fmt,

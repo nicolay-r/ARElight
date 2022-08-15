@@ -1,17 +1,15 @@
 from arekit.common.experiment.api.ops_doc import DocumentOperations
 
 
-class CustomDocOperations(DocumentOperations):
+class InMemoryDocOperations(DocumentOperations):
 
-    def __init__(self, exp_ctx, text_parser):
-        super(CustomDocOperations, self).__init__(exp_ctx, text_parser)
-        self.__docs = None
-        self.__doc_ids = None
+    def __init__(self, docs=None):
+        assert(isinstance(docs, list) or docs is None)
+        self.__docs = docs
 
     def set_docs(self, docs):
         assert(isinstance(docs, list))
         self.__docs = docs
-        self.__doc_ids = list(range(len(self.__docs)))
 
     def get_doc(self, doc_id):
         return self.__docs[doc_id]

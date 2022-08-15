@@ -1,16 +1,24 @@
 import argparse
 from os.path import join
 
+from arekit.common.experiment.data_type import DataType
+from arekit.common.folding.nofold import NoFolding
+from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
+from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
+from arekit.common.text.parser import BaseTextParser
+from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
+from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline, create_neutral_annotation_pipeline
+from arelight.exp.doc_ops import InMemoryDocOperations
 from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.utils import input_to_docs
 
 from examples.args import common
 from examples.args import train
 from examples.args import const
 from examples.entities.factory import create_entity_formatter
 from examples.entities.types import EntityFormatterTypes
-from examples.utils import create_labels_scaler
+from examples.utils import create_labels_scaler, read_synonyms_collection
 
 if __name__ == '__main__':
 
@@ -29,6 +37,7 @@ if __name__ == '__main__':
     common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
     common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     train.DoLowercaseArg.add_argument(parser, default=const.BERT_DO_LOWERCASE)
 
     # Parsing arguments.
@@ -37,9 +46,11 @@ if __name__ == '__main__':
     # Reading text-related parameters.
     texts_from_files = common.FromFilesArg.read_argument(args)
     text_from_arg = common.InputTextArg.read_argument(args)
+    entities_parser = common.EntitiesParserArg.read_argument(args)
+    terms_per_context = common.TermsPerContextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else texts_from_files
 
-    ppl = demo_infer_texts_bert_pipeline(
+    pipeline = demo_infer_texts_bert_pipeline(
         texts_count=len(texts_from_files),
         output_dir=const.OUTPUT_DIR,
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
@@ -48,19 +59,40 @@ if __name__ == '__main__':
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),
         bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
         bert_finetuned_ckpt_path=common.BertCheckpointFilepathArg.read_argument(args),
-        terms_per_context=common.TermsPerContextArg.read_argument(args),
         do_lowercase=train.DoLowercaseArg.read_argument(args),
         max_seq_length=common.TokensPerContextArg.read_argument(args)
     )
 
-    ppl.append(
+    synonyms = read_synonyms_collection(filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
+
+    text_parser = BaseTextParser(pipeline=[
+        TermsSplitterParser(),
+        entities_parser,
+        EntitiesGroupingPipelineItem(
+            lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                synonyms=synonyms, value=value))
+    ])
+
+    data_pipeline = create_neutral_annotation_pipeline(
+        synonyms=synonyms,
+        dist_in_terms_bound=terms_per_context,
+        doc_ops=InMemoryDocOperations(docs=input_to_docs(actual_content)),
+        terms_per_context=50,
+        text_parser=text_parser)
+
+    pipeline.append(
         BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
     )
 
+    no_folding = NoFolding(doc_ids_to_fold=list(range(len(actual_content))),
+                           supported_data_types=[DataType.Test])
+
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
-    ppl.run(actual_content, {
+    pipeline.run(actual_content, {
         "template_filepath": join(const.DATA_DIR, "brat_template.html"),
         "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,
-        "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None
+        "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
+        "data_type_pipelines": {DataType.Test: data_pipeline},
+        "data_folding": no_folding
     })
