@@ -25,7 +25,7 @@ from arelight.exp.doc_ops import InMemoryDocOperations
 from arelight.exp.exp_io import InferIOUtils
 from arelight.exp.opin_ops import CustomOpinionOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
-from arelight.network.nn.ctx import NetworkSerializationContext
+from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
 from arelight.pipelines.utils import input_to_docs
 
 
@@ -53,7 +53,6 @@ class NetworkTextsSerializationPipelineItem(BasePipelineItem):
 
         # Initialize synonyms collection.
         self.__synonyms = synonyms
-        pos_tagger = POSMystemWrapper(MystemWrapper().MystemInstance)
 
         # Label provider setup.
         self.__labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
@@ -74,13 +73,20 @@ class NetworkTextsSerializationPipelineItem(BasePipelineItem):
             FrameVariantsSentimentNegation()])
 
         # initialize experiment related data.
-        self.__exp_ctx = NetworkSerializationContext(labels_scaler=SingleLabelScaler(NoLabel()),
-                                                     name_provider=name_provider)
+        self.__exp_ctx = CustomNeuralNetworkSerializationContext(
+            labels_scaler=SingleLabelScaler(NoLabel()),
+            pos_tagger=POSMystemWrapper(MystemWrapper().MystemInstance),
+            embedding=None,
+            str_entity_formatter=None,
+            frames_collection=frames_collection,
+            frame_variant_collection=frame_variants_collection,
+            terms_per_context=terms_per_context)
 
+        # TODO. InferIOUtils does not exist.
+        # TODO. Use samples io-utils instead.
         self.__exp_io = InferIOUtils(exp_ctx=self.__exp_ctx, output_dir=output_dir)
 
-        self.__doc_ops = InMemoryDocOperations(exp_ctx=self.__exp_ctx,
-                                               text_parser=self.__text_parser)
+        self.__doc_ops = InMemoryDocOperations()
 
         self.__opin_ops = CustomOpinionOperations(
             labels_formatter=self.__labels_fmt,

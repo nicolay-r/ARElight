@@ -28,8 +28,6 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
                                             output_dir,
                                             entity_fmt,
                                             synonyms_filepath,
-                                            embedding_matrix_filepath=None,
-                                            vocab_filepath=None,
                                             bags_per_minibatch=2,
                                             exp_name_provider=ExperimentNameProvider(name="example", suffix="infer"),
                                             stemmer=MystemWrapper(),
@@ -40,10 +38,8 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
 
     nn_io = create_network_model_io(
         full_model_name=create_full_model_name(model_name=model_name, input_type=model_input_type),
-        embedding_filepath=embedding_matrix_filepath,
         source_dir=model_load_dir,
         target_dir=model_load_dir,
-        vocab_filepath=vocab_filepath,
         model_name_tag=u'')
 
     PairBasedOpinionAnnotationAlgorithm(

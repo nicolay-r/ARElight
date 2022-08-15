@@ -27,14 +27,11 @@ def create_bags_collection_type(model_input_type):
         return MultiInstanceBagsCollection
 
 
-def create_network_model_io(full_model_name, source_dir, embedding_filepath,
-                            target_dir, vocab_filepath, model_name_tag):
+def create_network_model_io(full_model_name, source_dir, target_dir, model_name_tag):
 
     return NeuralNetworkModelIO(full_model_name=full_model_name,
                                 target_dir=target_dir,
                                 source_dir=source_dir,
-                                embedding_filepath=embedding_filepath,
-                                vocab_filepath=vocab_filepath,
                                 model_name_tag=model_name_tag)
 
 
