@@ -1,6 +1,5 @@
 import unittest
 
-from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
 
@@ -27,6 +26,7 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
+from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.exp.doc_ops import InMemoryDocOperations
