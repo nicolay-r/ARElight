@@ -1,38 +1,39 @@
 from arekit.common.experiment.data_type import DataType
-from arekit.common.experiment.name_provider import ExperimentNameProvider
-from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
-from arekit.common.opinions.annot.base import BaseOpinionAnnotator
 from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.networks.core.callback.stat import TrainingStatProviderCallback
 from arekit.contrib.networks.core.callback.train_limiter import TrainingLimiterCallback
+from arekit.contrib.networks.core.input.term_types import TermTypes
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_name_types import ModelNames
+from arekit.contrib.networks.pipelines.items.serializer import NetworksInputSerializerPipelineItem
+from arekit.contrib.utils.io_utils.embedding import NpzEmbeddingIO
+from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
+from arekit.contrib.utils.processing.pos.mystem_wrap import POSMystemWrapper
+from arekit.contrib.utils.resources import load_embedding_news_mystem_skipgram_1000_20_2015
+from arekit.contrib.utils.vectorizers.bpe import BPEVectorizer
+from arekit.contrib.utils.vectorizers.random_norm import RandomNormalVectorizer
 
 from arelight.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.demo.labels.scalers import ThreeLabelScaler
-from arelight.demo.utils import read_synonyms_collection
 from arelight.network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
+from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
 from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
-from arelight.pipelines.serialize_nn import NetworkTextsSerializationPipelineItem
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 
 def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
-                                            model_name, model_input_type, model_load_dir,
-                                            frames_collection,
+                                            model_name,
+                                            model_input_type,
+                                            model_load_dir,
                                             output_dir,
                                             entity_fmt,
-                                            synonyms_filepath,
+                                            frames_collection,
                                             bags_per_minibatch=2,
-                                            exp_name_provider=ExperimentNameProvider(name="example", suffix="infer"),
-                                            stemmer=MystemWrapper(),
-                                            labels_scaler=ThreeLabelScaler(),
-                                            terms_per_context=50):
+                                            labels_scaler=ThreeLabelScaler()):
     assert(isinstance(texts_count, int))
     assert(isinstance(model_name, ModelNames))
 
@@ -46,26 +47,41 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
         dist_in_terms_bound=None,
         label_provider=ConstantLabelProvider(label_instance=NoLabel()))
 
-    opin_annot = BaseOpinionAnnotator()
+    embedding = load_embedding_news_mystem_skipgram_1000_20_2015()
+    bpe_vectorizer = BPEVectorizer(embedding=embedding, max_part_size=3)
+    norm_vectorizer = RandomNormalVectorizer(vector_size=embedding.VectorSize,
+                                             token_offset=12345)
+
+    exp_ctx = CustomNeuralNetworkSerializationContext(
+        labels_scaler=labels_scaler,
+        pos_tagger=POSMystemWrapper(MystemWrapper().MystemInstance),
+        frames_collection=frames_collection)
+
+    samples_io = SamplesIO(target_dir=output_dir)
+    emb_io = NpzEmbeddingIO(target_dir=output_dir)
 
     # Declaring pipeline.
-    ppl = BasePipeline(pipeline=[
+    pipeline = BasePipeline(pipeline=[
 
-        NetworkTextsSerializationPipelineItem(
-            frames_collection=frames_collection,
-            synonyms=read_synonyms_collection(synonyms_filepath=synonyms_filepath, stemmer=stemmer),
-            terms_per_context=terms_per_context,
-            entities_parser=BertOntonotesNERPipelineItem(
-                lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
-            entity_fmt=entity_fmt,
-            stemmer=stemmer,
-            name_provider=exp_name_provider,
-            output_dir=output_dir,
-            data_folding=NoFolding(doc_ids_to_fold=list(range(texts_count)),
-                                   supported_data_types=[DataType.Test])),
+        NetworksInputSerializerPipelineItem(
+            vectorizers={
+                TermTypes.WORD: bpe_vectorizer,
+                TermTypes.ENTITY: bpe_vectorizer,
+                TermTypes.FRAME: bpe_vectorizer,
+                TermTypes.TOKEN: norm_vectorizer
+            },
+            exp_ctx=exp_ctx,
+            str_entity_fmt=entity_fmt,
+            samples_io=samples_io,
+            emb_io=emb_io,
+            save_labels_func=lambda data_type: data_type != DataType.Test,
+            balance_func=lambda data_type: data_type == DataType.Train,
+            save_embedding=True),
 
         TensorflowNetworkInferencePipelineItem(
             nn_io=nn_io,
+            emb_io=emb_io,
+            samples_io=samples_io,
             model_name=model_name,
             data_type=DataType.Test,
             bag_size=1,
@@ -88,4 +104,4 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
         ),
     ])
 
-    return ppl
+    return pipeline

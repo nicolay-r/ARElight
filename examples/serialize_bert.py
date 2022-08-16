@@ -9,9 +9,7 @@ from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
-from arekit.common.opinions.annot.algo_based import AlgorithmBasedOpinionAnnotator
 from arekit.common.opinions.annot.base import BaseOpinionAnnotator
-from arekit.common.opinions.collection import OpinionCollection
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
@@ -27,25 +25,7 @@ from arelight.pipelines.utils import input_to_docs
 from examples.args import const, common
 from examples.args.const import DEFAULT_TEXT_FILEPATH
 from examples.entities.factory import create_entity_formatter
-from examples.utils import read_synonyms_collection
-
-
-def __create_neutral_annot(synonyms_collection, dist_in_terms_bound, dist_in_sentences=0):
-    # TODO. This was duplicated.
-
-    annotator = AlgorithmBasedOpinionAnnotator(
-        annot_algo=PairBasedOpinionAnnotationAlgorithm(
-            dist_in_sents=dist_in_sentences,
-            dist_in_terms_bound=dist_in_terms_bound,
-            label_provider=ConstantLabelProvider(NoLabel())),
-        create_empty_collection_func=lambda: OpinionCollection(
-            opinions=[],
-            synonyms=synonyms_collection,
-            error_on_duplicates=True,
-            error_on_synonym_end_missed=False),
-        get_doc_existed_opinions_func=lambda _: None)
-
-    return annotator
+from examples.utils import read_synonyms_collection, create_neutral_annot
 
 
 if __name__ == '__main__':
@@ -96,9 +76,9 @@ if __name__ == '__main__':
 
     # Initialize data processing pipeline.
     test_pipeline = attitude_extraction_default_pipeline(
-        annotator=__create_neutral_annot(synonyms_collection=synonyms,
-                                         dist_in_terms_bound=terms_per_context,
-                                         dist_in_sentences=0),
+        annotator=create_neutral_annot(synonyms_collection=synonyms,
+                                       dist_in_terms_bound=terms_per_context,
+                                       dist_in_sentences=0),
         get_doc_func=lambda doc_id: doc_ops.get_doc(doc_id),
         text_parser=text_parser,
         value_to_group_id_func=lambda value:

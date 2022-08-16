@@ -1,14 +1,6 @@
 from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter
 
-from arekit.common.labels.base import Label
-
-
-class PositiveLabel(Label):
-    pass
-
-
-class NegativeLabel(Label):
-    pass
+from arelight.demo.labels.base import PositiveLabel, NegativeLabel
 
 
 class ExperimentRuSentiFramesLabelsFormatter(RuSentiFramesLabelsFormatter):

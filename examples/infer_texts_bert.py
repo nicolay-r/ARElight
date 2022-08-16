@@ -8,8 +8,9 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline, create_neutral_annotation_pipeline
+from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.utils import input_to_docs
 
@@ -33,11 +34,11 @@ if __name__ == '__main__':
     common.TokensPerContextArg.add_argument(parser, default=128)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     common.PredictOutputFilepathArg.add_argument(parser, default=None)
+    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_FINETUNED_CKPT_PATH)
     common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
     common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
-    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     train.DoLowercaseArg.add_argument(parser, default=const.BERT_DO_LOWERCASE)
 
     # Parsing arguments.

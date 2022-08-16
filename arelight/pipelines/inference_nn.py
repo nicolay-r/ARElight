@@ -1,5 +1,4 @@
-import os
-from os.path import join
+from os.path import join, dirname
 
 from arekit.common.data.row_ids.multiple import MultipleIDProvider
 from arekit.common.data.storages.base import BaseRowsStorage
@@ -18,19 +17,19 @@ from arekit.contrib.networks.core.pipeline.item_predict_labeling import EpochLab
 from arekit.contrib.networks.core.predict.base_writer import BasePredictWriter
 from arekit.contrib.networks.factory import create_network_and_network_config_funcs
 from arekit.contrib.networks.shapes import NetworkInputShapes
+from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.processing.languages.ru.pos_service import PartOfSpeechTypesService
-
-from arelight.exp.exp_io import InferIOUtils
 
 
 class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self, model_name, bags_collection_type, model_input_type, predict_writer,
-                 data_type, bag_size, bags_per_minibatch, nn_io, labels_scaler, callbacks):
+    def __init__(self, model_name, bags_collection_type, model_input_type, predict_writer, samples_io,
+                 data_type, bag_size, bags_per_minibatch, nn_io, labels_scaler, callbacks, emb_io):
         assert(isinstance(callbacks, list))
         assert(isinstance(bag_size, int))
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
+        assert(isinstance(samples_io, SamplesIO))
 
         # Create network an configuration.
         network_func, config_func = create_network_and_network_config_funcs(
@@ -61,25 +60,31 @@ class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
         self.__writer = predict_writer
         self.__bags_collection_type = bags_collection_type
         self.__data_type = data_type
+        self.__samples_io = samples_io
+        self.__emb_io = emb_io
 
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, InferIOUtils))
         assert(isinstance(pipeline_ctx, PipelineContext))
+
+        # Fetch other required in furter information from input_data.
+        samples_filepath = self.__samples_io.create_target(
+            data_type=self.__data_type,
+            data_folding=pipeline_ctx.provide("data_folding"))
 
         # Setup predicted result writer.
         tgt = pipeline_ctx.provide_or_none("predict_fp")
         if tgt is None:
-            exp_root = os.path.join(input_data._get_experiment_sources_dir(),
-                                    input_data.get_experiment_folder_name())
-            tgt = join(exp_root, "predict.tsv.gz")
+            tgt = join(dirname(samples_filepath), "predict.tsv.gz")
 
         # Update for further pipeline items.
         pipeline_ctx.update("predict_fp", tgt)
 
+        data_folding = pipeline_ctx.provide("data_folding")
+
         # Fetch other required in further information from input_data.
-        samples_filepath = input_data.create_samples_writer_target(self.__data_type)
-        embedding = input_data.load_embedding()
-        vocab = input_data.load_vocab()
+        samples_filepath = self.__samples_io.create_target(self.__data_type, data_folding=data_folding)
+        embedding = self.__emb_io.load_embedding(data_folding)
+        vocab = self.__emb_io.load_vocab(data_folding)
 
         # Setup config parameters.
         self.__config.set_term_embedding(embedding)
@@ -115,3 +120,5 @@ class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
         self.__writer.set_target(tgt)
 
         model.predict(do_compile=True)
+
+        return self.__samples_io
