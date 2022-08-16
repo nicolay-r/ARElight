@@ -8,7 +8,6 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
-from arekit.contrib.utils.pipelines.annot.base import attitude_extraction_default_pipeline
 from arekit.contrib.utils.pipelines.items.text.frames import FrameVariantsParser
 from arekit.contrib.utils.pipelines.items.text.frames_lemmatized import LemmasBasedFrameVariantsParser
 from arekit.contrib.utils.pipelines.items.text.frames_negation import FrameVariantsSentimentNegation
@@ -24,7 +23,7 @@ from arelight.pipelines.utils import input_to_docs
 
 from examples.args import const, common, train
 from examples.entities.factory import create_entity_formatter
-from examples.utils import create_labels_scaler, create_neutral_annot, read_synonyms_collection
+from examples.utils import create_labels_scaler, read_synonyms_collection
 
 if __name__ == '__main__':
 
@@ -91,8 +90,6 @@ if __name__ == '__main__':
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
     doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts))
-
-
 
     # Initialize text parser with the related dependencies.
     frame_variants_collection = create_and_fill_variant_collection(frames_collection)

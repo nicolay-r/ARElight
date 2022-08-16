@@ -17,15 +17,16 @@ from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSe
 from arekit.contrib.bert.samplers.nli_m import NliMultipleSampleProvider
 from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
 from arekit.contrib.utils.io_utils.samples import SamplesIO
-from arekit.contrib.utils.pipelines.annot.base import attitude_extraction_default_pipeline
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
 from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.utils import input_to_docs
+
 from examples.args import const, common
 from examples.args.const import DEFAULT_TEXT_FILEPATH
 from examples.entities.factory import create_entity_formatter
-from examples.utils import read_synonyms_collection, create_neutral_annot
+from examples.utils import read_synonyms_collection
 
 
 if __name__ == '__main__':
@@ -75,17 +76,12 @@ if __name__ == '__main__':
     terms_per_context = common.TermsPerContextArg.read_argument(args)
 
     # Initialize data processing pipeline.
-    test_pipeline = attitude_extraction_default_pipeline(
-        annotator=create_neutral_annot(synonyms_collection=synonyms,
-                                       dist_in_terms_bound=terms_per_context,
-                                       dist_in_sentences=0),
-        get_doc_func=lambda doc_id: doc_ops.get_doc(doc_id),
-        text_parser=text_parser,
-        value_to_group_id_func=lambda value:
-            SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                synonyms=synonyms, value=value),
-        terms_per_context=terms_per_context,
-        entity_index_func=None)
+    test_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
+                                                       dist_in_terms_bound=terms_per_context,
+                                                       terms_per_context=terms_per_context,
+                                                       doc_ops=doc_ops,
+                                                       text_parser=text_parser,
+                                                       dist_in_sentences=0)
 
     rows_provider = NliMultipleSampleProvider(
         label_scaler=label_scaler,

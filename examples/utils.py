@@ -1,10 +1,5 @@
 from enum import Enum
 
-from arekit.common.labels.base import NoLabel
-from arekit.common.labels.provider.constant import ConstantLabelProvider
-from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
-from arekit.common.opinions.annot.algo_based import AlgorithmBasedOpinionAnnotator
-from arekit.common.opinions.collection import OpinionCollection
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
@@ -21,24 +16,6 @@ def create_labels_scaler(labels_count):
         return ThreeLabelScaler()
 
     raise NotImplementedError("Not supported")
-
-
-def create_neutral_annot(synonyms_collection, dist_in_terms_bound, dist_in_sentences=0):
-    # TODO. Remove this adopt from ARElight
-
-    annotator = AlgorithmBasedOpinionAnnotator(
-        annot_algo=PairBasedOpinionAnnotationAlgorithm(
-            dist_in_sents=dist_in_sentences,
-            dist_in_terms_bound=dist_in_terms_bound,
-            label_provider=ConstantLabelProvider(NoLabel())),
-        create_empty_collection_func=lambda: OpinionCollection(
-            opinions=[],
-            synonyms=synonyms_collection,
-            error_on_duplicates=True,
-            error_on_synonym_end_missed=False),
-        get_doc_existed_opinions_func=lambda _: None)
-
-    return annotator
 
 
 def read_synonyms_collection(filepath):

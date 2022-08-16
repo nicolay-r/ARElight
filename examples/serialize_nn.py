@@ -14,7 +14,6 @@ from arekit.contrib.networks.core.input.term_types import TermTypes
 from arekit.contrib.networks.pipelines.items.serializer import NetworksInputSerializerPipelineItem
 from arekit.contrib.utils.io_utils.embedding import NpzEmbeddingIO
 from arekit.contrib.utils.io_utils.samples import SamplesIO
-from arekit.contrib.utils.pipelines.annot.base import attitude_extraction_default_pipeline
 from arekit.contrib.utils.pipelines.items.text.frames import FrameVariantsParser
 from arekit.contrib.utils.pipelines.items.text.frames_lemmatized import LemmasBasedFrameVariantsParser
 from arekit.contrib.utils.pipelines.items.text.frames_negation import FrameVariantsSentimentNegation
@@ -29,12 +28,14 @@ from arekit.contrib.utils.vectorizers.random_norm import RandomNormalVectorizer
 from arelight.exp.doc_ops import InMemoryDocOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
 from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
+from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.utils import input_to_docs
+
 from examples.args import const
 from examples.args import common
 from examples.args.const import DEFAULT_TEXT_FILEPATH
 from examples.entities.factory import create_entity_formatter
-from examples.utils import read_synonyms_collection, create_neutral_annot, create_labels_scaler
+from examples.utils import read_synonyms_collection, create_labels_scaler
 
 if __name__ == '__main__':
 
@@ -110,17 +111,12 @@ if __name__ == '__main__':
         FrameVariantsSentimentNegation()])
 
     # Initialize data processing pipeline.
-    test_pipeline = attitude_extraction_default_pipeline(
-        annotator=create_neutral_annot(synonyms_collection=synonyms_collection,
-                                       dist_in_terms_bound=terms_per_context,
-                                       dist_in_sentences=0),
-        get_doc_func=lambda doc_id: doc_ops.get_doc(doc_id),
-        text_parser=text_parser,
-        value_to_group_id_func=lambda value:
-            SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                synonyms=synonyms_collection, value=value),
-        terms_per_context=terms_per_context,
-        entity_index_func=None)
+    test_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms_collection,
+                                                       dist_in_terms_bound=terms_per_context,
+                                                       terms_per_context=terms_per_context,
+                                                       doc_ops=doc_ops,
+                                                       text_parser=text_parser,
+                                                       dist_in_sentences=0)
 
     pipeline.run(input_data=None,
                  params_dict={
