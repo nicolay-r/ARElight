@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
-    pipeline.run(actual_content, {
+    pipeline.run(None, {
         "template_filepath": join(const.DATA_DIR, "brat_template.html"),
         "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,
         "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
