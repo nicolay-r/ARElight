@@ -19,9 +19,9 @@ from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
-from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.utils import input_to_docs
+from arelight.pipelines.items.utils import input_to_docs
 
 from examples.args import const, common
 from examples.args.const import DEFAULT_TEXT_FILEPATH

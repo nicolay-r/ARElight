@@ -2,8 +2,8 @@ import argparse
 from os.path import join
 
 from arekit.common.pipeline.base import BasePipeline
-from arelight.pipelines.train_bert import BertFinetunePipelineItem
 
+from arelight.pipelines.items.train_bert import BertFinetunePipelineItem
 from examples.args import train, common, const
 
 if __name__ == '__main__':

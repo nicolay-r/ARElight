@@ -16,12 +16,12 @@ from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt impo
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
-from arelight.demo.labels.scalers import ThreeLabelScaler
-from arelight.demo.utils import read_synonyms_collection
-from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.utils import input_to_docs
+from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.demo.utils import read_synonyms_collection
+from arelight.pipelines.items.utils import input_to_docs
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 bratUrl = '/brat/'

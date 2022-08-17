@@ -14,13 +14,12 @@ from arekit.contrib.utils.pipelines.items.text.frames_negation import FrameVaria
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.pipelines.items.text.tokenizer import DefaultTextTokenizer
 
-from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.doc_ops import InMemoryDocOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
-from arelight.pipelines.utils import input_to_docs
-
+from arelight.pipelines.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
+from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.items.utils import input_to_docs
 from examples.args import const, common, train
 from examples.entities.factory import create_entity_formatter
 from examples.utils import create_labels_scaler, read_synonyms_collection

@@ -3,7 +3,7 @@ from collections import OrderedDict
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.sentiment import SentimentLabelScaler
 
-from arelight.demo.labels.base import PositiveLabel, NegativeLabel
+from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 
 
 class ThreeLabelScaler(SentimentLabelScaler):

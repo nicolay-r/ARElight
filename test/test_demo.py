@@ -9,10 +9,10 @@ from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
 from arekit.contrib.utils.entities.formatters.str_simple_fmt import StringEntitiesSimpleFormatter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
-from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-from arelight.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
-from arelight.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
+from arelight.pipelines.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from examples.args import const
 
 

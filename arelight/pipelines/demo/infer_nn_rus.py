@@ -17,12 +17,12 @@ from arekit.contrib.utils.resources import load_embedding_news_mystem_skipgram_1
 from arekit.contrib.utils.vectorizers.bpe import BPEVectorizer
 from arekit.contrib.utils.vectorizers.random_norm import RandomNormalVectorizer
 
-from arelight.demo.labels.base import PositiveLabel, NegativeLabel
-from arelight.demo.labels.scalers import ThreeLabelScaler
 from arelight.network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
 from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
-from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
-from arelight.pipelines.inference_nn import TensorflowNetworkInferencePipelineItem
+from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.items.backend_brat_json import BratBackendContentsPipelineItem
+from arelight.pipelines.items.inference_nn import TensorflowNetworkInferencePipelineItem
 
 
 def demo_infer_texts_tensorflow_nn_pipeline(texts_count,

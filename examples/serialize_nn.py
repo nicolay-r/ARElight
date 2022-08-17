@@ -25,11 +25,11 @@ from arekit.contrib.utils.resources import load_embedding_news_mystem_skipgram_1
 from arekit.contrib.utils.vectorizers.bpe import BPEVectorizer
 from arekit.contrib.utils.vectorizers.random_norm import RandomNormalVectorizer
 
-from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.doc_ops import InMemoryDocOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
 from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.utils import input_to_docs
+from arelight.pipelines.items.utils import input_to_docs
 
 from examples.args import const
 from examples.args import common

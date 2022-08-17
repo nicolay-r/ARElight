@@ -4,7 +4,7 @@ from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
-from arelight.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 
 
 def create_labels_scaler(labels_count):

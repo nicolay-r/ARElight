@@ -8,12 +8,11 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
-from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
-from arelight.pipelines.utils import input_to_docs
-
+from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
+from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.items.utils import input_to_docs
 from examples.args import common
 from examples.args import train
 from examples.args import const

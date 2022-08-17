@@ -24,14 +24,14 @@ from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitt
 from arekit.contrib.utils.pipelines.items.text.tokenizer import DefaultTextTokenizer
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-from arelight.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
-from arelight.demo.utils import read_synonyms_collection
-from arelight.exp.doc_ops import InMemoryDocOperations
+from arelight.doc_ops import InMemoryDocOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.backend_brat_html import BratHtmlEmbeddingPipelineItem
-from arelight.pipelines.utils import input_to_docs
+from arelight.pipelines.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
+from arelight.pipelines.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.pipelines.demo.utils import read_synonyms_collection
+from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.items.utils import input_to_docs
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 bratUrl = '/brat/'

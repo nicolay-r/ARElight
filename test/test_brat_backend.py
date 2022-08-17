@@ -3,8 +3,8 @@ import unittest
 from os.path import join, dirname, realpath
 
 from arelight.brat_backend import BratBackend
-from arelight.demo.labels.base import NegativeLabel, PositiveLabel
-from arelight.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 
 
 class TestBratEmbedding(unittest.TestCase):

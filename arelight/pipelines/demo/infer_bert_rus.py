@@ -7,9 +7,9 @@ from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSe
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 
-from arelight.demo.labels.base import NegativeLabel, PositiveLabel
-from arelight.pipelines.backend_brat_json import BratBackendContentsPipelineItem
-from arelight.pipelines.inference_bert import BertInferencePipelineItem
+from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
+from arelight.pipelines.items.backend_brat_json import BratBackendContentsPipelineItem
+from arelight.pipelines.items.inference_bert import BertInferencePipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 

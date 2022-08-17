@@ -29,8 +29,8 @@ from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymColle
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
-from arelight.exp.doc_ops import InMemoryDocOperations
-from arelight.pipelines.utils import input_to_docs
+from arelight.doc_ops import InMemoryDocOperations
+from arelight.pipelines.items.utils import input_to_docs
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 
