@@ -13,6 +13,7 @@ from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
+
 from examples.args import common
 from examples.args import train
 from examples.args import const
@@ -55,7 +56,6 @@ if __name__ == '__main__':
         output_dir=const.OUTPUT_DIR,
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
         labels_scaler=create_labels_scaler(common.LabelsCountArg.read_argument(args)),
-        synonyms_filepath=common.SynonymsCollectionFilepathArg.read_argument(args),
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),
         bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
         bert_finetuned_ckpt_path=common.BertCheckpointFilepathArg.read_argument(args),

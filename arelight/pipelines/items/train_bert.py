@@ -11,7 +11,8 @@ from tqdm import tqdm
 class BertFinetunePipelineItem(BasePipelineItem):
 
     def __init__(self, bert_config_file, model_checkpoint_path, do_lowercase,
-                 learning_rate, vocab_filepath, max_seq_length, save_path):
+                 learning_rate, vocab_filepath, max_seq_length, save_path,
+                 labels_count=3):
         assert(isinstance(bert_config_file, str))
         assert(isinstance(model_checkpoint_path, str))
 
@@ -20,7 +21,7 @@ class BertFinetunePipelineItem(BasePipelineItem):
             bert_config_file=bert_config_file,
             load_path=model_checkpoint_path,
             keep_prob=0.1,
-            n_classes=3,
+            n_classes=labels_count,
             save_path=save_path,
             learning_rate=learning_rate)
 

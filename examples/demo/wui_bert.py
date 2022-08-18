@@ -78,7 +78,6 @@ demo_pipeline = demo_infer_texts_bert_pipeline(
     bert_config_path=join(model_dir, state_name, "bert_config.json"),
     bert_vocab_path=join(model_dir, state_name, "vocab.txt"),
     bert_finetuned_ckpt_path=join(model_dir, finetuned_state_name, state_name),
-    synonyms_filepath="/arelight/data/synonyms.txt",
     labels_scaler=ThreeLabelScaler())
 
 synonyms = read_synonyms_collection(synonyms_filepath="/arelight/data/synonyms.txt",
@@ -93,7 +92,7 @@ text_parser = BaseTextParser(pipeline=[
 ])
 
 # Declare a single document with `0` id and contents.
-single_doc = (0, text.strip())
+single_doc = [text.strip()]
 doc_ops = InMemoryDocOperations(docs=input_to_docs(single_doc))
 
 data_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,

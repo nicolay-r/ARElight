@@ -36,7 +36,8 @@ if __name__ == '__main__':
                                  do_lowercase=train.DoLowercaseArg.read_argument(args),
                                  max_seq_length=common.TokensPerContextArg.read_argument(args),
                                  learning_rate=train.LearningRateArg.read_argument(args),
-                                 save_path=common.BertSaveFilepathArg.read_argument(args))
+                                 save_path=common.BertSaveFilepathArg.read_argument(args),
+                                 labels_count=3)
     ])
 
     pipeline.run(common.InputSamplesFilepath.read_argument(args),

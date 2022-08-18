@@ -100,7 +100,7 @@ synonyms = read_synonyms_collection(synonyms_filepath="/arelight/data/synonyms.t
 demo_pipeline.append(BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/"))
 
 # Declare a single document with `0` id and contents.
-single_doc = (0, text.strip())
+single_doc = [text.strip()]
 doc_ops = InMemoryDocOperations(docs=input_to_docs(single_doc))
 
 # Initialize text parser with the related dependencies.

@@ -15,7 +15,6 @@ from arelight.samplers.types import SampleFormattersService
 
 
 def demo_infer_texts_bert_pipeline(texts_count,
-                                   synonyms_filepath,
                                    output_dir,
                                    bert_config_path,
                                    bert_vocab_path,
@@ -27,7 +26,6 @@ def demo_infer_texts_bert_pipeline(texts_count,
                                    max_seq_length=128):
     assert(isinstance(texts_count, int))
     assert(isinstance(output_dir, str))
-    assert(isinstance(synonyms_filepath, str))
     assert(isinstance(labels_scaler, BaseLabelScaler))
 
     labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})

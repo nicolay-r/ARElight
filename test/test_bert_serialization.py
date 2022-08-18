@@ -6,22 +6,17 @@ from os.path import dirname, join, realpath
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
-from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.news.base import News
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.news.sentence import BaseNewsSentence
-from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
-from arekit.common.opinions.annot.algo_based import AlgorithmBasedOpinionAnnotator
-from arekit.common.opinions.collection import OpinionCollection
 from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.bert.samplers.nli_m import NliMultipleSampleProvider
 from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
-from arekit.contrib.utils.pipelines.annot.base import attitude_extraction_default_pipeline
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
@@ -30,6 +25,7 @@ from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt impo
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.doc_ops import InMemoryDocOperations
+from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
@@ -68,27 +64,6 @@ class BertTestSerialization(unittest.TestCase):
         with open(filepath, 'r', encoding='utf-8') as file:
             for data in iter_synonym_groups(file):
                 yield data
-
-    @staticmethod
-    def __create_neutral_annot(dist_in_terms_bound, dist_in_sentences=0):
-        synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
-                                                 stemmer=MystemWrapper(),
-                                                 is_read_only=False,
-                                                 debug=False)
-
-        annotator = AlgorithmBasedOpinionAnnotator(
-            annot_algo=PairBasedOpinionAnnotationAlgorithm(
-                dist_in_sents=dist_in_sentences,
-                dist_in_terms_bound=dist_in_terms_bound,
-                label_provider=ConstantLabelProvider(NoLabel())),
-            create_empty_collection_func=lambda: OpinionCollection(
-                opinions=[],
-                synonyms=synonyms,
-                error_on_duplicates=True,
-                error_on_synonym_end_missed=False),
-            get_doc_existed_opinions_func=lambda _: None)
-
-        return annotator
 
     def test(self):
 
@@ -147,16 +122,18 @@ class BertTestSerialization(unittest.TestCase):
                 balance_func=lambda data_type: data_type == DataType.Train)
         ])
 
+        synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
+                                                 stemmer=MystemWrapper(),
+                                                 is_read_only=False,
+                                                 debug=False)
+
         # Initialize data processing pipeline.
-        test_pipeline = attitude_extraction_default_pipeline(
-            annotator=self.__create_neutral_annot(dist_in_terms_bound=50, dist_in_sentences=0),
-            get_doc_func=lambda doc_id: doc_ops.get_doc(doc_id),
-            text_parser=text_parser,
-            value_to_group_id_func=lambda value:
-                SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                    synonyms=synonyms, value=value),
-            terms_per_context=50,
-            entity_index_func=None)
+        test_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
+                                                           dist_in_terms_bound=50,
+                                                           dist_in_sentences=0,
+                                                           doc_ops=doc_ops,
+                                                           text_parser=text_parser,
+                                                           terms_per_context=50)
 
         pipeline.run(input_data=None,
                      params_dict={
