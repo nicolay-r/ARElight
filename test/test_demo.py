@@ -88,7 +88,7 @@ class TestDemo(unittest.TestCase):
                                            frame_variants=frame_variants_collection),
             FrameVariantsSentimentNegation()])
 
-        synonyms = read_synonyms_collection(synonyms_filepath="/arelight/data/synonyms.txt",
+        synonyms = read_synonyms_collection(synonyms_filepath=join(self.ORIGIN_DATA_DIR, "synonyms.txt"),
                                             stemmer=stemmer)
 
         single_doc = [self.text.strip()]
@@ -134,7 +134,7 @@ class TestDemo(unittest.TestCase):
         single_doc = [self.text.strip()]
         doc_ops = InMemoryDocOperations(docs=input_to_docs(single_doc))
 
-        synonyms = read_synonyms_collection(synonyms_filepath="/arelight/data/synonyms.txt",
+        synonyms = read_synonyms_collection(synonyms_filepath=join(self.ORIGIN_DATA_DIR, "synonyms.txt"),
                                             stemmer=MystemWrapper())
 
         text_parser = BaseTextParser(pipeline=[
