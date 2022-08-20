@@ -15,8 +15,6 @@ from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSerializerPipelineItem
-from arekit.contrib.bert.samplers.nli_m import NliMultipleSampleProvider
-from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
@@ -27,6 +25,8 @@ from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.utils import input_to_docs
+from arelight.samplers.bert import create_bert_sample_provider
+from arelight.samplers.types import BertSampleProviderTypes
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 
@@ -105,14 +105,12 @@ class BertTestSerialization(unittest.TestCase):
         # Composing labels formatter and experiment preparation.
         labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
         doc_ops = InMemoryDocOperations(docs=input_to_docs(texts))
-        entity_fmt = SharpPrefixedEntitiesSimpleFormatter()
 
-        rows_provider = NliMultipleSampleProvider(
+        rows_provider = create_bert_sample_provider(
             label_scaler=single_label_scaler,
+            provider_type=BertSampleProviderTypes.NLI_M,
             text_b_labels_fmt=labels_fmt,
-            text_terms_mapper=BertDefaultStringTextTermsMapper(
-                entity_formatter=entity_fmt
-            ))
+            entity_formatter=SharpPrefixedEntitiesSimpleFormatter())
 
         pipeline = BasePipeline([
             BertExperimentInputSerializerPipelineItem(
