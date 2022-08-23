@@ -1,9 +1,11 @@
 from arekit.contrib.networks.enum_name_types import ModelNamesService
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
+from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter, \
+    RuSentiFramesEffectLabelsFormatter
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.pipelines.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
 from arelight.samplers.types import SampleFormattersService
 from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 from arelight.text.pipeline_entities_default import TextEntitiesParser
@@ -35,7 +37,10 @@ class FramesColectionArg(BaseArg):
         if args.frames == "ruattitudes-20":
             return RuSentiFramesCollection.read_collection(
                 version=RuSentiFramesVersions.V20,
-                labels_fmt=ExperimentRuSentiFramesLabelsFormatter())
+                labels_fmt=RuSentiFramesLabelsFormatter(
+                    pos_label_type=PositiveLabel, neg_label_type=NegativeLabel),
+                effect_labels_fmt=RuSentiFramesEffectLabelsFormatter(
+                    pos_label_type=PositiveLabel, neg_label_type=NegativeLabel))
 
     @staticmethod
     def add_argument(parser, default="ruattitudes-20"):

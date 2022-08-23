@@ -10,6 +10,8 @@ from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
+from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter, \
+    RuSentiFramesEffectLabelsFormatter
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
 from arekit.contrib.utils.entities.formatters.str_simple_fmt import StringEntitiesSimpleFormatter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
@@ -25,7 +27,7 @@ from arelight.network.nn.common import create_and_fill_variant_collection
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-from arelight.pipelines.demo.labels.formatter import ExperimentRuSentiFramesLabelsFormatter
+from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.pipelines.demo.utils import read_synonyms_collection
 from arelight.pipelines.items.utils import input_to_docs
@@ -60,7 +62,10 @@ class TestDemo(unittest.TestCase):
     def test_demo_rus_nn(self):
         frames_collection = RuSentiFramesCollection.read_collection(
             version=RuSentiFramesVersions.V20,
-            labels_fmt=ExperimentRuSentiFramesLabelsFormatter())
+            labels_fmt=RuSentiFramesLabelsFormatter(
+                pos_label_type=PositiveLabel, neg_label_type=NegativeLabel),
+            effect_labels_fmt=RuSentiFramesEffectLabelsFormatter(
+                pos_label_type=PositiveLabel, neg_label_type=NegativeLabel))
 
         demo_pipeline = demo_infer_texts_tensorflow_nn_pipeline(
             texts_count=1,

@@ -9,7 +9,7 @@ from arekit.contrib.networks.core.input.term_types import TermTypes
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.networks.pipelines.items.serializer import NetworksInputSerializerPipelineItem
-from arekit.contrib.utils.io_utils.embedding import NpzEmbeddingIO
+from arekit.contrib.utils.io_utils.embedding import NpEmbeddingIO
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.processing.pos.mystem_wrap import POSMystemWrapper
@@ -58,7 +58,7 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
         frames_collection=frames_collection)
 
     samples_io = SamplesIO(target_dir=output_dir)
-    emb_io = NpzEmbeddingIO(target_dir=output_dir)
+    emb_io = NpEmbeddingIO(target_dir=output_dir)
 
     # Declaring pipeline.
     pipeline = BasePipeline(pipeline=[

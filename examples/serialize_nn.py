@@ -12,7 +12,7 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.networks.core.input.term_types import TermTypes
 from arekit.contrib.networks.pipelines.items.serializer import NetworksInputSerializerPipelineItem
-from arekit.contrib.utils.io_utils.embedding import NpzEmbeddingIO
+from arekit.contrib.utils.io_utils.embedding import NpEmbeddingIO
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.frames import FrameVariantsParser
 from arekit.contrib.utils.pipelines.items.text.frames_lemmatized import LemmasBasedFrameVariantsParser
@@ -89,7 +89,7 @@ if __name__ == '__main__':
             str_entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
             exp_ctx=exp_ctx,
             samples_io=SamplesIO(target_dir=const.OUTPUT_DIR),
-            emb_io=NpzEmbeddingIO(target_dir=const.OUTPUT_DIR),
+            emb_io=NpEmbeddingIO(target_dir=const.OUTPUT_DIR),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train,
             save_embedding=True)
