@@ -21,8 +21,8 @@ from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.pipelines.demo.utils import read_synonyms_collection
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 bratUrl = '/brat/'
 

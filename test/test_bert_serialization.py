@@ -1,5 +1,6 @@
 import unittest
 
+from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
 
@@ -14,7 +15,6 @@ from arekit.common.news.sentence import BaseNewsSentence
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
@@ -24,10 +24,10 @@ from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 
 class EntityFilter(object):
@@ -99,8 +99,7 @@ class BertTestSerialization(unittest.TestCase):
         single_label_scaler = SingleLabelScaler(NoLabel())
 
         # Declare folding and experiment context.
-        no_folding = NoFolding(doc_ids_to_fold=list(range(len(texts))),
-                               supported_data_types=[DataType.Test])
+        no_folding = NoFolding(doc_ids=list(range(len(texts))), supported_data_type=DataType.Test)
 
         # Composing labels formatter and experiment preparation.
         labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})

@@ -6,18 +6,19 @@ from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.networks.core.callback.stat import TrainingStatProviderCallback
 from arekit.contrib.networks.core.callback.train_limiter import TrainingLimiterCallback
 from arekit.contrib.networks.core.input.term_types import TermTypes
+from arekit.contrib.networks.core.model_io import NeuralNetworkModelIO
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_name_types import ModelNames
-from arekit.contrib.networks.pipelines.items.serializer import NetworksInputSerializerPipelineItem
 from arekit.contrib.utils.io_utils.embedding import NpEmbeddingIO
 from arekit.contrib.utils.io_utils.samples import SamplesIO
+from arekit.contrib.utils.pipelines.items.sampling.networks import NetworksInputSerializerPipelineItem
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.processing.pos.mystem_wrap import POSMystemWrapper
 from arekit.contrib.utils.resources import load_embedding_news_mystem_skipgram_1000_20_2015
 from arekit.contrib.utils.vectorizers.bpe import BPEVectorizer
 from arekit.contrib.utils.vectorizers.random_norm import RandomNormalVectorizer
 
-from arelight.network.nn.common import create_network_model_io, create_bags_collection_type, create_full_model_name
+from arelight.network.nn.common import create_bags_collection_type, create_full_model_name
 from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
@@ -37,7 +38,7 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
     assert(isinstance(texts_count, int))
     assert(isinstance(model_name, ModelNames))
 
-    nn_io = create_network_model_io(
+    nn_io = NeuralNetworkModelIO(
         full_model_name=create_full_model_name(model_name=model_name, input_type=model_input_type),
         source_dir=model_load_dir,
         target_dir=model_load_dir,
@@ -47,14 +48,15 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
         dist_in_terms_bound=None,
         label_provider=ConstantLabelProvider(label_instance=NoLabel()))
 
-    embedding = load_embedding_news_mystem_skipgram_1000_20_2015()
+    stemmer = MystemWrapper()
+    embedding = load_embedding_news_mystem_skipgram_1000_20_2015(stemmer)
     bpe_vectorizer = BPEVectorizer(embedding=embedding, max_part_size=3)
     norm_vectorizer = RandomNormalVectorizer(vector_size=embedding.VectorSize,
                                              token_offset=12345)
 
-    exp_ctx = CustomNeuralNetworkSerializationContext(
+    ctx = CustomNeuralNetworkSerializationContext(
         labels_scaler=labels_scaler,
-        pos_tagger=POSMystemWrapper(MystemWrapper().MystemInstance),
+        pos_tagger=POSMystemWrapper(stemmer.MystemInstance),
         frames_collection=frames_collection)
 
     samples_io = SamplesIO(target_dir=output_dir)
@@ -70,7 +72,7 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
                 TermTypes.FRAME: bpe_vectorizer,
                 TermTypes.TOKEN: norm_vectorizer
             },
-            exp_ctx=exp_ctx,
+            ctx=ctx,
             str_entity_fmt=entity_fmt,
             samples_io=samples_io,
             emb_io=emb_io,

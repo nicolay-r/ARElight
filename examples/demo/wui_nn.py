@@ -33,8 +33,8 @@ from arelight.pipelines.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_
 from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
 from arelight.pipelines.demo.utils import read_synonyms_collection
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 bratUrl = '/brat/'
 

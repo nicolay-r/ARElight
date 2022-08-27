@@ -3,9 +3,9 @@ from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.base import BasePipeline
-from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
+from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.pipelines.items.backend_brat_json import BratBackendContentsPipelineItem

@@ -1,7 +1,7 @@
 import unittest
 
-from arelight.ner_obj_desc import NerObjectDescriptor
-from arelight.text.ner_ontonotes import BertOntonotesNER
+from arelight.ner.obj_desc import NerObjectDescriptor
+from arelight.ner.ontonotes import BertOntonotesNER
 
 
 class BertOntonotesTest(unittest.TestCase):

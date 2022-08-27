@@ -6,9 +6,9 @@ from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsServi
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
 from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.samplers.types import SampleFormattersService
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
-from arelight.text.pipeline_entities_default import TextEntitiesParser
 
 from examples.args.base import BaseArg
 from examples.entities.types import EntityFormattersService

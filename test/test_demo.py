@@ -30,8 +30,8 @@ from arelight.pipelines.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_
 from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.pipelines.demo.utils import read_synonyms_collection
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
 
 from examples.args import const
 
@@ -109,7 +109,7 @@ class TestDemo(unittest.TestCase):
 
         contents = demo_pipeline.run(None, {
             "template_filepath": join(const.DATA_DIR, "brat_template.html"),
-            "data_folding": NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]),
+            "data_folding": NoFolding(doc_ids=[0], supported_data_type=DataType.Test),
             "data_type_pipelines": {DataType.Test: data_pipeline}
         })
 

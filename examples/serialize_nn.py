@@ -11,9 +11,9 @@ from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.networks.core.input.term_types import TermTypes
-from arekit.contrib.networks.pipelines.items.serializer import NetworksInputSerializerPipelineItem
 from arekit.contrib.utils.io_utils.embedding import NpEmbeddingIO
 from arekit.contrib.utils.io_utils.samples import SamplesIO
+from arekit.contrib.utils.pipelines.items.sampling.networks import NetworksInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.frames import FrameVariantsParser
 from arekit.contrib.utils.pipelines.items.text.frames_lemmatized import LemmasBasedFrameVariantsParser
 from arekit.contrib.utils.pipelines.items.text.frames_negation import FrameVariantsSentimentNegation
@@ -68,12 +68,12 @@ if __name__ == '__main__':
     doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts))
     stemmer = common.StemmerArg.read_argument(args)
 
-    exp_ctx = CustomNeuralNetworkSerializationContext(
+    ctx = CustomNeuralNetworkSerializationContext(
         labels_scaler=create_labels_scaler(3),
         pos_tagger=POSMystemWrapper(MystemWrapper().MystemInstance),
         frames_collection=frames_collection)
 
-    embedding = load_embedding_news_mystem_skipgram_1000_20_2015()
+    embedding = load_embedding_news_mystem_skipgram_1000_20_2015(stemmer)
     bpe_vectorizer = BPEVectorizer(embedding=embedding, max_part_size=3)
     norm_vectorizer = RandomNormalVectorizer(vector_size=embedding.VectorSize,
                                              token_offset=12345)
@@ -87,7 +87,7 @@ if __name__ == '__main__':
                 TermTypes.TOKEN: norm_vectorizer
             },
             str_entity_fmt=create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args)),
-            exp_ctx=exp_ctx,
+            ctx=ctx,
             samples_io=SamplesIO(target_dir=const.OUTPUT_DIR),
             emb_io=NpEmbeddingIO(target_dir=const.OUTPUT_DIR),
             save_labels_func=lambda data_type: data_type != DataType.Test,

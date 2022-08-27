@@ -13,8 +13,8 @@ from arekit.common.opinions.annot.base import BaseOpinionAnnotator
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.bert.pipelines.items.serializer import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.io_utils.samples import SamplesIO
+from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
 from arelight.doc_ops import InMemoryDocOperations
@@ -97,8 +97,7 @@ if __name__ == '__main__':
             balance_func=lambda data_type: data_type == DataType.Train)
     ])
 
-    no_folding = NoFolding(doc_ids_to_fold=list(range(len(texts_from_files))),
-                           supported_data_types=[DataType.Test])
+    no_folding = NoFolding(doc_ids=list(range(len(texts_from_files))), supported_data_type=DataType.Test)
 
     pipeline.run(input_data=None,
                  params_dict={
