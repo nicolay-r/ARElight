@@ -1,8 +1,6 @@
-from arekit.common.folding.types import FoldingType
 from arekit.common.frames.variants.collection import FrameVariantsCollection
 from arekit.contrib.networks.core.feeding.bags.collection.multi import MultiInstanceBagsCollection
 from arekit.contrib.networks.core.feeding.bags.collection.single import SingleBagsCollection
-from arekit.contrib.networks.core.model_io import NeuralNetworkModelIO
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 
@@ -27,27 +25,6 @@ def create_bags_collection_type(model_input_type):
         return MultiInstanceBagsCollection
 
 
-def create_network_model_io(full_model_name, source_dir, embedding_filepath,
-                            target_dir, vocab_filepath, model_name_tag):
-
-    return NeuralNetworkModelIO(full_model_name=full_model_name,
-                                target_dir=target_dir,
-                                source_dir=source_dir,
-                                embedding_filepath=embedding_filepath,
-                                vocab_filepath=vocab_filepath,
-                                model_name_tag=model_name_tag)
-
-
-def __create_folding_type_prefix(folding_type):
-    assert(isinstance(folding_type,  FoldingType))
-    if folding_type == FoldingType.Fixed:
-        return u'fx'
-    elif folding_type == FoldingType.CrossValidation:
-        return u'cv'
-    else:
-        raise NotImplementedError(u"Folding type `{}` was not declared".format(folding_type))
-
-
 def __create_input_type_prefix(input_type):
     assert(isinstance(input_type, ModelInputType))
     if input_type == ModelInputType.SingleInstance:
@@ -62,6 +39,4 @@ def __create_input_type_prefix(input_type):
 
 def create_full_model_name(model_name, input_type):
     assert(isinstance(model_name, ModelNames))
-    return u'_'.join([__create_folding_type_prefix(FoldingType.Fixed),
-                      __create_input_type_prefix(input_type),
-                      model_name.value])
+    return u'_'.join([u'fx', __create_input_type_prefix(input_type), model_name.value])

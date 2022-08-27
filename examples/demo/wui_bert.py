@@ -7,7 +7,22 @@ import json
 import sys
 from os.path import join, basename
 
-from arelight.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
+from arekit.common.experiment.data_type import DataType
+from arekit.common.folding.nofold import NoFolding
+from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
+from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
+from arekit.common.text.parser import BaseTextParser
+from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
+from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
+
+from arelight.doc_ops import InMemoryDocOperations
+from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.demo.utils import read_synonyms_collection
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.pipelines.items.utils import input_to_docs
 
 bratUrl = '/brat/'
 
@@ -56,15 +71,42 @@ model_dir = "/arelight/data/models"
 state_name = "ra-20-srubert-large-neut-nli-pretrained-3l"
 finetuned_state_name = "ra-20-srubert-large-neut-nli-pretrained-3l-finetuned"
 
-ppl = demo_infer_texts_bert_pipeline(
+demo_pipeline = demo_infer_texts_bert_pipeline(
     texts_count=1,
     output_dir=".",
+    entity_fmt=SharpPrefixedEntitiesSimpleFormatter(),
     bert_config_path=join(model_dir, state_name, "bert_config.json"),
     bert_vocab_path=join(model_dir, state_name, "vocab.txt"),
     bert_finetuned_ckpt_path=join(model_dir, finetuned_state_name, state_name),
-    synonyms_filepath="/arelight/data/synonyms.txt")
+    labels_scaler=ThreeLabelScaler())
 
-brat_json = ppl.run([text.strip()])
+synonyms = read_synonyms_collection(synonyms_filepath="/arelight/data/synonyms.txt",
+                                    stemmer=MystemWrapper())
+
+text_parser = BaseTextParser(pipeline=[
+    TermsSplitterParser(),
+    BertOntonotesNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
+    EntitiesGroupingPipelineItem(
+        lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+            synonyms=synonyms, value=value))
+])
+
+# Declare a single document with `0` id and contents.
+single_doc = [text.strip()]
+doc_ops = InMemoryDocOperations(docs=input_to_docs(single_doc))
+
+data_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
+                                                   terms_per_context=50,
+                                                   dist_in_terms_bound=50,
+                                                   doc_ops=doc_ops,
+                                                   text_parser=text_parser)
+
+no_folding = NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test])
+
+brat_json = demo_pipeline.run(None, {
+    "data_type_pipelines": {DataType.Test: data_pipeline},
+    "data_folding": no_folding
+})
 
 template = prepare_template(brat_json, text, bratUrl)
 cgi_output(template)

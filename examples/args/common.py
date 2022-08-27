@@ -1,15 +1,17 @@
-from arekit.contrib.bert.samplers.types import SampleFormattersService
-from arekit.contrib.experiment_rusentrel.entities.types import EntityFormattersService
-from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
 from arekit.contrib.networks.enum_name_types import ModelNamesService
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
+from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter, \
+    RuSentiFramesEffectLabelsFormatter
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
-from arekit.processing.lemmatization.mystem import MystemWrapper
-from arelight.text.pipeline_entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.text.pipeline_entities_default import TextEntitiesParser
+from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.pipelines.items.entities_default import TextEntitiesParser
+from arelight.samplers.types import SampleFormattersService
 
 from examples.args.base import BaseArg
+from examples.entities.types import EntityFormattersService
 
 
 class InputTextArg(BaseArg):
@@ -35,7 +37,10 @@ class FramesColectionArg(BaseArg):
         if args.frames == "ruattitudes-20":
             return RuSentiFramesCollection.read_collection(
                 version=RuSentiFramesVersions.V20,
-                labels_fmt=ExperimentRuSentiFramesLabelsFormatter())
+                labels_fmt=RuSentiFramesLabelsFormatter(
+                    pos_label_type=PositiveLabel, neg_label_type=NegativeLabel),
+                effect_labels_fmt=RuSentiFramesEffectLabelsFormatter(
+                    pos_label_type=PositiveLabel, neg_label_type=NegativeLabel))
 
     @staticmethod
     def add_argument(parser, default="ruattitudes-20"):

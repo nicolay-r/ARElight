@@ -1,4 +1,4 @@
-# ARElight 0.22.0
+# ARElight 0.22.1
 
 ### :point_right: [DEMO](#docker-verion-quick) :point_left:
 
@@ -18,8 +18,7 @@ we adopt [DeepPavlov](https://github.com/deepmipt/DeepPavlov)  (BertOntoNotes mo
 
 # Dependencies
 
-* arekit == 0.22.0
-* gensim == 3.2.0
+* arekit == 0.22.1
 * deeppavlov == 0.11.0
 * rusenttokenize
 * brat-v1.3 [[github]](https://github.com/nlplab/brat)
@@ -82,7 +81,7 @@ Infer sentiment attitudes from a mass-media document(s).
 
 Using the `BERT` fine-tuned model version:
 ```bash
-python3.6 infer_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 infer_bert.py --from-files data/texts-inosmi-rus/e1.txt \
     --labels-count 3 \
     --terms-per-context 50 \
     --tokens-per-context 128 \
@@ -97,7 +96,7 @@ python3.6 infer_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt \
 
 Using the pretrained `PCNN` model (including frames annotation):
 ```bash
-python3.6 infer_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
     --model-state-dir models/ \
     --terms-per-context 50 \
@@ -123,7 +122,7 @@ python3.6 infer_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 
 For the `BERT` model:
 ```bash
-python3.6 serialize_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt 
+python3.6 serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt 
     --entities-parser bert-ontonotes \
     --terms-per-context 50 
 ```
@@ -136,7 +135,7 @@ python3.6 serialize_texts_bert.py --from-files data/texts-inosmi-rus/e1.txt
 
 For the other neural networks (including embedding and other features):
 ```bash
-python3.6 serialize_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 serialize_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
@@ -148,13 +147,6 @@ python3.6 serialize_texts_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 <p align="center">
     <img src="docs/samples-nn.png"/>
 </p>
-
-# Other Examples
-
-* Serialize RuSentRel collection for BERT [[code]](examples/serialize_rusentrel_for_bert.py)
-* Serialize RuSentRel collection for Neural Networks [[code]](examples/serialize_rusentrel_for_nn.py)
-* Finetune BERT on samples [[code]](examples/train_bert.py)
-* Finetune Neural Networks on RuSentRel [[code]](examples/train_nn_on_rusentrel.py)
 
 # Papers
 

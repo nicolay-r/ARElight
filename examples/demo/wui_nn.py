@@ -7,14 +7,34 @@ import json
 import sys
 from os.path import join, basename
 
-from arekit.contrib.experiment_rusentrel.labels.formatters.rusentiframes import ExperimentRuSentiFramesLabelsFormatter
+from arekit.common.experiment.data_type import DataType
+from arekit.common.folding.nofold import NoFolding
+from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
+from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
+from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.networks.enum_input_types import ModelInputType
 from arekit.contrib.networks.enum_name_types import ModelNames
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
+from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter, \
+    RuSentiFramesEffectLabelsFormatter
 from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersions
+from arekit.contrib.utils.entities.formatters.str_simple_fmt import StringEntitiesSimpleFormatter
+from arekit.contrib.utils.pipelines.items.text.frames import FrameVariantsParser
+from arekit.contrib.utils.pipelines.items.text.frames_lemmatized import LemmasBasedFrameVariantsParser
+from arekit.contrib.utils.pipelines.items.text.frames_negation import FrameVariantsSentimentNegation
+from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.pipelines.items.text.tokenizer import DefaultTextTokenizer
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
-
+from arelight.doc_ops import InMemoryDocOperations
+from arelight.network.nn.common import create_and_fill_variant_collection
+from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.demo.infer_nn_rus import demo_infer_texts_tensorflow_nn_pipeline
+from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
+from arelight.pipelines.demo.utils import read_synonyms_collection
+from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.pipelines.items.utils import input_to_docs
 
 bratUrl = '/brat/'
 
@@ -65,23 +85,57 @@ finetuned_state_name = "ra-20-srubert-large-neut-nli-pretrained-3l-finetuned"
 
 frames_collection = RuSentiFramesCollection.read_collection(
     version=RuSentiFramesVersions.V20,
-    labels_fmt=ExperimentRuSentiFramesLabelsFormatter())
+    labels_fmt=RuSentiFramesLabelsFormatter(
+        pos_label_type=PositiveLabel, neg_label_type=NegativeLabel),
+    effect_labels_fmt=RuSentiFramesEffectLabelsFormatter(
+        pos_label_type=PositiveLabel, neg_label_type=NegativeLabel))
 
-ppl = demo_infer_texts_tensorflow_nn_pipeline(
+demo_pipeline = demo_infer_texts_tensorflow_nn_pipeline(
     texts_count=1,
     output_dir=".",
     model_name=model_name,
     model_input_type=ModelInputType.SingleInstance,
-    synonyms_filepath=join(data_dir, "synonyms.txt"),
+    entity_fmt=StringEntitiesSimpleFormatter(),
     model_load_dir=join(data_dir, "models"),
-    embedding_filepath=join(data_dir, "news_mystem_skipgram_1000_20_2015.bin.gz"),
     frames_collection=frames_collection)
 
-brat_json = ppl.run([text.strip()])
+stemmer = MystemWrapper()
+synonyms = read_synonyms_collection(synonyms_filepath="/arelight/data/synonyms.txt", stemmer=stemmer)
 
-template = prepare_template(data=brat_json,
-                            text=text,
-                            bratUrl=bratUrl,
-                            model_name=model_name)
+demo_pipeline.append(BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/"))
 
+# Declare a single document with `0` id and contents.
+single_doc = [text.strip()]
+doc_ops = InMemoryDocOperations(docs=input_to_docs(single_doc))
+
+# Initialize text parser with the related dependencies.
+frame_variants_collection = create_and_fill_variant_collection(frames_collection)
+text_parser = BaseTextParser(pipeline=[
+    TermsSplitterParser(),
+    BertOntonotesNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
+    EntitiesGroupingPipelineItem(
+        lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+            synonyms, value)),
+    DefaultTextTokenizer(keep_tokens=True),
+    FrameVariantsParser(frame_variants=frame_variants_collection),
+    LemmasBasedFrameVariantsParser(save_lemmas=False,
+                                   stemmer=stemmer,
+                                   frame_variants=frame_variants_collection),
+    FrameVariantsSentimentNegation()])
+
+data_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
+                                                   dist_in_terms_bound=50,
+                                                   terms_per_context=50,
+                                                   doc_ops=doc_ops,
+                                                   text_parser=text_parser,
+                                                   dist_in_sentences=0)
+
+no_folding = NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test])
+
+brat_json = demo_pipeline.run([text.strip()], {
+    "data_type_pipelines": {DataType.Test: data_pipeline},
+    "data_folding": no_folding
+})
+
+template = prepare_template(data=brat_json, text=text, bratUrl=bratUrl, model_name=model_name)
 cgi_output(template)
