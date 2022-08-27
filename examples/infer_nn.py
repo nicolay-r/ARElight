@@ -116,6 +116,6 @@ if __name__ == '__main__':
         "template_filepath": join(const.DATA_DIR, "brat_template.html"),
         "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,
         "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
-        "data_folding": NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]),
+        "data_folding": NoFolding(doc_ids=[0], supported_data_type=DataType.Test),
         "data_type_pipelines": {DataType.Test: test_pipeline}
     })
