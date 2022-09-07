@@ -1,7 +1,7 @@
 from os.path import join, dirname
 
+from arekit.common.data.input.readers.tsv import TsvReader
 from arekit.common.data.row_ids.multiple import MultipleIDProvider
-from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.data.views.samples import LinkedSamplesStorageView
 from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.context import PipelineContext
@@ -93,9 +93,9 @@ class TensorflowNetworkInferencePipelineItem(BasePipelineItem):
         inference_ctx.initialize(
             dtypes=[self.__data_type],
             bags_collection_type=self.__bags_collection_type,
-            create_samples_view_func=lambda data_type: LinkedSamplesStorageView(
-                storage=BaseRowsStorage.from_tsv(samples_filepath),
-                row_ids_provider=MultipleIDProvider()),
+            samples_view=LinkedSamplesStorageView(row_ids_provider=MultipleIDProvider()),
+            load_target_func=lambda _: samples_filepath,
+            samples_reader=TsvReader(),
             has_model_predefined_state=True,
             vocab=vocab,
             labels_count=self.__config.ClassesCount,
