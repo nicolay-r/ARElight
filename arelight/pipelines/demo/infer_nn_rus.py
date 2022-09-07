@@ -5,10 +5,12 @@ from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotat
 from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.networks.core.callback.stat import TrainingStatProviderCallback
 from arekit.contrib.networks.core.callback.train_limiter import TrainingLimiterCallback
+from arekit.contrib.networks.core.input.ctx_serialization import NetworkSerializationContext
 from arekit.contrib.networks.core.input.term_types import TermTypes
 from arekit.contrib.networks.core.model_io import NeuralNetworkModelIO
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.networks.enum_name_types import ModelNames
+from arekit.contrib.utils.connotations.rusentiframes_sentiment import RuSentiFramesConnotationProvider
 from arekit.contrib.utils.io_utils.embedding import NpEmbeddingIO
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.networks import NetworksInputSerializerPipelineItem
@@ -19,7 +21,6 @@ from arekit.contrib.utils.vectorizers.bpe import BPEVectorizer
 from arekit.contrib.utils.vectorizers.random_norm import RandomNormalVectorizer
 
 from arelight.network.nn.common import create_bags_collection_type, create_full_model_name
-from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.pipelines.items.backend_brat_json import BratBackendContentsPipelineItem
@@ -54,10 +55,11 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
     norm_vectorizer = RandomNormalVectorizer(vector_size=embedding.VectorSize,
                                              token_offset=12345)
 
-    ctx = CustomNeuralNetworkSerializationContext(
+    ctx = NetworkSerializationContext(
         labels_scaler=labels_scaler,
         pos_tagger=POSMystemWrapper(stemmer.MystemInstance),
-        frames_collection=frames_collection)
+        frame_roles_label_scaler=ThreeLabelScaler(),
+        frames_connotation_provider=RuSentiFramesConnotationProvider(collection=frames_collection))
 
     samples_io = SamplesIO(target_dir=output_dir)
     emb_io = NpEmbeddingIO(target_dir=output_dir)

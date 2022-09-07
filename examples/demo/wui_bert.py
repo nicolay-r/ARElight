@@ -101,7 +101,7 @@ data_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
                                                    doc_ops=doc_ops,
                                                    text_parser=text_parser)
 
-no_folding = NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test])
+no_folding = NoFolding(doc_ids=[0], supported_data_type=DataType.Test)
 
 brat_json = demo_pipeline.run(None, {
     "data_type_pipelines": {DataType.Test: data_pipeline},

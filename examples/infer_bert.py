@@ -84,8 +84,8 @@ if __name__ == '__main__':
         BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
     )
 
-    no_folding = NoFolding(doc_ids_to_fold=list(range(len(actual_content))),
-                           supported_data_types=[DataType.Test])
+    no_folding = NoFolding(doc_ids=list(range(len(actual_content))),
+                           supported_data_type=DataType.Test)
 
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 

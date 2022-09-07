@@ -1,7 +1,5 @@
 from arekit.common.experiment.data_type import DataType
-from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.base import BaseLabelScaler
-from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
@@ -28,8 +26,6 @@ def demo_infer_texts_bert_pipeline(texts_count,
     assert(isinstance(output_dir, str))
     assert(isinstance(labels_scaler, BaseLabelScaler))
 
-    labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
-
     samples_io = SamplesIO(target_dir=output_dir)
 
     pipeline = BasePipeline(pipeline=[
@@ -38,7 +34,6 @@ def demo_infer_texts_bert_pipeline(texts_count,
             sample_rows_provider=create_bert_sample_provider(
                 provider_type=text_b_type,
                 label_scaler=labels_scaler,
-                text_b_labels_fmt=labels_fmt,
                 entity_formatter=entity_fmt),
             samples_io=samples_io,
             save_labels_func=lambda data_type: data_type != DataType.Test,

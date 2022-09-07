@@ -86,7 +86,6 @@ if __name__ == '__main__':
     rows_provider = create_bert_sample_provider(
         label_scaler=label_scaler,
         provider_type=BertSampleProviderTypes.NLI_M,
-        text_b_labels_fmt=labels_fmt,
         entity_formatter=entity_fmt)
 
     pipeline = BasePipeline([

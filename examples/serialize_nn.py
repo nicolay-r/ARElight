@@ -10,7 +10,9 @@ from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotat
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
+from arekit.contrib.networks.core.input.ctx_serialization import NetworkSerializationContext
 from arekit.contrib.networks.core.input.term_types import TermTypes
+from arekit.contrib.utils.connotations.rusentiframes_sentiment import RuSentiFramesConnotationProvider
 from arekit.contrib.utils.io_utils.embedding import NpEmbeddingIO
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.networks import NetworksInputSerializerPipelineItem
@@ -27,8 +29,8 @@ from arekit.contrib.utils.vectorizers.random_norm import RandomNormalVectorizer
 
 from arelight.doc_ops import InMemoryDocOperations
 from arelight.network.nn.common import create_and_fill_variant_collection
-from arelight.network.nn.ctx import CustomNeuralNetworkSerializationContext
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.pipelines.items.utils import input_to_docs
 
 from examples.args import const
@@ -68,10 +70,11 @@ if __name__ == '__main__':
     doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts))
     stemmer = common.StemmerArg.read_argument(args)
 
-    ctx = CustomNeuralNetworkSerializationContext(
+    ctx = NetworkSerializationContext(
         labels_scaler=create_labels_scaler(3),
         pos_tagger=POSMystemWrapper(MystemWrapper().MystemInstance),
-        frames_collection=frames_collection)
+        frame_roles_label_scaler=ThreeLabelScaler(),
+        frames_connotation_provider=RuSentiFramesConnotationProvider(frames_collection))
 
     embedding = load_embedding_news_mystem_skipgram_1000_20_2015(stemmer)
     bpe_vectorizer = BPEVectorizer(embedding=embedding, max_part_size=3)
@@ -120,6 +123,6 @@ if __name__ == '__main__':
 
     pipeline.run(input_data=None,
                  params_dict={
-                     "data_folding": NoFolding(doc_ids_to_fold=[0], supported_data_types=[DataType.Test]),
+                     "data_folding": NoFolding(doc_ids=[0], supported_data_type=DataType.Test),
                      "data_type_pipelines": {DataType.Test: test_pipeline}
                  })
