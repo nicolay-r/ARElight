@@ -1,3 +1,5 @@
+from arekit.common.data.input.readers.tsv import TsvReader
+from arekit.common.data.input.writers.tsv import TsvWriter
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
@@ -61,7 +63,7 @@ def demo_infer_texts_tensorflow_nn_pipeline(texts_count,
         frame_roles_label_scaler=ThreeLabelScaler(),
         frames_connotation_provider=RuSentiFramesConnotationProvider(collection=frames_collection))
 
-    samples_io = SamplesIO(target_dir=output_dir)
+    samples_io = SamplesIO(target_dir=output_dir, reader=TsvReader(), writer=TsvWriter(write_header=True))
     emb_io = NpEmbeddingIO(target_dir=output_dir)
 
     # Declaring pipeline.

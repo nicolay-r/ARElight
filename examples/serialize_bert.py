@@ -1,6 +1,7 @@
 import argparse
 from os.path import join
 
+from arekit.common.data.input.writers.tsv import TsvWriter
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
@@ -91,7 +92,7 @@ if __name__ == '__main__':
     pipeline = BasePipeline([
         BertExperimentInputSerializerPipelineItem(
             sample_rows_provider=rows_provider,
-            samples_io=SamplesIO(target_dir=const.OUTPUT_DIR),
+            samples_io=SamplesIO(target_dir=const.OUTPUT_DIR, writer=TsvWriter(write_header=True)),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train)
     ])

@@ -147,21 +147,6 @@ class DistanceInTermsBetweenAttitudeEndsArg(BaseArg):
                                  '(Default: {})'.format(None))
 
 
-class RusVectoresEmbeddingFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.embedding_filepath
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--emb-filepath',
-                            dest='embedding_filepath',
-                            type=str,
-                            default=default,
-                            help='RusVectores embedding filepath')
-
-
 class EmbeddingMatrixFilepathArg(BaseArg):
     """ Embedding matrix, utilized as an input for model.
     """

@@ -1,5 +1,6 @@
 import unittest
 
+from arekit.common.data.input.writers.tsv import TsvWriter
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
@@ -8,7 +9,6 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
-from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.news.base import News
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.news.sentence import BaseNewsSentence
@@ -102,7 +102,6 @@ class BertTestSerialization(unittest.TestCase):
         no_folding = NoFolding(doc_ids=list(range(len(texts))), supported_data_type=DataType.Test)
 
         # Composing labels formatter and experiment preparation.
-        labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
         doc_ops = InMemoryDocOperations(docs=input_to_docs(texts))
 
         rows_provider = create_bert_sample_provider(
@@ -113,7 +112,7 @@ class BertTestSerialization(unittest.TestCase):
         pipeline = BasePipeline([
             BertExperimentInputSerializerPipelineItem(
                 sample_rows_provider=rows_provider,
-                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR),
+                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=TsvWriter(write_header=True)),
                 save_labels_func=lambda data_type: data_type != DataType.Test,
                 balance_func=lambda data_type: data_type == DataType.Train)
         ])

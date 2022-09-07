@@ -81,7 +81,7 @@ Infer sentiment attitudes from a mass-media document(s).
 
 Using the `BERT` fine-tuned model version:
 ```bash
-python3.6 infer_bert.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --labels-count 3 \
     --terms-per-context 50 \
     --tokens-per-context 128 \
@@ -96,7 +96,7 @@ python3.6 infer_bert.py --from-files data/texts-inosmi-rus/e1.txt \
 
 Using the pretrained `PCNN` model (including frames annotation):
 ```bash
-python3.6 infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 infer_nn.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --model-name pcnn \
     --model-state-dir models/ \
     --terms-per-context 50 \
@@ -107,8 +107,7 @@ python3.6 infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
     --bags-per-minibatch 2 \
     --model-input-type ctx \
     --entity-fmt hidden-simple-eng \
-    --emb-filepath data/news_mystem_skipgram_1000_20_2015.bin.gz \
-    --synonyms-filepath data/synonyms.txt \
+    --synonyms-filepath ../data/synonyms.txt \
     -o output/brat_inference_output
 ```
 
@@ -122,7 +121,7 @@ python3.6 infer_nn.py --from-files data/texts-inosmi-rus/e1.txt \
 
 For the `BERT` model:
 ```bash
-python3.6 serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt 
+python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt 
     --entities-parser bert-ontonotes \
     --terms-per-context 50 
 ```
@@ -135,12 +134,11 @@ python3.6 serialize_bert.py --from-files data/texts-inosmi-rus/e1.txt
 
 For the other neural networks (including embedding and other features):
 ```bash
-python3.6 serialize_nn.py --from-files data/texts-inosmi-rus/e1.txt \
+python3.6 serialize_nn.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --stemmer mystem \
     --terms-per-context 50 \
-    --emb-filepath data/news_mystem_skipgram_1000_20_2015.bin.gz \
-    --synonyms-filepath data/synonyms.txt \
+    --synonyms-filepath ../data/synonyms.txt \
     --frames ruattitudes-20 
 ```
 

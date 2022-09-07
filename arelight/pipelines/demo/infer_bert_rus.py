@@ -1,3 +1,5 @@
+from arekit.common.data.input.readers.tsv import TsvReader
+from arekit.common.data.input.writers.tsv import TsvWriter
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.base import BasePipeline
@@ -26,7 +28,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
     assert(isinstance(output_dir, str))
     assert(isinstance(labels_scaler, BaseLabelScaler))
 
-    samples_io = SamplesIO(target_dir=output_dir)
+    samples_io = SamplesIO(target_dir=output_dir, reader=TsvReader(), writer=TsvWriter(write_header=True))
 
     pipeline = BasePipeline(pipeline=[
 
