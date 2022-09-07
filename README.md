@@ -9,7 +9,7 @@ ARElight is an application for a granular view onto sentiments between mentioned
 This project is commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
 
 for Named Entity Recognition in text sentences, 
-we adopt [DeepPavlov](https://github.com/deepmipt/DeepPavlov)  (BertOntoNotes model).
+we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNotes model).
 
 <p align="center">
     <img src="logo.png"/>
