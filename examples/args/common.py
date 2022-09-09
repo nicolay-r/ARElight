@@ -409,12 +409,27 @@ class InputSamplesFilepath(BaseArg):
 
     @staticmethod
     def read_argument(args):
-        return args.input_samples
+        return args.input_samples_dir
 
     @staticmethod
     def add_argument(parser, default):
         parser.add_argument('--input-samples',
                             dest='input_samples',
+                            type=str,
+                            default=default,
+                            help='Input Samples')
+
+
+class InputSamplesDir(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.input_samples_dir
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--input-samples-dir',
+                            dest='input_samples_dir',
                             type=str,
                             default=default,
                             help='Input Samples')
