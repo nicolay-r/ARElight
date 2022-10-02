@@ -1,10 +1,13 @@
 from os.path import join, dirname
 
+from arekit.common.data import const
+from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.networks.core.predict.base_writer import BasePredictWriter
 from arekit.contrib.networks.core.predict.provider import BasePredictProvider
 from arekit.contrib.utils.io_utils.samples import SamplesIO
@@ -15,7 +18,8 @@ from deeppavlov.models.preprocessors.bert_preprocessor import BertPreprocessor
 class BertInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, bert_config_file, model_checkpoint_path, vocab_filepath, samples_io,
-                 data_type, predict_writer, labels_scaler, max_seq_length, do_lowercase):
+                 data_type, predict_writer, labels_scaler, max_seq_length, do_lowercase,
+                 batch_size=10):
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
         assert(isinstance(labels_scaler, BaseLabelScaler))
@@ -41,6 +45,7 @@ class BertInferencePipelineItem(BasePipelineItem):
         self.__labels_scaler = labels_scaler
         self.__predict_provider = BasePredictProvider()
         self.__samples_io = samples_io
+        self.__batch_size = batch_size
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(pipeline_ctx, PipelineContext))
@@ -50,27 +55,27 @@ class BertInferencePipelineItem(BasePipelineItem):
 
             used_row_ids = set()
             
-            data = {"text_a": [], "text_b": [], "row_ids": []}
+            data = {BaseSingleTextProvider.TEXT_A: [],
+                    PairTextProvider.TEXT_B: [],
+                    "row_ids": []}
 
             for row_ind, row in samples:
                 
                 # Considering unique rows only.
-                if row["id"] in used_row_ids:
+                if row[const.ID] in used_row_ids:
                     continue
 
-                data["text_a"].append(row['text_a'])
-                data["text_b"].append(row['text_b'])
+                data[BaseSingleTextProvider.TEXT_A].append(row[BaseSingleTextProvider.TEXT_A])
+                data[PairTextProvider.TEXT_B].append(row[PairTextProvider.TEXT_B])
                 data["row_ids"].append(row_ind)
                 
-                used_row_ids.add(row["id"])
+                used_row_ids.add(row[const.ID])
 
-            batch_size = 10
+            for i in range(0, len(data[BaseSingleTextProvider.TEXT_A]), 10):
 
-            for i in range(0, len(data["text_a"]), 10):
-
-                texts_a = data["text_a"][i:i + batch_size]
-                texts_b = data["text_b"][i:i + batch_size]
-                row_ids = data["row_ids"][i:i + batch_size]
+                texts_a = data[BaseSingleTextProvider.TEXT_A][i:i + self.__batch_size]
+                texts_b = data[PairTextProvider.TEXT_B][i:i + self.__batch_size]
+                row_ids = data["row_ids"][i:i + self.__batch_size]
 
                 batch_features = self.__proc(texts_a=texts_a, texts_b=texts_b)
 
