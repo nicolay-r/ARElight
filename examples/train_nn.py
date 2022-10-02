@@ -1,5 +1,5 @@
 import argparse
-from os.path import join
+from os.path import join, dirname, realpath
 
 from arekit.common.data.input.readers.tsv import TsvReader
 from arekit.common.experiment.data_type import DataType
@@ -62,12 +62,12 @@ if __name__ == '__main__':
     epochs_count = train.EpochsCountArg.read_argument(args)
     input_samples_dir = common.InputSamplesDir.read_argument(args)
 
-    folding_type = "fixed"
-    output_dir = "out"
+    current_dir = dirname(realpath(__file__))
+    output_dir = join(current_dir, "../_output")
     model_log_dir = ""
     train_acc_limit = 0.99
     finetune_existed = True
-    full_model_name = "-".join([folding_type, model_name.value])
+    full_model_name = "-".join(["fixed", model_name.value])
     model_target_dir = join(model_log_dir, full_model_name)
 
     model_io = NeuralNetworkModelIO(full_model_name=full_model_name,
