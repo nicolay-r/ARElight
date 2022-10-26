@@ -37,7 +37,7 @@ we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNo
 
 > **Other Requirements**: NVidia-docker
 
-* Download [nicolay-r-arelight-0.1.1.tar](https://drive.google.com/u/0/uc?id=1hd6EOcN5haEJM0dp_sdsNCX36lGG-y8Y&amp;export=download&amp;confirm=t)
+* Download [nicolay-r-arelight-0.1.1.tar](https://disk.yandex.ru/d/XXJUXEeaJbqNbA)
 * Import container and start Apache hosting: 
 ```bash
 docker import nicolay-r-arelight-0.1.1.tar 
