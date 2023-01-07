@@ -7,6 +7,10 @@
 
 > **Supported Languages**: Russian
 
+<p align="center">
+    <img src="logo.png"/>
+</p>
+
 ARElight is an application for a granular view onto sentiments between mentioned named entities in a mass-media texts written in Russian.
 
 This project is commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
@@ -14,9 +18,6 @@ This project is commonly powered by [AREkit](https://github.com/nicolay-r/AREkit
 for Named Entity Recognition in text sentences, 
 we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNotes model).
 
-<p align="center">
-    <img src="logo.png"/>
-</p>
 
 
 # Dependencies
