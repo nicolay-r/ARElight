@@ -1,7 +1,7 @@
-# ARElight 0.22.1
+# ARElight 0.23.0
 
-![](https://img.shields.io/badge/Python-3.6-brightgreen.svg)
-![](https://img.shields.io/badge/AREkit-0.22.1-orange.svg)
+![](https://img.shields.io/badge/Python-3.6.9-brightgreen.svg)
+![](https://img.shields.io/badge/AREkit-0.23.0-orange.svg)
 
 ### :point_right: [DEMO](#docker-verion-quick) :point_left:
 
@@ -14,25 +14,12 @@
 ARElight is an application for a granular view onto sentiments between mentioned named entities in a mass-media texts written in Russian.
 
 This project is commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
-
-for Named Entity Recognition in text sentences, 
+For Named Entity Recognition in text sentences, 
 we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNotes model).
 
+## Installation
 
-
-# Dependencies
-
-* arekit == 0.23.0
-* deeppavlov == 0.11.0
-* rusenttokenize
-* brat-v1.3 [[github]](https://github.com/nlplab/brat)
-* CUDA
-
-
-# Installation
-
-
-## Docker verion (Quick)
+### Docker verion (Quick)
 
 > **Supported Languages**: Russian
 
@@ -50,9 +37,11 @@ service apache2 start
 
 > **Supported Languages**: Russian
 
-![](docs/demo.png)
+<p align="center">
+    <img src="docs/demo.png"/>
+</p>
 
-## Full 
+### Full 
 * ARElight:
 ```bash
 # Install the required dependencies
@@ -70,7 +59,7 @@ python standalone.py
 
 Usage: proceed with the `examples` folder.
 
-# Inference
+## Inference
 
 > **Supported Languages**: Russian
 
@@ -89,7 +78,7 @@ python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     <img src="docs/inference-bert-e1.png"/>
 </p>
 
-# Serialization 
+## Serialization 
 
 > **Supported Languages**: Any
 
@@ -104,11 +93,11 @@ python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt
     <img src="docs/samples-bert.png">
 </p>
 
-# Papers
+## Papers
 
 * [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021) [RUS]](https://nicolay-r.github.io/website/data/rusnachenko2021language.pdf)
 
-# Powered by
+## Powered by
 
 * AREkit [[github]](https://github.com/nicolay-r/AREkit)
 
