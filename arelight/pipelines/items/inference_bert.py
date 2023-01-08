@@ -43,7 +43,7 @@ class BertInferencePipelineItem(BasePipelineItem):
 
         self.__writer = predict_writer
         self.__data_type = data_type
-        self.__labels_scaler = labels_scaler
+        self.__labels_count = labels_count
         self.__predict_provider = BasePredictProvider()
         self.__samples_io = samples_io
         self.__batch_size = batch_size
