@@ -52,7 +52,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
             vocab_filepath=bert_vocab_path,
             max_seq_length=max_seq_length,
             do_lowercase=do_lowercase,
-            labels_scaler=labels_scaler),
+            labels_count=labels_scaler.LabelsCount),
 
         BratBackendContentsPipelineItem(label_to_rel={
             str(labels_scaler.label_to_uint(PositiveLabel())): "POS",

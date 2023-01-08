@@ -3,7 +3,6 @@ from os.path import join, dirname
 from arekit.common.data import const
 from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.experiment.data_type import DataType
-from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
@@ -20,11 +19,11 @@ from deeppavlov.models.preprocessors.bert_preprocessor import BertPreprocessor
 class BertInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, bert_config_file, model_checkpoint_path, vocab_filepath, samples_io,
-                 data_type, predict_writer, labels_scaler, max_seq_length, do_lowercase,
+                 data_type, predict_writer, labels_count, max_seq_length, do_lowercase,
                  batch_size=10):
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
-        assert(isinstance(labels_scaler, BaseLabelScaler))
+        assert(isinstance(labels_count, int))
         assert(isinstance(do_lowercase, bool))
         assert(isinstance(max_seq_length, int))
         assert(isinstance(samples_io, SamplesIO))
@@ -34,7 +33,7 @@ class BertInferencePipelineItem(BasePipelineItem):
             bert_config_file=bert_config_file,
             load_path=model_checkpoint_path,
             keep_prob=1.0,
-            n_classes=labels_scaler.LabelsCount,
+            n_classes=labels_count,
             save_path="")
 
         # Setup processor.
@@ -104,7 +103,7 @@ class BertInferencePipelineItem(BasePipelineItem):
         # Gathering the content
         title, contents_it = self.__predict_provider.provide(
             sample_id_with_uint_labels_iter=__iter_predict_result(),
-            labels_scaler=self.__labels_scaler)
+            labels_count=self.__labels_count)
 
         with self.__writer:
             self.__writer.write(title=title, contents_it=contents_it)
