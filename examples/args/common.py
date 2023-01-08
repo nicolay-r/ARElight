@@ -392,7 +392,7 @@ class InputSamplesFilepath(BaseArg):
 
     @staticmethod
     def read_argument(args):
-        return args.input_samples_dir
+        return args.input_samples
 
     @staticmethod
     def add_argument(parser, default):
