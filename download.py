@@ -11,8 +11,6 @@ def download_examples_data():
 
     data = {
         const.SYNONYMS_FILEPATH: "https://raw.githubusercontent.com/nicolay-r/RuSentRel/v1.1/synonyms.txt",
-        # PCNN: pretrained model dir.
-        const.PCNN_DEFAULT_MODEL_TAR: "https://www.dropbox.com/s/ceqy69vj59te534/fx_ctx_pcnn.tar.gz?dl=1",
         # NOTE: this is a pre-trained model and it is expected to be fine-tunned.
         const.BERT_PRETRAINED_MODEL_TAR: "https://www.dropbox.com/s/cr6nejxjiqbyd5o/ra-20-srubert-large-neut-nli-pretrained-3l.tar.gz?dl=1",
         # Fine-tuned on RuSentRel collection.

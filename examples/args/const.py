@@ -15,8 +15,6 @@ SYNONYMS_FILEPATH = join(DATA_DIR, "synonyms.txt")
 # Common model dir.
 DEFAULT_MODEL_DIR = join(DATA_DIR, "models")
 
-PCNN_DEFAULT_MODEL_TAR = join(DEFAULT_MODEL_DIR, "fx_ctx_pcnn.tar.gz")
-
 # Default pretrained BERT.
 NEURAL_NETWORKS_TARGET_DIR = DEFAULT_MODEL_DIR
 BERT_DEFAULT_STATE_NAME = "ra-20-srubert-large-neut-nli-pretrained-3l"
