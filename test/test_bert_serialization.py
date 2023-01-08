@@ -1,6 +1,6 @@
 import unittest
 
-from arekit.common.data.input.writers.tsv import TsvWriter
+from arekit.contrib.utils.data.writers.csv_pd import PandasCsvWriter
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
@@ -112,7 +112,7 @@ class BertTestSerialization(unittest.TestCase):
         pipeline = BasePipeline([
             BertExperimentInputSerializerPipelineItem(
                 sample_rows_provider=rows_provider,
-                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=TsvWriter(write_header=True)),
+                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=PandasCsvWriter(write_header=True)),
                 save_labels_func=lambda data_type: data_type != DataType.Test,
                 balance_func=lambda data_type: data_type == DataType.Train)
         ])

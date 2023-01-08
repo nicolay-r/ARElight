@@ -1,3 +1,6 @@
+from arekit.contrib.networks.input.const import FrameVariantIndices
+from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
+from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from tqdm import tqdm
 import collections
 
@@ -11,8 +14,6 @@ from arekit.common.entities.base import Entity
 from arekit.common.frames.variants.base import FrameVariant
 from arekit.common.news.entity import DocumentEntity
 from arekit.contrib.utils.processing.text.tokens import Tokens
-from arekit.contrib.networks.core.input.const import FrameVariantIndices
-from arekit.contrib.networks.core.input.rows_parser import ParsedSampleRow
 
 
 class BratBackend(object):
@@ -175,6 +176,7 @@ class BratBackend(object):
 
                 text_terms[e_ind] = DocumentEntity(
                     value=sentence_entity_values[i],
+                    display_value=sentence_entity_values[i],
                     e_type=sentence_entity_types[i],
                     id_in_doc=e_doc_id,
                     group_index=None)
@@ -184,7 +186,7 @@ class BratBackend(object):
             if sent_data[FrameVariantIndices] is not None:
                 for i, f_ind in enumerate(sent_data[FrameVariantIndices]):
                     value = text_terms[f_ind]
-                    text_terms[f_ind] = FrameVariant(text=value, frame_id="0")
+                    text_terms[f_ind] = FrameVariant(terms=[value], frame_id="0")
 
             for i, term in enumerate(text_terms):
                 if not isinstance(term, str):
@@ -346,9 +348,12 @@ class BratBackend(object):
         assert(isinstance(docs_range, tuple) or docs_range is None)
         assert(isinstance(label_to_rel, dict))
 
+        samples_reader = PandasCsvReader(col_types={'frames': str})
+        result_reader = PandasCsvReader()
+
         text, coll_data, doc_data = self.__to_data(
-            samples=BaseRowsStorage.from_tsv(samples_data_filepath, col_types={'frames': str}),
-            result=BaseRowsStorage.from_tsv(result_data_filepath) if result_data_filepath is not None else None,
+            samples=samples_reader.read(samples_data_filepath),
+            result=result_reader.read(result_data_filepath) if result_data_filepath is not None else None,
             obj_color_types=obj_color_types,
             rel_color_types=rel_color_types,
             label_to_rel=label_to_rel,

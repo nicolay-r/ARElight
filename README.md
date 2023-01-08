@@ -22,7 +22,7 @@ we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNo
 
 # Dependencies
 
-* arekit == 0.22.1
+* arekit == 0.23.0
 * deeppavlov == 0.11.0
 * rusenttokenize
 * brat-v1.3 [[github]](https://github.com/nlplab/brat)
@@ -51,13 +51,6 @@ service apache2 start
 > **Supported Languages**: Russian
 
 ![](docs/demo.png)
-
-* PCNN example, finetuned on [RuSentRel](https://github.com/nicolay-r/RuSentRel):
-http://172.17.0.2/examples/demo/wui_nn.py
-
-> **Supported Languages**: Russian
-
-![](docs/demo_pcnn.png)
 
 ## Full 
 * ARElight:
@@ -96,29 +89,6 @@ python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     <img src="docs/inference-bert-e1.png"/>
 </p>
 
-> **Supported Languages**: Russian
-
-Using the pretrained `PCNN` model (including frames annotation):
-```bash
-python3.6 infer_nn.py --from-files ../data/texts-inosmi-rus/e1.txt \
-    --model-name pcnn \
-    --model-state-dir models/ \
-    --terms-per-context 50 \
-    --stemmer mystem \
-    --entities-parser bert-ontonotes \
-    --frames ruattitudes-20 \
-    --labels-count 3 \
-    --bags-per-minibatch 2 \
-    --model-input-type ctx \
-    --entity-fmt hidden-simple-eng \
-    --synonyms-filepath ../data/synonyms.txt \
-    -o output/brat_inference_output
-```
-
-<p align="center">
-    <img src="docs/inference-pcnn-e1.png"/>
-</p>
-
 # Serialization 
 
 > **Supported Languages**: Any
@@ -132,22 +102,6 @@ python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt
 
 <p align="center">
     <img src="docs/samples-bert.png">
-</p>
-
-> **Supported Languages**: Russian by default (depends on embedding)
-
-For the other neural networks (including embedding and other features):
-```bash
-python3.6 serialize_nn.py --from-files ../data/texts-inosmi-rus/e1.txt \
-    --entities-parser bert-ontonotes \
-    --stemmer mystem \
-    --terms-per-context 50 \
-    --synonyms-filepath ../data/synonyms.txt \
-    --frames ruattitudes-20 
-```
-
-<p align="center">
-    <img src="docs/samples-nn.png"/>
 </p>
 
 # Papers

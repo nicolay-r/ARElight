@@ -2,15 +2,17 @@ from os.path import join, dirname
 
 from arekit.common.data import const
 from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
-from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
-from arekit.contrib.networks.core.predict.base_writer import BasePredictWriter
-from arekit.contrib.networks.core.predict.provider import BasePredictProvider
+from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from arekit.contrib.utils.io_utils.samples import SamplesIO
+
+from arelight.predict_provider import BasePredictProvider
+from arelight.predict_writer import BasePredictWriter
+
 from deeppavlov.models.bert import bert_classifier
 from deeppavlov.models.preprocessors.bert_preprocessor import BertPreprocessor
 
@@ -46,12 +48,13 @@ class BertInferencePipelineItem(BasePipelineItem):
         self.__predict_provider = BasePredictProvider()
         self.__samples_io = samples_io
         self.__batch_size = batch_size
+        self.__samples_reader = PandasCsvReader()
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(pipeline_ctx, PipelineContext))
 
         def __iter_predict_result():
-            samples = BaseRowsStorage.from_tsv(samples_filepath)
+            samples = self.__samples_reader.read(samples_filepath)
 
             used_row_ids = set()
             

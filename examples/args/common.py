@@ -1,4 +1,3 @@
-from arekit.contrib.networks.enum_name_types import ModelNamesService
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter, \
     RuSentiFramesEffectLabelsFormatter
@@ -292,22 +291,6 @@ class EntitiesParserArg(BaseArg):
                             choices=['no', 'bert-ontonotes'],
                             default=default,
                             help='Adopt entities parser in text processing (default: {})'.format(default))
-
-
-class ModelNameArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return ModelNamesService.get_type_by_name(args.model_name)
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--model-name',
-                            dest='model_name',
-                            type=str,
-                            choices=list(ModelNamesService.iter_supported_names()),
-                            default=default,
-                            help='Name of a model to be utilized in experiment')
 
 
 class ModelLoadDirArg(BaseArg):

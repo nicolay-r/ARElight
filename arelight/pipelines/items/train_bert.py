@@ -3,8 +3,11 @@ from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.synonyms.base import SynonymsCollection
+from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
+
 from deeppavlov.models.bert import bert_classifier
 from deeppavlov.models.preprocessors.bert_preprocessor import BertPreprocessor
+
 from tqdm import tqdm
 
 
@@ -62,10 +65,13 @@ class BertFinetunePipelineItem(BasePipelineItem):
 
                 yield batch_features, labels
 
+        # Create default reader for samples, based on CSV format.
+        samples_reader = PandasCsvReader()
+
         # Reading pipeline parameters.
         epochs_count = pipeline_ctx.provide("epochs_count")
         batch_size = pipeline_ctx.provide("batch_size")
-        samples = BaseRowsStorage.from_tsv(input_data)
+        samples = samples_reader.read(input_data)
 
         for e in range(epochs_count):
 

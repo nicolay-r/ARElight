@@ -1,15 +1,15 @@
-from arekit.common.data.input.readers.tsv import TsvReader
-from arekit.common.data.input.writers.tsv import TsvWriter
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.base import BasePipeline
-from arekit.contrib.networks.core.predict.tsv_writer import TsvPredictWriter
+from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
+from arekit.contrib.utils.data.writers.csv_pd import PandasCsvWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.pipelines.items.backend_brat_json import BratBackendContentsPipelineItem
 from arelight.pipelines.items.inference_bert import BertInferencePipelineItem
+from arelight.predict_writer_csv import TsvPredictWriter
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 
@@ -28,7 +28,9 @@ def demo_infer_texts_bert_pipeline(texts_count,
     assert(isinstance(output_dir, str))
     assert(isinstance(labels_scaler, BaseLabelScaler))
 
-    samples_io = SamplesIO(target_dir=output_dir, reader=TsvReader(), writer=TsvWriter(write_header=True))
+    samples_io = SamplesIO(target_dir=output_dir,
+                           reader=PandasCsvReader(),
+                           writer=PandasCsvWriter(write_header=True))
 
     pipeline = BasePipeline(pipeline=[
 
