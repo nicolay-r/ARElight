@@ -270,7 +270,10 @@ class BratBackend(object):
         text_terms = []
         relations = []
 
-        for doc_id, doc_data in tqdm(self.__iter_docs_data(samples, sent_data_cols=sent_data_cols)):
+        it_data = tqdm(self.__iter_docs_data(samples, sent_data_cols=sent_data_cols),
+                       desc="Iter documents data")
+
+        for doc_id, doc_data in it_data:
 
             # Check whether document to be saved is actually in range.
             if docs_range is not None and not (doc_id >= docs_range[0] and doc_id <= docs_range[1]):
