@@ -6,7 +6,7 @@ from arekit.common.news.sentence import BaseNewsSentence
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
-from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 
 
 class BertOntonotesPipelineItemTest(unittest.TestCase):
@@ -16,7 +16,7 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
     def test_pipeline(self):
         text_parser = BaseTextParser([
             TermsSplitterParser(),
-            BertOntonotesNERPipelineItem()
+            DeepPavlovNERPipelineItem(ner_model_cfg="ontonotes_mult")
         ])
         news = News(doc_id=0, sentences=[BaseNewsSentence(self.text)])
         parsed_news = NewsParser.parse(news=news, text_parser=text_parser)

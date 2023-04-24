@@ -1,7 +1,7 @@
 import unittest
 
+from arelight.ner.deep_pavlov import DeepPavlovNER
 from arelight.ner.obj_desc import NerObjectDescriptor
-from arelight.ner.ontonotes import BertOntonotesNER
 
 
 class BertOntonotesTest(unittest.TestCase):
@@ -11,7 +11,7 @@ class BertOntonotesTest(unittest.TestCase):
              "враждебного подхода к Росcии вблизи ее восточных границ ..."
 
     def test_single_inference(self):
-        ner = BertOntonotesNER()
+        ner = DeepPavlovNER(model_cfg="ontonotes_mult")
         tokens = self.text.split(' ')
         sequences = ner.extract(sequences=[tokens])
 

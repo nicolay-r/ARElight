@@ -3,16 +3,27 @@ import importlib
 from arelight.ner.base import BaseNER
 
 
-class BertOntonotesNER(BaseNER):
+class DeepPavlovNER(BaseNER):
 
-    def __init__(self):
+    DEFAULT_MODEL = "ontonotes_mult"
+
+    def __init__(self, model_cfg=None):
+        assert(isinstance(model_cfg, str) or model_cfg is None)
 
         # Dynamic libraries import.
         deeppavlov = importlib.import_module("deeppavlov")
         build_model = deeppavlov.build_model
         configs = deeppavlov.configs
 
-        self.__ner_model = build_model(configs.ner.ner_ontonotes_bert_mult,
+        model_cfg = DeepPavlovNER.DEFAULT_MODEL if model_cfg is None else model_cfg
+
+        # Mapping list of the available models.
+        __models = {
+            DeepPavlovNER.DEFAULT_MODEL: configs.ner.ner_ontonotes_bert_mult,
+            "ontonotes_eng": configs.ner.ner_ontonotes_bert,
+        }
+
+        self.__ner_model = build_model(__models[model_cfg],
                                        download=True)
 
     # region Properties
@@ -48,7 +59,7 @@ class BertOntonotesNER(BaseNER):
 
     @staticmethod
     def __gather(labels_in_lists):
-        return [labels[0] if len(labels) == 1 else BertOntonotesNER.__gather_many(labels)
+        return [labels[0] if len(labels) == 1 else DeepPavlovNER.__gather_many(labels)
                 for labels in labels_in_lists]
 
     @staticmethod

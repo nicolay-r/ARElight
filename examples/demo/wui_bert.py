@@ -21,7 +21,7 @@ from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.pipelines.demo.utils import read_synonyms_collection
-from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 
 bratUrl = '/brat/'
@@ -85,7 +85,7 @@ synonyms = read_synonyms_collection(synonyms_filepath="/arelight/data/synonyms.t
 
 text_parser = BaseTextParser(pipeline=[
     TermsSplitterParser(),
-    BertOntonotesNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
+    DeepPavlovNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
     EntitiesGroupingPipelineItem(
         lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
             synonyms=synonyms, value=value))

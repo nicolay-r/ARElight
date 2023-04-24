@@ -24,7 +24,7 @@ from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
+from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
@@ -89,7 +89,7 @@ class BertTestSerialization(unittest.TestCase):
         # Declare text parser.
         text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
-            BertOntonotesNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
+            DeepPavlovNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
             EntitiesGroupingPipelineItem(lambda value:
                 SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))

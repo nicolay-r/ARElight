@@ -5,8 +5,8 @@ from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsServi
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
 from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
-from arelight.pipelines.items.entities_bert_ontonotes import BertOntonotesNERPipelineItem
 from arelight.pipelines.items.entities_default import TextEntitiesParser
+from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.samplers.types import SampleFormattersService
 
 from examples.args.base import BaseArg
@@ -279,8 +279,15 @@ class EntitiesParserArg(BaseArg):
             return TextEntitiesParser()
         elif arg == "bert-ontonotes":
             # We consider only such entity types that supported by ML model.
-            ppl_item = BertOntonotesNERPipelineItem(
-                lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"])
+            ppl_item = DeepPavlovNERPipelineItem(
+                obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                ner_model_cfg="ontonotes_mult")
+            return ppl_item
+        elif arg == "bert-ontonotes-eng":
+            # We consider only such entity types that supported by ML model.
+            ppl_item = DeepPavlovNERPipelineItem(
+                obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                ner_model_cfg="ontonotes_eng")
             return ppl_item
 
     @staticmethod
@@ -288,7 +295,7 @@ class EntitiesParserArg(BaseArg):
         parser.add_argument('--entities-parser',
                             dest='entities_parser',
                             type=str,
-                            choices=['no', 'bert-ontonotes'],
+                            choices=['no', 'bert-ontonotes', 'bert-ontonotes-eng'],
                             default=default,
                             help='Adopt entities parser in text processing (default: {})'.format(default))
 

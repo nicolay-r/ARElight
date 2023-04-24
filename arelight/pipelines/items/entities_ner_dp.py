@@ -3,18 +3,19 @@ from arekit.common.entities.base import Entity
 from arekit.common.news.objects_parser import SentenceObjectsParserPipelineItem
 from arekit.common.text.partitioning.terms import TermsPartitioning
 
+from arelight.ner.deep_pavlov import DeepPavlovNER
 from arelight.ner.obj_desc import NerObjectDescriptor
-from arelight.ner.ontonotes import BertOntonotesNER
 
 
-class BertOntonotesNERPipelineItem(SentenceObjectsParserPipelineItem):
+class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
 
-    def __init__(self, obj_filter=None):
+    def __init__(self, obj_filter=None, ner_model_cfg=None):
         assert(callable(obj_filter) or obj_filter is None)
+
         # Initialize bert-based model instance.
-        self.__ontonotes_ner = BertOntonotesNER()
+        self.__dp_ner = DeepPavlovNER(ner_model_cfg)
         self.__obj_filter = obj_filter
-        super(BertOntonotesNERPipelineItem, self).__init__(TermsPartitioning())
+        super(DeepPavlovNERPipelineItem, self).__init__(TermsPartitioning())
 
     def _get_parts_provider_func(self, input_data, pipeline_ctx):
         return self.__iter_subs_values_with_bounds(input_data)
@@ -23,7 +24,7 @@ class BertOntonotesNERPipelineItem(SentenceObjectsParserPipelineItem):
         assert(isinstance(terms_list, list))
 
         single_sequence = [terms_list]
-        processed_sequences = self.__ontonotes_ner.extract(sequences=single_sequence)
+        processed_sequences = self.__dp_ner.extract(sequences=single_sequence)
 
         for p_sequence in processed_sequences:
             for s_obj in p_sequence:
