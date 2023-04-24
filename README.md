@@ -84,7 +84,7 @@ python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
 
 For the `BERT` model:
 ```bash
-python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt 
+python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 
 ```
