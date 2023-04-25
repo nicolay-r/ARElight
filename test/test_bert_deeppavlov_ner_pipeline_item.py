@@ -1,8 +1,8 @@
 import unittest
+from os.path import join, dirname, realpath
 
-from arekit.common.news.base import News
-from arekit.common.news.parser import NewsParser
-from arekit.common.news.sentence import BaseNewsSentence
+from arekit.common.entities.base import Entity
+from arekit.common.text.enums import TermFormat
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
@@ -10,20 +10,46 @@ from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 
 
 class BertOntonotesPipelineItemTest(unittest.TestCase):
+    """ Support text chunking.
+    """
 
-    text = "США пытается ввести санкции против Российской Федерацией"
+    def test_pipeline_item_rus(self):
 
-    def test_pipeline(self):
-        text_parser = BaseTextParser([
+        # Declaring text processing pipeline.
+        text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
-            DeepPavlovNERPipelineItem(ner_model_cfg="ontonotes_mult")
+            DeepPavlovNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                                      ner_model_cfg="ontonotes_mult"),
         ])
-        news = News(doc_id=0, sentences=[BaseNewsSentence(self.text)])
-        parsed_news = NewsParser.parse(news=news, text_parser=text_parser)
-        terms = parsed_news.iter_sentence_terms(sentence_index=0, return_id=False)
 
-        for term in terms:
-            print(term)
+        # Read file contents.
+        text_filepath = join(dirname(realpath(__file__)), "../data/texts-inosmi-rus/e2.txt")
+        with open(text_filepath, 'r') as f:
+            text = f.read().rstrip()
+
+        # Output parsed text.
+        parsed_text = text_parser.run(text)
+        for t in parsed_text.iter_terms(TermFormat.Raw):
+            print("<{}> ({})".format(t.Value, t.Type) if isinstance(t, Entity) else t)
+
+    def test_pipeline_item_eng_book(self):
+
+        # Declaring text processing pipeline.
+        text_parser = BaseTextParser(pipeline=[
+            TermsSplitterParser(),
+            DeepPavlovNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                                      ner_model_cfg="ontonotes_eng"),
+        ])
+
+        # Read file contents.
+        text_filepath = join(dirname(realpath(__file__)), "../data/book-war-and-peace-test.txt")
+        with open(text_filepath, 'r') as f:
+            text = f.read().rstrip()
+
+        # Output parsed text.
+        parsed_text = text_parser.run(text)
+        for t in parsed_text.iter_terms(TermFormat.Raw):
+            print("<{}> ({})".format(t.Value, t.Type) if isinstance(t, Entity) else t)
 
 
 if __name__ == '__main__':
