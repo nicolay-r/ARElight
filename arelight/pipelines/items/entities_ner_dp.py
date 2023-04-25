@@ -9,14 +9,14 @@ from arelight.ner.obj_desc import NerObjectDescriptor
 
 class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
 
-    DEEPPAVLOV_PRE_BORDER_LIMIT = 128
-
-    def __init__(self, obj_filter=None, ner_model_cfg=None):
+    def __init__(self, obj_filter=None, ner_model_cfg=None, chunk_limit=128):
         assert(callable(obj_filter) or obj_filter is None)
+        assert(isinstance(chunk_limit, int) and chunk_limit > 0)
 
         # Initialize bert-based model instance.
         self.__dp_ner = DeepPavlovNER(ner_model_cfg)
         self.__obj_filter = obj_filter
+        self.__chunk_limit = chunk_limit
         super(DeepPavlovNERPipelineItem, self).__init__(TermsPartitioning())
 
     def _get_parts_provider_func(self, input_data, pipeline_ctx):
@@ -25,10 +25,8 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
     def __iter_subs_values_with_bounds(self, terms_list):
         assert(isinstance(terms_list, list))
 
-        chunk_size = self.DEEPPAVLOV_PRE_BORDER_LIMIT
-
-        for chunk_start in range(0, len(terms_list), chunk_size):
-            single_sentence_chunk = [terms_list[chunk_start:chunk_start+chunk_size]]
+        for chunk_start in range(0, len(terms_list), self.__chunk_limit):
+            single_sentence_chunk = [terms_list[chunk_start:chunk_start+self.__chunk_limit]]
             processed_sequences = self.__dp_ner.extract(sequences=single_sentence_chunk)
 
             entities_it = self.__iter_parsed_entities(processed_sequences,
