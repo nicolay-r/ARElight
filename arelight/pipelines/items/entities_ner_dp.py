@@ -9,6 +9,8 @@ from arelight.ner.obj_desc import NerObjectDescriptor
 
 class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
 
+    DEEPPAVLOV_PRE_BORDER_LIMIT = 128
+
     def __init__(self, obj_filter=None, ner_model_cfg=None):
         assert(callable(obj_filter) or obj_filter is None)
 
@@ -23,16 +25,27 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
     def __iter_subs_values_with_bounds(self, terms_list):
         assert(isinstance(terms_list, list))
 
-        single_sequence = [terms_list]
-        processed_sequences = self.__dp_ner.extract(sequences=single_sequence)
+        chunk_size = self.DEEPPAVLOV_PRE_BORDER_LIMIT
 
+        for chunk_start in range(0, len(terms_list), chunk_size):
+            single_sentence_chunk = [terms_list[chunk_start:chunk_start+chunk_size]]
+            processed_sequences = self.__dp_ner.extract(sequences=single_sentence_chunk)
+
+            entities_it = self.__iter_parsed_entities(processed_sequences,
+                                                      chunk_terms_list=single_sentence_chunk[0],
+                                                      chunk_offset=chunk_start)
+
+            for entity, bound in entities_it:
+                yield entity, bound
+
+    def __iter_parsed_entities(self, processed_sequences, chunk_terms_list, chunk_offset):
         for p_sequence in processed_sequences:
             for s_obj in p_sequence:
-                assert(isinstance(s_obj, NerObjectDescriptor))
+                assert (isinstance(s_obj, NerObjectDescriptor))
 
                 if self.__obj_filter is not None and not self.__obj_filter(s_obj):
                     continue
 
-                value = " ".join(terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
+                value = " ".join(chunk_terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
                 entity = Entity(value=value, e_type=s_obj.ObjectType)
-                yield entity, Bound(pos=s_obj.Position, length=s_obj.Length)
+                yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
