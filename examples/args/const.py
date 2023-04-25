@@ -33,4 +33,4 @@ BERT_FINETUNED_MODEL_TAR = BERT_FINETUNED_MODEL_PATHDIR + '.tar.gz'
 BERT_FINETUNED_CKPT_PATH = join(BERT_FINETUNED_MODEL_PATHDIR, BERT_DEFAULT_STATE_NAME)
 
 # The common output directory.
-OUTPUT_DIR = join(current_dir, "../../_output")
+OUTPUT_TEMPLATE = join(current_dir, "../../_output", "sample")

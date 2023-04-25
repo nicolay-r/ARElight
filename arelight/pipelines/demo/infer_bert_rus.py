@@ -15,7 +15,8 @@ from arelight.samplers.types import SampleFormattersService
 
 
 def demo_infer_texts_bert_pipeline(texts_count,
-                                   output_dir,
+                                   samples_output_dir,
+                                   samples_prefix,
                                    bert_config_path,
                                    bert_vocab_path,
                                    bert_finetuned_ckpt_path,
@@ -25,11 +26,13 @@ def demo_infer_texts_bert_pipeline(texts_count,
                                    do_lowercase=False,
                                    max_seq_length=128):
     assert(isinstance(texts_count, int))
-    assert(isinstance(output_dir, str))
+    assert(isinstance(samples_output_dir, str))
+    assert(isinstance(samples_prefix, str))
     assert(isinstance(labels_scaler, BaseLabelScaler))
 
-    samples_io = SamplesIO(target_dir=output_dir,
+    samples_io = SamplesIO(target_dir=samples_output_dir,
                            reader=PandasCsvReader(),
+                           prefix=samples_prefix,
                            writer=PandasCsvWriter(write_header=True))
 
     pipeline = BasePipeline(pipeline=[

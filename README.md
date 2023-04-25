@@ -86,7 +86,8 @@ For the `BERT` model:
 ```bash
 python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
-    --terms-per-context 50 
+    --terms-per-context 50 \
+    -o output/e1
 ```
 
 <p align="center">

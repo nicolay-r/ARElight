@@ -18,8 +18,7 @@ if __name__ == '__main__':
     common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_CKPT_PATH)
     common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
     common.BertSaveFilepathArg.add_argument(parser, default=join(const.BERT_TARGET_DIR, const.BERT_DEFAULT_STATE_NAME))
-    common.InputSamplesFilepath.add_argument(parser, default=join(
-        const.OUTPUT_DIR, join("rsr-v1_1-fx-nobalance-tpc50-bert_3l", "sample-train-0.tsv.gz")))
+    common.InputSamplesFilepath.add_argument(parser, default="sample-train-0.tsv.gz")
     train.LearningRateArg.add_argument(parser, default=2e-5)
     train.EpochsCountArg.add_argument(parser, default=4)
     train.BatchSizeArg.add_argument(parser, default=6)

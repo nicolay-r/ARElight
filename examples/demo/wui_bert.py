@@ -73,7 +73,8 @@ finetuned_state_name = "ra-20-srubert-large-neut-nli-pretrained-3l-finetuned"
 
 demo_pipeline = demo_infer_texts_bert_pipeline(
     texts_count=1,
-    output_dir=".",
+    samples_output_dir=".",
+    samples_prefix="sample",
     entity_fmt=SharpPrefixedEntitiesSimpleFormatter(),
     bert_config_path=join(model_dir, state_name, "bert_config.json"),
     bert_vocab_path=join(model_dir, state_name, "vocab.txt"),

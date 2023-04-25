@@ -1,5 +1,5 @@
 import argparse
-from os.path import join
+from os.path import join, dirname, basename
 
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
@@ -42,6 +42,7 @@ if __name__ == '__main__':
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
+    common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
 
     # Parsing arguments.
@@ -57,6 +58,7 @@ if __name__ == '__main__':
     doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts))
     labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
     label_scaler = SingleLabelScaler(NoLabel())
+    backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
     synonyms = read_synonyms_collection(
         filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
@@ -92,7 +94,9 @@ if __name__ == '__main__':
     pipeline = BasePipeline([
         BertExperimentInputSerializerPipelineItem(
             sample_rows_provider=rows_provider,
-            samples_io=SamplesIO(target_dir=const.OUTPUT_DIR, writer=PandasCsvWriter(write_header=True)),
+            samples_io=SamplesIO(target_dir=dirname(backend_template),
+                                 prefix=basename(backend_template),
+                                 writer=PandasCsvWriter(write_header=True)),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train)
     ])

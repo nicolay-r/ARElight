@@ -1,5 +1,5 @@
 import argparse
-from os.path import join
+from os.path import join, dirname, basename
 
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.TokensPerContextArg.add_argument(parser, default=128)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
-    common.PredictOutputFilepathArg.add_argument(parser, default=None)
+    common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
     common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_FINETUNED_CKPT_PATH)
     common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
@@ -50,18 +50,19 @@ if __name__ == '__main__':
     entities_parser = common.EntitiesParserArg.read_argument(args)
     terms_per_context = common.TermsPerContextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else texts_from_files
+    backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
     pipeline = demo_infer_texts_bert_pipeline(
         texts_count=len(texts_from_files),
-        output_dir=const.OUTPUT_DIR,
+        samples_output_dir=dirname(backend_template),
+        samples_prefix=basename(backend_template),
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
         labels_scaler=create_labels_scaler(common.LabelsCountArg.read_argument(args)),
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),
         bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
         bert_finetuned_ckpt_path=common.BertCheckpointFilepathArg.read_argument(args),
         do_lowercase=train.DoLowercaseArg.read_argument(args),
-        max_seq_length=common.TokensPerContextArg.read_argument(args)
-    )
+        max_seq_length=common.TokensPerContextArg.read_argument(args))
 
     synonyms = read_synonyms_collection(filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
 
@@ -87,11 +88,9 @@ if __name__ == '__main__':
     no_folding = NoFolding(doc_ids=list(range(len(actual_content))),
                            supported_data_type=DataType.Test)
 
-    backend_template = common.PredictOutputFilepathArg.read_argument(args)
-
     pipeline.run(None, {
         "template_filepath": join(const.DATA_DIR, "brat_template.html"),
-        "predict_fp": "{}.npz".format(backend_template) if backend_template is not None else None,
+        "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
         "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
         "data_type_pipelines": {DataType.Test: data_pipeline},
         "data_folding": no_folding
