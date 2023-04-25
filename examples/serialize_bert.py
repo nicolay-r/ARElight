@@ -44,6 +44,7 @@ if __name__ == '__main__':
     common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    common.SentenceParserArg.add_argument(parser)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -52,10 +53,11 @@ if __name__ == '__main__':
     text_from_arg = common.InputTextArg.read_argument(args)
     texts_from_files = common.FromFilesArg.read_argument(args)
     entities_parser = common.EntitiesParserArg.read_argument(args)
+    sentence_parser = common.SentenceParserArg.read_argument(args)
     entity_fmt = create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args))
     input_texts = text_from_arg if text_from_arg is not None else texts_from_files
     opin_annot = BaseOpinionAnnotator()
-    doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts))
+    doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts, sentence_parser=sentence_parser))
     labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
     label_scaler = SingleLabelScaler(NoLabel())
     backend_template = common.PredictOutputFilepathArg.read_argument(args)

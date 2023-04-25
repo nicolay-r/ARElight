@@ -35,6 +35,7 @@ if __name__ == '__main__':
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
     common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.SentenceParserArg.add_argument(parser)
     common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_FINETUNED_CKPT_PATH)
     common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
     common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
@@ -45,6 +46,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Reading text-related parameters.
+    sentence_parser = common.SentenceParserArg.read_argument(args)
     texts_from_files = common.FromFilesArg.read_argument(args)
     text_from_arg = common.InputTextArg.read_argument(args)
     entities_parser = common.EntitiesParserArg.read_argument(args)
@@ -77,7 +79,7 @@ if __name__ == '__main__':
     data_pipeline = create_neutral_annotation_pipeline(
         synonyms=synonyms,
         dist_in_terms_bound=terms_per_context,
-        doc_ops=InMemoryDocOperations(docs=input_to_docs(actual_content)),
+        doc_ops=InMemoryDocOperations(docs=input_to_docs(actual_content, sentence_parser=sentence_parser)),
         terms_per_context=50,
         text_parser=text_parser)
 

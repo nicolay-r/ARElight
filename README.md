@@ -72,6 +72,7 @@ python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --terms-per-context 50 \
     --tokens-per-context 128 \
     --text-b-type nli_m \
+    --sentence-parser ru \
     -o output/brat_inference_output
 ```
 <p align="center">
@@ -87,6 +88,7 @@ For the `BERT` model:
 python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 \
+    --sentence-parser ru \
     -o output/e1
 ```
 

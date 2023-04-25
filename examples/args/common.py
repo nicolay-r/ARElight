@@ -1,3 +1,5 @@
+import importlib
+
 from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
 from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter, \
     RuSentiFramesEffectLabelsFormatter
@@ -268,6 +270,32 @@ class SynonymsCollectionFilepathArg(BaseArg):
                             type=str,
                             default=default,
                             help="List of synonyms provided in lines of the source text file.")
+
+
+class SentenceParserArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        arg = args.sentence_parser
+        if arg == "linesplit":
+            return lambda text: [t.strip() for t in text.split('\n')]
+        elif arg == "ru":
+            # Using ru_sent_tokenize library.
+            ru_sent_tokenize = importlib.import_module("ru_sent_tokenize")
+            return lambda text: ru_sent_tokenize.ru_sent_tokenize(text)
+        elif arg == "nltk_en":
+            # Using nltk library.
+            nltk = importlib.import_module("nltk")
+            tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+            return tokenizer.tokenize
+
+    @staticmethod
+    def add_argument(parser, default="ru"):
+        parser.add_argument('--sentence-parser',
+                            dest='sentence_parser',
+                            type=str,
+                            choices=['linesplit', 'ru', 'nltk_en'],
+                            default=default)
 
 
 class EntitiesParserArg(BaseArg):
