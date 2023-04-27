@@ -10,6 +10,9 @@ from arelight.ner.obj_desc import NerObjectDescriptor
 class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
 
     def __init__(self, obj_filter=None, ner_model_cfg=None, chunk_limit=128):
+        """ chunk_limit: int
+                length of text part in words that is going to be provided in input.
+        """
         assert(callable(obj_filter) or obj_filter is None)
         assert(isinstance(chunk_limit, int) and chunk_limit > 0)
 
@@ -27,7 +30,15 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
 
         for chunk_start in range(0, len(terms_list), self.__chunk_limit):
             single_sentence_chunk = [terms_list[chunk_start:chunk_start+self.__chunk_limit]]
-            processed_sequences = self.__dp_ner.extract(sequences=single_sentence_chunk)
+
+            # NOTE: in some cases, for example URL links or other long input words,
+            # the overall behavior might result in exceeding the assumed threshold.
+            # In order to completely prevent it, we consider to wrap the call
+            # of NER module into try-catch block.
+            try:
+                processed_sequences = self.__dp_ner.extract(sequences=single_sentence_chunk)
+            except RuntimeError:
+                processed_sequences = []
 
             entities_it = self.__iter_parsed_entities(processed_sequences,
                                                       chunk_terms_list=single_sentence_chunk[0],
