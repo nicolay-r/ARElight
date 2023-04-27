@@ -98,7 +98,7 @@ class FromDataframeArg(BaseArg):
         if ".csv" in path:
             pd = importlib.import_module("pandas")
             df = pd.read_csv(path, delimiter=",")
-            return df["text"].to_list()
+            return df["text"].astype(str).to_list()
 
     @staticmethod
     def add_argument(parser, default=None):
