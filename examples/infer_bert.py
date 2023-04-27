@@ -27,7 +27,8 @@ if __name__ == '__main__':
 
     # Providing arguments.
     common.InputTextArg.add_argument(parser, default=None)
-    common.FromFilesArg.add_argument(parser, default=[const.DEFAULT_TEXT_FILEPATH])
+    common.FromFilesArg.add_argument(parser)
+    common.FromDataframeArg.add_argument(parser)
     common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.LabelsCountArg.add_argument(parser, default=3)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
@@ -49,13 +50,15 @@ if __name__ == '__main__':
     sentence_parser = common.SentenceParserArg.read_argument(args)
     texts_from_files = common.FromFilesArg.read_argument(args)
     text_from_arg = common.InputTextArg.read_argument(args)
+    texts_from_dataframe = common.FromDataframeArg.read_argument(args)
     entities_parser = common.EntitiesParserArg.read_argument(args)
     terms_per_context = common.TermsPerContextArg.read_argument(args)
-    actual_content = text_from_arg if text_from_arg is not None else texts_from_files
+    actual_content = text_from_arg if text_from_arg is not None else \
+        texts_from_files if texts_from_files is not None else texts_from_dataframe
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
     pipeline = demo_infer_texts_bert_pipeline(
-        texts_count=len(texts_from_files),
+        texts_count=len(actual_content),
         samples_output_dir=dirname(backend_template),
         samples_prefix=basename(backend_template),
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),

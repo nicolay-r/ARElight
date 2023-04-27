@@ -9,7 +9,6 @@ BAG_SIZE = 1
 DEFAULT_ENTITIES_PARSER = "bert-ontonotes"
 
 DATA_DIR = join(current_dir, "../../data")
-DEFAULT_TEXT_FILEPATH = join(DATA_DIR, "texts-inosmi-rus/e1.txt")
 SYNONYMS_FILEPATH = join(DATA_DIR, "synonyms.txt")
 
 # Common model dir.

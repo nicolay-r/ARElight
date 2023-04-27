@@ -85,6 +85,30 @@ class VocabFilepathArg(BaseArg):
                             help='Custom vocabulary filepath')
 
 
+class FromDataframeArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        path = args.from_dataframe[0]
+
+        if path is None:
+            return None
+
+        # loading from CSV. file
+        if ".csv" in path:
+            pd = importlib.import_module("pandas")
+            df = pd.read_csv(path, delimiter=",")
+            return df["text"].to_list()
+
+    @staticmethod
+    def add_argument(parser, default=None):
+        parser.add_argument('--from-dataframe',
+                            dest='from_dataframe',
+                            type=str,
+                            default=default,
+                            nargs=1)
+
+
 class FromFilesArg(BaseArg):
 
     @staticmethod
@@ -102,7 +126,7 @@ class FromFilesArg(BaseArg):
         return file_contents
 
     @staticmethod
-    def add_argument(parser, default):
+    def add_argument(parser, default=None):
         parser.add_argument('--from-files',
                             dest='from_files',
                             type=str,

@@ -25,7 +25,6 @@ from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 
 from examples.args import const, common
-from examples.args.const import DEFAULT_TEXT_FILEPATH
 from examples.entities.factory import create_entity_formatter
 from examples.utils import read_synonyms_collection
 
@@ -37,10 +36,11 @@ if __name__ == '__main__':
 
     # Provide arguments.
     common.InputTextArg.add_argument(parser, default=None)
-    common.FromFilesArg.add_argument(parser, default=[DEFAULT_TEXT_FILEPATH])
+    common.FromFilesArg.add_argument(parser)
     common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    common.FromDataframeArg.add_argument(parser)
     common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
     common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
@@ -52,10 +52,12 @@ if __name__ == '__main__':
     # Parsing arguments.
     text_from_arg = common.InputTextArg.read_argument(args)
     texts_from_files = common.FromFilesArg.read_argument(args)
+    texts_from_dataframe = common.FromDataframeArg.read_argument(args)
     entities_parser = common.EntitiesParserArg.read_argument(args)
     sentence_parser = common.SentenceParserArg.read_argument(args)
     entity_fmt = create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args))
-    input_texts = text_from_arg if text_from_arg is not None else texts_from_files
+    input_texts = text_from_arg if text_from_arg is not None else \
+        texts_from_files if texts_from_files is not None else texts_from_dataframe
     opin_annot = BaseOpinionAnnotator()
     doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts, sentence_parser=sentence_parser))
     labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
