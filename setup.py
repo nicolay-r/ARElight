@@ -14,7 +14,7 @@ def get_requirements(filenames):
 
 setup(
     name='arelight',
-    version='0.23.0',
+    version='0.23.0-p0',
     description='About Mass-media text processing application for your '
                 'Relation Extraction task, powered by AREkit.',
     url='https://github.com/nicolay-r/ARElight',
