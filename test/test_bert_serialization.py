@@ -1,4 +1,5 @@
 import unittest
+import ru_sent_tokenize
 
 from arekit.contrib.utils.data.writers.csv_pd import PandasCsvWriter
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
@@ -25,7 +26,6 @@ from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.utils import input_to_docs
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 
@@ -102,7 +102,7 @@ class BertTestSerialization(unittest.TestCase):
         no_folding = NoFolding(doc_ids=list(range(len(texts))), supported_data_type=DataType.Test)
 
         # Composing labels formatter and experiment preparation.
-        doc_ops = InMemoryDocOperations(docs=input_to_docs(texts))
+        doc_ops = InMemoryDocOperations(docs=BertTestSerialization.input_to_docs(texts))
 
         rows_provider = create_bert_sample_provider(
             label_scaler=single_label_scaler,
