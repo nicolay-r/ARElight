@@ -17,7 +17,7 @@ This project is commonly powered by [AREkit](https://github.com/nicolay-r/AREkit
 For Named Entity Recognition in text sentences, 
 we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNotes model).
 
-## Installation
+# Installation
 
 ### Docker verion (Quick)
 
@@ -57,7 +57,9 @@ python3.6 download.py
 python standalone.py
 ```
 
-Usage: proceed with the `examples` folder.
+# Usage
+
+proceed with the `examples` folder.
 
 ## Inference
 
@@ -75,15 +77,24 @@ python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --sentence-parser ru \
     -o output/brat_inference_output
 ```
+From `CSV` file (you need to have `text` column; sentence parser could be disabled):
+```
+python3.6 infer_bert.py  \
+    --from-dataframe ../data/examples.csv \
+    --entities-parser bert-ontonotes \
+    --terms-per-context 50 \
+    --sentence-parser ru \
+    -o output/data
+```    
 <p align="center">
     <img src="docs/inference-bert-e1.png"/>
 </p>
 
 ## Serialization 
 
-> **Supported Languages**: Any
+> **Supported Languages**: Russian/English
 
-For the `BERT` model:
+From list of files
 ```bash
 python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
@@ -91,6 +102,15 @@ python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --sentence-parser ru \
     -o output/e1
 ```
+From `CSV` file (you need to have `text` column; sentence parser could be disabled):
+```
+python3.6 serialize_bert.py  \
+    --from-dataframe ../data/examples.csv \
+    --entities-parser bert-ontonotes \
+    --terms-per-context 50 \
+    --sentence-parser ru \
+    -o output/data
+```    
 
 <p align="center">
     <img src="docs/samples-bert.png">
