@@ -14,9 +14,7 @@ def input_to_docs(input_data, sentence_parser):
         # setup input data.
         sentences = sentence_parser(contents)
         sentences = list(map(lambda text: BaseNewsSentence(text), sentences))
-        # Parse text.
-        doc = News(doc_id=doc_id, sentences=sentences)
         # Documents.
-        docs.append(doc)
+        docs.append(News(doc_id=doc_id, sentences=sentences))
 
     return docs
