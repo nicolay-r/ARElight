@@ -1,8 +1,5 @@
 import unittest
 import ru_sent_tokenize
-
-from arekit.contrib.utils.data.writers.csv_pd import PandasCsvWriter
-from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
 
@@ -21,6 +18,9 @@ from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitt
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
+from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
+from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
+from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.doc_ops import InMemoryDocOperations
@@ -83,8 +83,7 @@ class BertTestSerialization(unittest.TestCase):
         synonyms = StemmerBasedSynonymCollection(
             iter_group_values_lists=self.iter_groups(synonyms_filepath),
             stemmer=MystemWrapper(),
-            is_read_only=False,
-            debug=False)
+            is_read_only=False)
 
         # Declare text parser.
         text_parser = BaseTextParser(pipeline=[
@@ -111,16 +110,16 @@ class BertTestSerialization(unittest.TestCase):
 
         pipeline = BasePipeline([
             BertExperimentInputSerializerPipelineItem(
-                sample_rows_provider=rows_provider,
-                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=PandasCsvWriter(write_header=True)),
+                rows_provider=rows_provider,
+                storage=RowCacheStorage(),
+                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=NativeCsvWriter()),
                 save_labels_func=lambda data_type: data_type != DataType.Test,
                 balance_func=lambda data_type: data_type == DataType.Train)
         ])
 
         synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
                                                  stemmer=MystemWrapper(),
-                                                 is_read_only=False,
-                                                 debug=False)
+                                                 is_read_only=False)
 
         # Initialize data processing pipeline.
         test_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,

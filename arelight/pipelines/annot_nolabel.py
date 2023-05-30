@@ -23,12 +23,11 @@ def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_
             opinions=[],
             synonyms=synonyms,
             error_on_duplicates=True,
-            error_on_synonym_end_missed=False),
-        get_doc_existed_opinions_func=lambda _: None)
+            error_on_synonym_end_missed=False))
 
     annotation_pipeline = text_opinion_extraction_pipeline(
         text_parser=text_parser,
-        get_doc_func=lambda doc_id: doc_ops.get_doc(doc_id),
+        get_doc_by_id_func=doc_ops.by_id,
         annotators=[
             nolabel_annotator
         ],

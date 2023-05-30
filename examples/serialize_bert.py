@@ -13,7 +13,8 @@ from arekit.common.opinions.annot.base import BaseOpinionAnnotator
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.utils.data.writers.csv_pd import PandasCsvWriter
+from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
+from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
@@ -97,10 +98,11 @@ if __name__ == '__main__':
 
     pipeline = BasePipeline([
         BertExperimentInputSerializerPipelineItem(
-            sample_rows_provider=rows_provider,
+            rows_provider=rows_provider,
+            storage=RowCacheStorage(),
             samples_io=SamplesIO(target_dir=dirname(backend_template),
                                  prefix=basename(backend_template),
-                                 writer=PandasCsvWriter(write_header=True)),
+                                 writer=NativeCsvWriter()),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train)
     ])

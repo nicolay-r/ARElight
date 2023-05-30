@@ -7,5 +7,5 @@ class InMemoryDocOperations(DocumentOperations):
         assert(isinstance(docs, list) or docs is None)
         self.__docs = docs
 
-    def get_doc(self, doc_id):
+    def by_id(self, doc_id):
         return self.__docs[doc_id]

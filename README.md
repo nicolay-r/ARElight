@@ -1,7 +1,7 @@
-# ARElight 0.23.0-p0
+# ARElight 0.23.1
 
 ![](https://img.shields.io/badge/Python-3.6.9-brightgreen.svg)
-![](https://img.shields.io/badge/AREkit-0.23.0-orange.svg)
+![](https://img.shields.io/badge/AREkit-0.23.1-orange.svg)
 
 ### :point_right: [DEMO](#docker-verion-quick) :point_left:
 

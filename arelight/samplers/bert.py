@@ -4,7 +4,7 @@ from arekit.common.entities.str_fmt import StringEntitiesFormatter
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
-from arekit.contrib.utils.bert.text_b_rus import BertTextBTemplates
+from arekit.contrib.utils.bert.text_b_rus import BertTextBRussianPrompts
 
 from arelight.samplers.types import BertSampleProviderTypes
 
@@ -19,13 +19,13 @@ def create_bert_sample_provider(provider_type, label_scaler, entity_formatter):
 
     text_terms_mapper = BertDefaultStringTextTermsMapper(entity_formatter)
 
-    text_b_template = None
+    text_b_prompt = None
     if provider_type == BertSampleProviderTypes.NLI_M:
-        text_b_template = BertTextBTemplates.NLI.value
+        text_b_prompt = BertTextBRussianPrompts.NLI.value
     if provider_type == BertSampleProviderTypes.QA_M:
-        text_b_template = BertTextBTemplates.QA.value
+        text_b_prompt = BertTextBRussianPrompts.QA.value
 
-    text_provider = PairTextProvider(text_b_template=text_b_template,
+    text_provider = PairTextProvider(text_b_prompt=text_b_prompt,
                                      text_terms_mapper=text_terms_mapper)
 
     return BaseSampleRowProvider(label_provider=MultipleLabelProvider(label_scaler),

@@ -2,7 +2,8 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.base import BasePipeline
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
-from arekit.contrib.utils.data.writers.csv_pd import PandasCsvWriter
+from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
+from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 
@@ -33,16 +34,17 @@ def demo_infer_texts_bert_pipeline(texts_count,
     samples_io = SamplesIO(target_dir=samples_output_dir,
                            reader=PandasCsvReader(),
                            prefix=samples_prefix,
-                           writer=PandasCsvWriter(write_header=True))
+                           writer=NativeCsvWriter())
 
     pipeline = BasePipeline(pipeline=[
 
         BertExperimentInputSerializerPipelineItem(
-            sample_rows_provider=create_bert_sample_provider(
+            rows_provider=create_bert_sample_provider(
                 provider_type=text_b_type,
                 label_scaler=labels_scaler,
                 entity_formatter=entity_fmt),
             samples_io=samples_io,
+            storage=RowCacheStorage(),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train),
 
