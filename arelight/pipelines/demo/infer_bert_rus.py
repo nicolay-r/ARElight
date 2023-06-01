@@ -1,3 +1,4 @@
+from arekit.common.data import const
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.base import BasePipeline
@@ -44,7 +45,10 @@ def demo_infer_texts_bert_pipeline(texts_count,
                 label_scaler=labels_scaler,
                 entity_formatter=entity_fmt),
             samples_io=samples_io,
-            storage=RowCacheStorage(),
+            storage=RowCacheStorage(force_collect_columns=[
+                # These additional columns required for BRAT visualization.
+                const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES
+            ]),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train),
 
