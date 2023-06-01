@@ -26,8 +26,7 @@ def read_synonyms_collection(filepath):
     return StemmerBasedSynonymCollection(
         iter_group_values_lists=__iter_groups(filepath),
         stemmer=MystemWrapper(),
-        is_read_only=False,
-        debug=False)
+        is_read_only=False)
 
 
 class EnumConversionService(object):

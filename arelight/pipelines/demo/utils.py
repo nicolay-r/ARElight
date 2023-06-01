@@ -15,6 +15,6 @@ def read_synonyms_collection(synonyms_filepath, stemmer):
     synonyms = StemmerBasedSynonymCollection(
         iter_group_values_lists=iter_groups(synonyms_filepath),
         stemmer=stemmer,
-        is_read_only=False, debug=False)
+        is_read_only=False)
 
     return synonyms
