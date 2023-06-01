@@ -47,7 +47,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
             samples_io=samples_io,
             storage=RowCacheStorage(force_collect_columns=[
                 # These additional columns required for BRAT visualization.
-                const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES
+                const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
             ]),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train),
