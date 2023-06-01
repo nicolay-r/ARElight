@@ -8,7 +8,6 @@ from os.path import dirname, realpath, join
 
 from arekit.common.context.token import Token
 from arekit.common.data import const
-from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.entities.base import Entity
 from arekit.common.frames.variants.base import FrameVariant
@@ -158,14 +157,14 @@ class BratBackend(object):
 
     @staticmethod
     def __to_terms(doc_data):
-        assert (isinstance(doc_data, dict))
+        assert(isinstance(doc_data, dict))
 
         sentence_terms = []
 
         e_doc_id = 0
         for s_ind in sorted(doc_data):
             sent_data = doc_data[s_ind]
-            text_terms = sent_data[BaseSingleTextProvider.TEXT_A]
+            text_terms = sent_data[const.TEXT]
 
             for i, e_ind in enumerate(sent_data[const.ENTITIES]):
                 sentence_entity_values = sent_data[const.ENTITY_VALUES]
@@ -207,7 +206,7 @@ class BratBackend(object):
         for s_ind in sorted(doc_data):
             r_data = doc_data[s_ind]
             for relation in r_data["relations"]:
-                terms = r_data[BaseSingleTextProvider.TEXT_A]
+                terms = r_data[const.TEXT]
                 if relation[1] >= len(terms) or relation[2] >= len(terms):
                     continue
                 r_ind = relation[0]
@@ -229,16 +228,16 @@ class BratBackend(object):
             parsed = ParsedSampleRow.parse(row)
             doc_id = parsed[const.DOC_ID]
 
-            if curr_doc_id is None:
-                curr_doc_id = doc_id
-            elif curr_doc_id != doc_id:
-                if (doc_id < curr_doc_id):
+            if curr_doc_id is not None and curr_doc_id != doc_id:
+                if doc_id < curr_doc_id:
                     break
                 yield curr_doc_id, doc_data
                 doc_data = __create_doc_data()
 
             curr_doc_id = doc_id
             sent_ind = parsed[const.SENT_IND]
+            assert(isinstance(sent_ind, int))
+
             has_row = sent_ind in doc_data
             s_data = {"relations": []} if not has_row else doc_data[sent_ind]
             s_data["relations"].append(
@@ -260,7 +259,7 @@ class BratBackend(object):
         assert(isinstance(samples, BaseRowsStorage))
         assert(isinstance(docs_range, tuple) or docs_range is None)
 
-        sent_data_cols = [BaseSingleTextProvider.TEXT_A,
+        sent_data_cols = [const.TEXT,
                           const.ENTITY_VALUES,
                           const.ENTITY_TYPES,
                           const.ENTITIES,
@@ -351,9 +350,8 @@ class BratBackend(object):
         assert(isinstance(docs_range, tuple) or docs_range is None)
         assert(isinstance(label_to_rel, dict))
 
-        samples_reader = PandasCsvReader(col_types={'frames': str}, compression='infer')
+        samples_reader = PandasCsvReader(col_types={'frames': str}, compression='infer', sep=',')
         result_reader = PandasCsvReader()
-
         text, coll_data, doc_data = self.__to_data(
             samples=samples_reader.read(samples_data_filepath),
             result=result_reader.read(result_data_filepath) if result_data_filepath is not None else None,
