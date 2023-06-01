@@ -89,6 +89,10 @@ class FromDataframeArg(BaseArg):
 
     @staticmethod
     def read_argument(args):
+
+        if args.from_dataframe is None:
+            return None
+
         path = args.from_dataframe[0]
 
         if path is None:
