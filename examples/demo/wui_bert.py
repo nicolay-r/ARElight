@@ -7,6 +7,7 @@ import json
 import sys
 from os.path import join, basename
 
+import ru_sent_tokenize
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
@@ -94,7 +95,8 @@ text_parser = BaseTextParser(pipeline=[
 
 # Declare a single document with `0` id and contents.
 single_doc = [text.strip()]
-doc_ops = InMemoryDocOperations(docs=input_to_docs(single_doc))
+doc_ops = InMemoryDocOperations(docs=input_to_docs(
+    single_doc, sentence_parser=lambda text: ru_sent_tokenize.ru_sent_tokenize(text)))
 
 data_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
                                                    terms_per_context=50,
