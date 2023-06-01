@@ -351,7 +351,7 @@ class BratBackend(object):
         assert(isinstance(docs_range, tuple) or docs_range is None)
         assert(isinstance(label_to_rel, dict))
 
-        samples_reader = PandasCsvReader(col_types={'frames': str})
+        samples_reader = PandasCsvReader(col_types={'frames': str}, compression='infer')
         result_reader = PandasCsvReader()
 
         text, coll_data, doc_data = self.__to_data(

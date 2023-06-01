@@ -32,7 +32,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
     assert(isinstance(labels_scaler, BaseLabelScaler))
 
     samples_io = SamplesIO(target_dir=samples_output_dir,
-                           reader=PandasCsvReader(),
+                           reader=PandasCsvReader(sep=',', compression="infer"),
                            prefix=samples_prefix,
                            writer=NativeCsvWriter())
 
