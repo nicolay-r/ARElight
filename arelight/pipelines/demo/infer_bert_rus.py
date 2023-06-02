@@ -35,7 +35,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
     samples_io = SamplesIO(target_dir=samples_output_dir,
                            reader=PandasCsvReader(sep=',', compression="infer"),
                            prefix=samples_prefix,
-                           writer=NativeCsvWriter())
+                           writer=NativeCsvWriter(delimiter=','))
 
     pipeline = BasePipeline(pipeline=[
 

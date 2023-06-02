@@ -112,7 +112,7 @@ class BertTestSerialization(unittest.TestCase):
             BertExperimentInputSerializerPipelineItem(
                 rows_provider=rows_provider,
                 storage=RowCacheStorage(),
-                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=NativeCsvWriter()),
+                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=NativeCsvWriter(delimiter=',')),
                 save_labels_func=lambda data_type: data_type != DataType.Test,
                 balance_func=lambda data_type: data_type == DataType.Train)
         ])

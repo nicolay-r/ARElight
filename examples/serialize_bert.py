@@ -102,7 +102,7 @@ if __name__ == '__main__':
             storage=RowCacheStorage(),
             samples_io=SamplesIO(target_dir=dirname(backend_template),
                                  prefix=basename(backend_template),
-                                 writer=NativeCsvWriter()),
+                                 writer=NativeCsvWriter(delimiter=',')),
             save_labels_func=lambda data_type: data_type != DataType.Test,
             balance_func=lambda data_type: data_type == DataType.Train)
     ])
