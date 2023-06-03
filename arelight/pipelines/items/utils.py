@@ -8,6 +8,8 @@ def input_to_docs(input_data, sentence_parser):
             how data is suppose to be separated onto sentences.
             str -> list(str)
     """
+    assert(input_data is not None)
+
     docs = []
 
     for doc_id, contents in enumerate(input_data):
