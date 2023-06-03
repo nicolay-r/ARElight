@@ -2,5 +2,5 @@ deeppavlov==0.11.0
 # DeepPavlov bert-dp dependencies:
 bert_dp @ git+https://github.com/deepmipt/bert.git@feat/multi_gpu
 # Install arekit
-arekit @ git+https://github.com/nicolay-r/AREkit@0.23.0-rc
+arekit @ git+https://github.com/nicolay-r/AREkit@0.23.1-rc
 nltk
