@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/Python-3.6.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.23.1-orange.svg)
 
-### :point_right: [DEMO](#docker-verion-quick) :point_left:
+### :point_right: [DEMO](https://github.com/nicolay-r/ARElight/tree/v0.22.0#installation) :point_left:
 
 > **Supported Languages**: Russian
 
@@ -19,47 +19,17 @@ we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNo
 
 # Installation
 
-### Docker verion (Quick)
-
-> **Supported Languages**: Russian
-
-> **Other Requirements**: NVidia-docker
-
-* Download [nicolay-r-arelight-0.1.1.tar](https://disk.yandex.ru/d/XXJUXEeaJbqNbA)
-* Import container and start Apache hosting: 
+1. Main library installation
 ```bash
-docker import nicolay-r-arelight-0.1.1.tar 
-docker run --name arelight -itd --gpus all nicolay-r/arelight:0.1.1
-docker attach arelight
-service apache2 start
-```
-* Proceed with BERT demo: http://172.17.0.2/examples/demo/wui_bert.py
-
-> **Supported Languages**: Russian
-
-<p align="center">
-    <img src="docs/demo.png"/>
-</p>
-
-### Full 
-* ARElight:
-```bash
-# Install the required dependencies
-pip install -r dependencies.txt
-# Donwload Required Resources
-python3.6 download.py
+pip install git+https://github.com/nicolay-r/arelight@v0.23.1
 ```
 
-* BRAT: [Download](https://github.com/nlplab/brat/releases/tag/v1.3_Crunchy_Frog) 
+2. (Optional) BRAT: [Download](https://github.com/nlplab/brat/releases/tag/v1.3_Crunchy_Frog) 
   and install library, and run standalone server as follows:
 ```
 ./install.sh -u
 python standalone.py
 ```
-
-# Usage
-
-proceed with the `examples` folder.
 
 ## Inference
 
