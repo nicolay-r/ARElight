@@ -4,7 +4,7 @@ from arekit.contrib.utils.entities.formatters.str_simple_fmt import StringEntiti
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.entities.formatters.str_simple_uppercase_fmt import SimpleUppercasedEntityFormatter
 
-from examples.entities.types import EntityFormatterTypes
+from arelight.run.entities.types import EntityFormatterTypes
 
 
 def create_entity_formatter(fmt_type, create_russian_pos_tagger_func=None):

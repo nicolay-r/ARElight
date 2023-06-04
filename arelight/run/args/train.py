@@ -1,4 +1,4 @@
-from examples.args.base import BaseArg
+from arelight.run.args.base import BaseArg
 
 
 class EpochsCountArg(BaseArg):

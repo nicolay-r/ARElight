@@ -13,13 +13,10 @@ from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
-
-from examples.args import common
-from examples.args import train
-from examples.args import const
-from examples.entities.factory import create_entity_formatter
-from examples.entities.types import EntityFormatterTypes
-from examples.utils import create_labels_scaler, read_synonyms_collection
+from arelight.run.args import common, const, train
+from arelight.run.entities.factory import create_entity_formatter
+from arelight.run.entities.types import EntityFormatterTypes
+from arelight.run.utils import create_labels_scaler, read_synonyms_collection
 
 if __name__ == '__main__':
 

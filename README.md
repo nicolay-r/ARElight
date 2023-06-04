@@ -39,7 +39,7 @@ Infer sentiment attitudes from a mass-media document(s).
 
 Using the `BERT` fine-tuned model version:
 ```bash
-python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
+python3.6 -m arelight.run.infer.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --labels-count 3 \
     --terms-per-context 50 \
     --tokens-per-context 128 \
@@ -49,7 +49,7 @@ python3.6 infer_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
 ```
 From `CSV` file (you need to have `text` column; sentence parser could be disabled):
 ```
-python3.6 infer_bert.py  \
+python3.6 arelight.run.infer.py  \
     --from-dataframe ../data/examples.csv \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 \
@@ -66,7 +66,7 @@ python3.6 infer_bert.py  \
 
 From list of files
 ```bash
-python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
+python3.6 arelight.run.serialize.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 \
     --sentence-parser ru \
@@ -74,7 +74,7 @@ python3.6 serialize_bert.py --from-files ../data/texts-inosmi-rus/e1.txt \
 ```
 From `CSV` file (you need to have `text` column; sentence parser could be disabled):
 ```
-python3.6 serialize_bert.py  \
+python3.6 arelight.run.serialize.py  \
     --from-dataframe ../data/examples.csv \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 \
@@ -86,7 +86,7 @@ python3.6 serialize_bert.py  \
     <img src="docs/samples-bert.png">
 </p>
 
-## Papers
+## Reference 
 
 * [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021) [RUS]](https://nicolay-r.github.io/website/data/rusnachenko2021language.pdf)
 

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from examples.utils import EnumConversionService
+from arelight.run.utils import EnumConversionService
 
 
 class BertSampleProviderTypes(Enum):

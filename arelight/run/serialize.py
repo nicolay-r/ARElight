@@ -22,12 +22,9 @@ from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitt
 from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.utils import input_to_docs
+from arelight.run.args import common
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
-
-from examples.args import const, common
-from examples.entities.factory import create_entity_formatter
-from examples.utils import read_synonyms_collection
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ from os.path import join
 from arekit.common.pipeline.base import BasePipeline
 
 from arelight.pipelines.items.train_bert import BertFinetunePipelineItem
-from examples.args import train, common, const
+from arelight.run.args import common, train, const
 
 if __name__ == '__main__':
 

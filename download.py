@@ -3,7 +3,7 @@ import tarfile
 
 from arekit.common import utils
 
-from examples.args import const
+from arelight.run.args import const
 
 
 def download_examples_data():
