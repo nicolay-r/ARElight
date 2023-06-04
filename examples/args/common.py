@@ -1,12 +1,7 @@
 import importlib
 
-from arekit.contrib.source.rusentiframes.collection import RuSentiFramesCollection
-from arekit.contrib.source.rusentiframes.labels_fmt import RuSentiFramesLabelsFormatter, \
-    RuSentiFramesEffectLabelsFormatter
-from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.pipelines.demo.labels.base import NegativeLabel, PositiveLabel
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.samplers.types import SampleFormattersService
@@ -29,28 +24,6 @@ class InputTextArg(BaseArg):
                             default=default,
                             nargs='?',
                             help='Input text for processing')
-
-
-class FramesColectionArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        if args.frames == "ruattitudes-20":
-            return RuSentiFramesCollection.read_collection(
-                version=RuSentiFramesVersions.V20,
-                labels_fmt=RuSentiFramesLabelsFormatter(
-                    pos_label_type=PositiveLabel, neg_label_type=NegativeLabel),
-                effect_labels_fmt=RuSentiFramesEffectLabelsFormatter(
-                    pos_label_type=PositiveLabel, neg_label_type=NegativeLabel))
-
-    @staticmethod
-    def add_argument(parser, default="ruattitudes-20"):
-        parser.add_argument('--frames',
-                            dest='frames',
-                            type=str,
-                            default=default,
-                            nargs='?',
-                            help='Collection for frames annotation in text (Default: {})'.format(default))
 
 
 class PredictOutputFilepathArg(BaseArg):
@@ -191,24 +164,6 @@ class EmbeddingMatrixFilepathArg(BaseArg):
                             type=str,
                             default=default,
                             help='RusVectores embedding filepath')
-
-
-class RuSentiFramesVersionArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return RuSentiFramesVersionsService.get_type_by_name(args.frames_version)
-
-    @staticmethod
-    def add_argument(parser, default=RuSentiFramesVersionsService.get_name_by_type(RuSentiFramesVersions.V20)):
-
-        parser.add_argument('--frames-version',
-                            dest='frames_version',
-                            type=str,
-                            default=default,
-                            choices=list(RuSentiFramesVersionsService.iter_supported_names()),
-                            nargs='?',
-                            help='Version of RuSentiFrames collection (Default: {})'.format(default))
 
 
 class LabelsCountArg(BaseArg):
