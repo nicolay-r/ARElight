@@ -9,8 +9,8 @@ from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
 from arelight.doc_ops import InMemoryDocOperations
-from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.demo.infer_bert_rus import demo_infer_texts_bert_pipeline
+from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.args import common, const, train

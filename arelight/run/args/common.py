@@ -6,6 +6,7 @@ from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.run.args.base import BaseArg
+from arelight.run.entities.types import EntityFormattersService
 from arelight.samplers.types import SampleFormattersService
 
 

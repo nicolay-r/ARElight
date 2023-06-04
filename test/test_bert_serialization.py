@@ -24,7 +24,7 @@ from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInp
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.doc_ops import InMemoryDocOperations
-from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes

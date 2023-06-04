@@ -20,9 +20,11 @@ from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInp
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
 from arelight.doc_ops import InMemoryDocOperations
-from arelight.pipelines.annot_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.run.args import common
+from arelight.run.args import common, const
+from arelight.run.entities.factory import create_entity_formatter
+from arelight.run.utils import read_synonyms_collection
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 
