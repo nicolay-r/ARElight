@@ -1,6 +1,5 @@
 import importlib
 
-from arekit.contrib.source.rusentiframes.types import RuSentiFramesVersionsService, RuSentiFramesVersions
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
 from arelight.pipelines.items.entities_default import TextEntitiesParser
@@ -164,24 +163,6 @@ class EmbeddingMatrixFilepathArg(BaseArg):
                             type=str,
                             default=default,
                             help='RusVectores embedding filepath')
-
-
-class RuSentiFramesVersionArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return RuSentiFramesVersionsService.get_type_by_name(args.frames_version)
-
-    @staticmethod
-    def add_argument(parser, default=RuSentiFramesVersionsService.get_name_by_type(RuSentiFramesVersions.V20)):
-
-        parser.add_argument('--frames-version',
-                            dest='frames_version',
-                            type=str,
-                            default=default,
-                            choices=list(RuSentiFramesVersionsService.iter_supported_names()),
-                            nargs='?',
-                            help='Version of RuSentiFrames collection (Default: {})'.format(default))
 
 
 class LabelsCountArg(BaseArg):
