@@ -13,7 +13,8 @@ from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotatio
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.run.args import common, const, train
+from arelight.run.args import common, const
+from arelight.run.args.common import DoLowercaseArg
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
 from arelight.run.utils import create_labels_scaler, read_synonyms_collection
@@ -38,7 +39,7 @@ if __name__ == '__main__':
     common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
     common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
-    train.DoLowercaseArg.add_argument(parser, default=const.BERT_DO_LOWERCASE)
+    DoLowercaseArg.add_argument(parser, default=const.BERT_DO_LOWERCASE)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -63,7 +64,7 @@ if __name__ == '__main__':
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),
         bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
         bert_finetuned_ckpt_path=common.BertCheckpointFilepathArg.read_argument(args),
-        do_lowercase=train.DoLowercaseArg.read_argument(args),
+        do_lowercase=DoLowercaseArg.read_argument(args),
         max_seq_length=common.TokensPerContextArg.read_argument(args))
 
     synonyms = read_synonyms_collection(filepath=common.SynonymsCollectionFilepathArg.read_argument(args))

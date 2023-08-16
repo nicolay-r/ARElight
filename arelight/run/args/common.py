@@ -254,6 +254,25 @@ class SynonymsCollectionFilepathArg(BaseArg):
                             help="List of synonyms provided in lines of the source text file.")
 
 
+class DoLowercaseArg(BaseArg):
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def read_argument(args):
+        return args.do_lowercase
+
+    @staticmethod
+    def add_argument(parser, default):
+        assert (isinstance(default, int))
+        parser.add_argument('--do-lowercase',
+                            dest='do_lowercase',
+                            type=bool,
+                            default=default,
+                            nargs='?')
+
+
 class SentenceParserArg(BaseArg):
 
     @staticmethod
