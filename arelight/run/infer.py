@@ -8,7 +8,7 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
-from arelight.doc_ops import InMemoryDocOperations
+from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     data_pipeline = create_neutral_annotation_pipeline(
         synonyms=synonyms,
         dist_in_terms_bound=terms_per_context,
-        doc_ops=InMemoryDocOperations(docs=input_to_docs(actual_content, sentence_parser=sentence_parser)),
+        doc_ops=InMemoryDocProvider(docs=input_to_docs(actual_content, sentence_parser=sentence_parser)),
         terms_per_context=args.terms_per_context,
         text_parser=text_parser)
 

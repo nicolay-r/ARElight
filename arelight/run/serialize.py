@@ -19,7 +19,7 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
-from arelight.doc_ops import InMemoryDocOperations
+from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.args import common, const
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     input_texts = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
     opin_annot = BaseOpinionAnnotator()
-    doc_ops = InMemoryDocOperations(docs=input_to_docs(input_texts, sentence_parser=sentence_parser))
+    doc_ops = InMemoryDocProvider(docs=input_to_docs(input_texts, sentence_parser=sentence_parser))
     labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
     label_scaler = SingleLabelScaler(NoLabel())
     backend_template = common.PredictOutputFilepathArg.read_argument(args)

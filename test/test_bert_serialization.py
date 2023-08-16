@@ -23,10 +23,9 @@ from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
-from arelight.doc_ops import InMemoryDocOperations
+from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_default import TextEntitiesParser
-from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 
@@ -99,7 +98,7 @@ class BertTestSerialization(unittest.TestCase):
         single_label_scaler = SingleLabelScaler(NoLabel())
 
         # Composing labels formatter and experiment preparation.
-        doc_ops = InMemoryDocOperations(docs=BertTestSerialization.input_to_docs(texts))
+        doc_ops = InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
 
         rows_provider = create_bert_sample_provider(
             label_scaler=single_label_scaler,
