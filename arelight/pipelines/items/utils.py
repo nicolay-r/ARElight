@@ -1,5 +1,5 @@
-from arekit.common.news.base import News
-from arekit.common.news.sentence import BaseNewsSentence
+from arekit.common.docs.base import Document
+from arekit.common.docs.sentence import BaseDocumentSentence
 
 
 def input_to_docs(input_data, sentence_parser):
@@ -15,8 +15,8 @@ def input_to_docs(input_data, sentence_parser):
     for doc_id, contents in enumerate(input_data):
         # setup input data.
         sentences = sentence_parser(contents)
-        sentences = list(map(lambda text: BaseNewsSentence(text), sentences))
+        sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
         # Documents.
-        docs.append(News(doc_id=doc_id, sentences=sentences))
+        docs.append(Document(doc_id=doc_id, sentences=sentences))
 
     return docs

@@ -1,6 +1,6 @@
-# ARElight 0.23.2
+# ARElight 0.24.0
 
-![](https://img.shields.io/badge/Python-3.6.9-brightgreen.svg)
+![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.23.1-orange.svg)
 
 ### :point_right: [DEMO](https://github.com/nicolay-r/ARElight/tree/v0.22.0#installation) :point_left:
@@ -21,7 +21,7 @@ we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNo
 
 1. Main library installation
 ```bash
-pip install git+https://github.com/nicolay-r/arelight@v0.23.1
+pip install git+https://github.com/nicolay-r/arelight@v0.24.0
 ```
 
 2. (Optional) BRAT: [Download](https://github.com/nlplab/brat/releases/tag/v1.3_Crunchy_Frog) 

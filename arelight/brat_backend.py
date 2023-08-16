@@ -1,3 +1,4 @@
+from arekit.common.docs.entity import DocumentEntity
 from arekit.contrib.networks.input.const import FrameVariantIndices
 from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
@@ -11,7 +12,6 @@ from arekit.common.data import const
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.entities.base import Entity
 from arekit.common.frames.variants.base import FrameVariant
-from arekit.common.news.entity import DocumentEntity
 from arekit.contrib.utils.processing.text.tokens import Tokens
 
 
@@ -114,7 +114,7 @@ class BratBackend(object):
         assert(isinstance(samples, BaseRowsStorage))
 
         for row_ind, row in samples:
-            str_label = str(row[const.LABEL]) if const.LABEL in row else None
+            str_label = str(row[const.LABEL_UINT]) if const.LABEL_UINT in row else None
             label = label_to_rel[str_label] if str_label in label_to_rel else None
             yield row_ind, label
 

@@ -1,5 +1,8 @@
 import unittest
 import ru_sent_tokenize
+from arekit.common.docs.base import Document
+from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
+from arekit.common.docs.sentence import BaseDocumentSentence
 from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
 
@@ -7,9 +10,6 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
-from arekit.common.news.base import News
-from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.news.sentence import BaseNewsSentence
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
@@ -25,6 +25,7 @@ from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.doc_ops import InMemoryDocOperations
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
@@ -54,8 +55,8 @@ class BertTestSerialization(unittest.TestCase):
         docs = []
         for doc_id, contents in enumerate(texts):
             sentences = ru_sent_tokenize(contents)
-            sentences = list(map(lambda text: BaseNewsSentence(text), sentences))
-            doc = News(doc_id=doc_id, sentences=sentences)
+            sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
+            doc = Document(doc_id=doc_id, sentences=sentences)
             docs.append(doc)
         return docs
 
@@ -70,10 +71,10 @@ class BertTestSerialization(unittest.TestCase):
         # Declare input texts.
         texts = [
             # Text 1.
-            """24 марта президент США Джо Байден провел переговоры с
-               лидерами стран Евросоюза в Брюсселе, вызвав внимание рынка и предположения о
-               том, что Америке удалось уговорить ЕС совместно бойкотировать российские нефть
-               и газ.  Европейский Союз крайне зависим от России в плане поставок нефти и
+            """24 марта президент [США] [Джо Байден] провел переговоры с
+               лидерами стран [Евросоюза] в [Брюсселе], вызвав внимание рынка и предположения о
+               том, что [Америке] удалось уговорить [ЕС] совместно бойкотировать российские нефть
+               и газ.  [Европейский Союз] крайне зависим от [России] в плане поставок нефти и
                газа."""
         ]
 
@@ -88,7 +89,7 @@ class BertTestSerialization(unittest.TestCase):
         # Declare text parser.
         text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
-            DeepPavlovNERPipelineItem(lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"]),
+            TextEntitiesParser(),
             EntitiesGroupingPipelineItem(lambda value:
                 SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
@@ -96,9 +97,6 @@ class BertTestSerialization(unittest.TestCase):
 
         # Single label scaler.
         single_label_scaler = SingleLabelScaler(NoLabel())
-
-        # Declare folding and experiment context.
-        no_folding = NoFolding(doc_ids=list(range(len(texts))), supported_data_type=DataType.Test)
 
         # Composing labels formatter and experiment preparation.
         doc_ops = InMemoryDocOperations(docs=BertTestSerialization.input_to_docs(texts))
@@ -113,8 +111,7 @@ class BertTestSerialization(unittest.TestCase):
                 rows_provider=rows_provider,
                 storage=RowCacheStorage(),
                 samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=NativeCsvWriter(delimiter=',')),
-                save_labels_func=lambda data_type: data_type != DataType.Test,
-                balance_func=lambda data_type: data_type == DataType.Train)
+                save_labels_func=lambda data_type: data_type != DataType.Test)
         ])
 
         synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
@@ -131,7 +128,8 @@ class BertTestSerialization(unittest.TestCase):
 
         pipeline.run(input_data=None,
                      params_dict={
-                         "data_folding": no_folding,
+                         "data_folding": NoFolding(),
+                         "doc_ids": {DataType.Test: list(range(len(texts)))},
                          "data_type_pipelines": {DataType.Test: test_pipeline}
                      })
 

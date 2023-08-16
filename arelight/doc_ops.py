@@ -1,7 +1,7 @@
-from arekit.common.experiment.api.ops_doc import DocumentOperations
+from arekit.common.data.doc_provider import DocumentProvider
 
 
-class InMemoryDocOperations(DocumentOperations):
+class InMemoryDocOperations(DocumentProvider):
 
     def __init__(self, docs=None):
         assert(isinstance(docs, list) or docs is None)

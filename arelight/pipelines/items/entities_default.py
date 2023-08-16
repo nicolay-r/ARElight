@@ -13,7 +13,7 @@ class TextEntitiesParser(BasePipelineItem):
 
         # If this is a special word which is related to the [entity] mention.
         if word[0] == "[" and word[-1] == "]":
-            entity = Entity(value=word[1:-1], e_type=None)
+            entity = Entity(value=word[1:-1], e_type="UNDEFINED")
             return entity
 
         return word

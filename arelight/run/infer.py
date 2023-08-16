@@ -1,9 +1,9 @@
 import argparse
 from os.path import join, dirname, basename
 
+from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
-from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
@@ -87,13 +87,11 @@ if __name__ == '__main__':
         BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
     )
 
-    no_folding = NoFolding(doc_ids=list(range(len(actual_content))),
-                           supported_data_type=DataType.Test)
-
     pipeline.run(None, {
         "template_filepath": join(const.DATA_DIR, "brat_template.html"),
         "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
         "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
         "data_type_pipelines": {DataType.Test: data_pipeline},
-        "data_folding": no_folding
+        "data_folding": NoFolding(),
+        "doc_ids": {DataType.Test: list(range(len(actual_content)))},
     })

@@ -1,13 +1,13 @@
 import argparse
 from os.path import join, dirname, basename
 
+from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
-from arekit.common.news.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.opinions.annot.algo.pair_based import PairBasedOpinionAnnotationAlgorithm
 from arekit.common.opinions.annot.base import BaseOpinionAnnotator
 from arekit.common.pipeline.base import BasePipeline
@@ -102,14 +102,12 @@ if __name__ == '__main__':
             samples_io=SamplesIO(target_dir=dirname(backend_template),
                                  prefix=basename(backend_template),
                                  writer=NativeCsvWriter(delimiter=',')),
-            save_labels_func=lambda data_type: data_type != DataType.Test,
-            balance_func=lambda data_type: data_type == DataType.Train)
+            save_labels_func=lambda data_type: data_type != DataType.Test)
     ])
-
-    no_folding = NoFolding(doc_ids=list(range(len(texts_from_files))), supported_data_type=DataType.Test)
 
     pipeline.run(input_data=None,
                  params_dict={
-                     "data_folding": no_folding,
+                     "data_folding": NoFolding(),
+                     "doc_ids": {DataType.Test: list(range(len(texts_from_files)))},
                      "data_type_pipelines": {DataType.Test: test_pipeline}
                  })

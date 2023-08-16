@@ -47,19 +47,19 @@ class BertFinetunePipelineItem(BasePipelineItem):
         def __iter_batches(s, batch_size):
             assert(isinstance(s, BaseRowsStorage))
 
-            data = {"text_a": [], "text_b": [], "label": []}
+            data = {"text_a": [], "text_b": [], "label_uint": []}
 
             # NOTE: it is important to iter shuffled data!
             for row_ind, row in s.iter_shuffled():
                 data["text_a"].append(row['text_a'])
                 data["text_b"].append(row['text_b'])
-                data["label"].append(row[const.LABEL])
+                data["label_uint"].append(row[const.LABEL_UINT])
 
             for i in range(0, len(data["text_a"]), batch_size):
 
                 texts_a = data["text_a"][i:i + batch_size]
                 texts_b = data["text_b"][i:i + batch_size]
-                labels = data["label"][i:i + batch_size]
+                labels = data["label_uint"][i:i + batch_size]
 
                 batch_features = self.__proc(texts_a=texts_a, texts_b=texts_b)
 

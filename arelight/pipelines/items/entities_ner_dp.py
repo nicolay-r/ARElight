@@ -1,6 +1,6 @@
 from arekit.common.bound import Bound
+from arekit.common.docs.objects_parser import SentenceObjectsParserPipelineItem
 from arekit.common.entities.base import Entity
-from arekit.common.news.objects_parser import SentenceObjectsParserPipelineItem
 from arekit.common.text.partitioning.terms import TermsPartitioning
 
 from arelight.ner.deep_pavlov import DeepPavlovNER
