@@ -18,6 +18,7 @@ def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_
         annot_algo=PairBasedOpinionAnnotationAlgorithm(
             dist_in_sents=dist_in_sentences,
             dist_in_terms_bound=dist_in_terms_bound,
+            entity_index_func=lambda indexed_entity: indexed_entity.ID,
             label_provider=ConstantLabelProvider(NoLabel())),
         create_empty_collection_func=lambda: OpinionCollection(
             opinions=[],
@@ -26,6 +27,7 @@ def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_
             error_on_synonym_end_missed=False))
 
     annotation_pipeline = text_opinion_extraction_pipeline(
+        entity_index_func=lambda indexed_entity: indexed_entity.ID,
         text_parser=text_parser,
         get_doc_by_id_func=doc_ops.by_id,
         annotators=[

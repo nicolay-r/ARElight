@@ -3,7 +3,6 @@ from os.path import join, dirname, basename
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
-from arekit.common.folding.nofold import NoFolding
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
@@ -93,6 +92,5 @@ if __name__ == '__main__':
         "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
         "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
         "data_type_pipelines": {DataType.Test: data_pipeline},
-        "data_folding": NoFolding(),
-        "doc_ids": {DataType.Test: list(range(len(actual_content)))},
+        "doc_ids": list(range(len(actual_content))),
     })

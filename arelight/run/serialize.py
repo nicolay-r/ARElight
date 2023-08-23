@@ -3,7 +3,6 @@ from os.path import join, dirname, basename
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
-from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.provider.constant import ConstantLabelProvider
 from arekit.common.labels.scaler.single import SingleLabelScaler
@@ -59,7 +58,6 @@ if __name__ == '__main__':
     input_texts = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
     opin_annot = BaseOpinionAnnotator()
-    doc_ops = InMemoryDocProvider(docs=input_to_docs(input_texts, sentence_parser=sentence_parser))
     labels_fmt = StringLabelsFormatter(stol={"neu": NoLabel})
     label_scaler = SingleLabelScaler(NoLabel())
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
@@ -69,7 +67,8 @@ if __name__ == '__main__':
 
     annot_algo = PairBasedOpinionAnnotationAlgorithm(
         dist_in_terms_bound=None,
-        label_provider=ConstantLabelProvider(label_instance=NoLabel()))
+        label_provider=ConstantLabelProvider(label_instance=NoLabel()),
+        entity_index_func=lambda indexed_entity: indexed_entity.ID)
 
     # Declare text parser.
     text_parser = BaseTextParser(pipeline=[
@@ -83,12 +82,12 @@ if __name__ == '__main__':
     terms_per_context = common.TermsPerContextArg.read_argument(args)
 
     # Initialize data processing pipeline.
-    test_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
-                                                       dist_in_terms_bound=terms_per_context,
-                                                       terms_per_context=terms_per_context,
-                                                       doc_ops=doc_ops,
-                                                       text_parser=text_parser,
-                                                       dist_in_sentences=0)
+    test_pipeline = create_neutral_annotation_pipeline(
+        synonyms=synonyms,
+        dist_in_terms_bound=terms_per_context,
+        terms_per_context=terms_per_context,
+        doc_ops=InMemoryDocProvider(docs=input_to_docs(input_texts, sentence_parser=sentence_parser)),
+        text_parser=text_parser)
 
     rows_provider = create_bert_sample_provider(
         label_scaler=label_scaler,
@@ -107,7 +106,6 @@ if __name__ == '__main__':
 
     pipeline.run(input_data=None,
                  params_dict={
-                     "data_folding": NoFolding(),
-                     "doc_ids": {DataType.Test: list(range(len(texts_from_files)))},
+                     "doc_ids": list(range(len(texts_from_files))),
                      "data_type_pipelines": {DataType.Test: test_pipeline}
                  })

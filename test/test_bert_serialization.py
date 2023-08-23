@@ -7,7 +7,6 @@ from ru_sent_tokenize import ru_sent_tokenize
 from os.path import dirname, join, realpath
 
 from arekit.common.experiment.data_type import DataType
-from arekit.common.folding.nofold import NoFolding
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.pipeline.base import BasePipeline
@@ -127,8 +126,7 @@ class BertTestSerialization(unittest.TestCase):
 
         pipeline.run(input_data=None,
                      params_dict={
-                         "data_folding": NoFolding(),
-                         "doc_ids": {DataType.Test: list(range(len(texts)))},
+                         "doc_ids": list(range(len(texts))),
                          "data_type_pipelines": {DataType.Test: test_pipeline}
                      })
 

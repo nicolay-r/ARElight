@@ -49,8 +49,7 @@ def demo_infer_texts_bert_pipeline(texts_count,
                 # These additional columns required for BRAT visualization.
                 const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
             ]),
-            save_labels_func=lambda data_type: data_type != DataType.Test,
-            balance_func=lambda data_type: data_type == DataType.Train),
+            save_labels_func=lambda data_type: data_type != DataType.Test),
 
         BertInferencePipelineItem(
             data_type=DataType.Test,

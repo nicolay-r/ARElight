@@ -1,10 +1,10 @@
 from arekit.common.bound import Bound
 from arekit.common.docs.objects_parser import SentenceObjectsParserPipelineItem
-from arekit.common.entities.base import Entity
 from arekit.common.text.partitioning.terms import TermsPartitioning
 
 from arelight.ner.deep_pavlov import DeepPavlovNER
 from arelight.ner.obj_desc import NerObjectDescriptor
+from arelight.pipelines.items.entity import IndexedEntity
 
 
 class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
@@ -20,6 +20,7 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
         self.__dp_ner = DeepPavlovNER(ner_model_cfg)
         self.__obj_filter = obj_filter
         self.__chunk_limit = chunk_limit
+        self.__entities_registered = 0
         super(DeepPavlovNERPipelineItem, self).__init__(TermsPartitioning())
 
     def _get_parts_provider_func(self, input_data, pipeline_ctx):
@@ -56,5 +57,10 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
                     continue
 
                 value = " ".join(chunk_terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
-                entity = Entity(value=value, e_type=s_obj.ObjectType)
+                entity = IndexedEntity(value=value, e_type=s_obj.ObjectType, entity_id=self.__entities_registered)
+                self.__entities_registered += 1
                 yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
+
+    def apply_core(self, input_data, pipeline_ctx):
+        super(DeepPavlovNERPipelineItem, self).apply_core(input_data=input_data, pipeline_ctx=pipeline_ctx)
+        self.__entities_registered = 0
