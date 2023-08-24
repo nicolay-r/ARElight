@@ -1,5 +1,4 @@
 import importlib
-
 from arelight.ner.base import BaseNER
 
 
@@ -13,18 +12,14 @@ class DeepPavlovNER(BaseNER):
         # Dynamic libraries import.
         deeppavlov = importlib.import_module("deeppavlov")
         build_model = deeppavlov.build_model
-        configs = deeppavlov.configs
-
-        model_cfg = DeepPavlovNER.DEFAULT_MODEL if model_cfg is None else model_cfg
 
         # Mapping list of the available models.
         __models = {
-            DeepPavlovNER.DEFAULT_MODEL: configs.ner.ner_ontonotes_bert_mult,
-            "ontonotes_eng": configs.ner.ner_ontonotes_bert,
+            DeepPavlovNER.DEFAULT_MODEL: 'ner_ontonotes_bert_mult',
+            "ontonotes_eng": 'ner_ontonotes_bert',
         }
 
-        self.__ner_model = build_model(__models[model_cfg],
-                                       download=True)
+        self.__ner_model = build_model('ner_ontonotes_bert_mult', download=True)
 
     # region Properties
 
