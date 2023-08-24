@@ -6,6 +6,7 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     common.InputTextArg.add_argument(parser, default=None)
     common.FromFilesArg.add_argument(parser)
     common.FromDataframeArg.add_argument(parser)
-    common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
+    common.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
     common.LabelsCountArg.add_argument(parser, default=3)
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.TokensPerContextArg.add_argument(parser, default=128)
@@ -66,7 +67,9 @@ if __name__ == '__main__':
         do_lowercase=DoLowercaseArg.read_argument(args),
         max_seq_length=common.TokensPerContextArg.read_argument(args))
 
-    synonyms = read_synonyms_collection(filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
+    synonyms_collection_path = common.SynonymsCollectionFilepathArg.read_argument(args)
+    synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
+        SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
     text_parser = BaseTextParser(pipeline=[
         TermsSplitterParser(),

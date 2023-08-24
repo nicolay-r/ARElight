@@ -1,5 +1,5 @@
 import argparse
-from os.path import join, dirname, basename
+from os.path import dirname, basename
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
@@ -17,6 +17,7 @@ from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
@@ -40,7 +41,7 @@ if __name__ == '__main__':
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     common.FromDataframeArg.add_argument(parser)
-    common.SynonymsCollectionFilepathArg.add_argument(parser, default=join(const.DATA_DIR, "synonyms.txt"))
+    common.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
     common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
     common.SentenceParserArg.add_argument(parser)
@@ -62,8 +63,9 @@ if __name__ == '__main__':
     label_scaler = SingleLabelScaler(NoLabel())
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
 
-    synonyms = read_synonyms_collection(
-        filepath=common.SynonymsCollectionFilepathArg.read_argument(args))
+    synonyms_collection_path = common.SynonymsCollectionFilepathArg.read_argument(args)
+    synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
+        SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
     annot_algo = PairBasedOpinionAnnotationAlgorithm(
         dist_in_terms_bound=None,
