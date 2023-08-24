@@ -9,5 +9,6 @@ class IndexedEntity(Entity):
         super(IndexedEntity, self).__init__(value=value, e_type=e_type)
         self.__id = entity_id
 
+    @property
     def ID(self):
         return self.__id
