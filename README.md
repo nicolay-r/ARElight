@@ -1,7 +1,7 @@
 # ARElight 0.24.0
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
-![](https://img.shields.io/badge/AREkit-0.23.1-orange.svg)
+![](https://img.shields.io/badge/AREkit-0.24.0-orange.svg)
 
 ### :point_right: [DEMO](https://github.com/nicolay-r/ARElight/tree/v0.22.0#installation) :point_left:
 
@@ -39,7 +39,7 @@ Infer sentiment attitudes from a mass-media document(s).
 
 Using the `BERT` fine-tuned model version:
 ```bash
-python3.6 -m arelight.run.infer.py --from-files ../data/texts-inosmi-rus/e1.txt \
+python3 -m arelight.run.infer.py --from-files ../data/texts-inosmi-rus/e1.txt \
     --labels-count 3 \
     --terms-per-context 50 \
     --tokens-per-context 128 \
@@ -48,8 +48,8 @@ python3.6 -m arelight.run.infer.py --from-files ../data/texts-inosmi-rus/e1.txt 
     -o output/brat_inference_output
 ```
 From `CSV` file (you need to have `text` column; sentence parser could be disabled):
-```
-python3.6 arelight.run.infer.py  \
+```bash
+python3 -m arelight.run.infer.py  \
     --from-dataframe ../data/examples.csv \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 \
@@ -66,15 +66,15 @@ python3.6 arelight.run.infer.py  \
 
 From list of files
 ```bash
-python3.6 arelight.run.serialize.py --from-files ../data/texts-inosmi-rus/e1.txt \
+python3 -m arelight.run.serialize --from-files ../data/texts-inosmi-rus/e1.txt \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 \
     --sentence-parser ru \
     -o output/e1
 ```
 From `CSV` file (you need to have `text` column; sentence parser could be disabled):
-```
-python3.6 arelight.run.serialize.py  \
+```bash
+python3 -m arelight.run.serialize   \
     --from-dataframe ../data/examples.csv \
     --entities-parser bert-ontonotes \
     --terms-per-context 50 \
