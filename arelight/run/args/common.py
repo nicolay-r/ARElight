@@ -5,7 +5,6 @@ from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.id_assigner import IdAssigner
-from arelight.run.args.base import BaseArg
 from arelight.run.entities.types import EntityFormattersService
 from arelight.samplers.types import SampleFormattersService
 
@@ -27,6 +26,17 @@ def create_entity_parser(arg, id_assigner):
             obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
             ner_model_cfg="ontonotes_eng",
             id_assigner=id_assigner)
+
+
+class BaseArg:
+
+    @staticmethod
+    def read_argument(args):
+        raise NotImplementedError()
+
+    @staticmethod
+    def add_argument(parser, default):
+        raise NotImplementedError()
 
 
 class InputTextArg(BaseArg):
