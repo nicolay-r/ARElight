@@ -83,7 +83,7 @@ if __name__ == '__main__':
         synonyms=synonyms,
         dist_in_terms_bound=terms_per_context,
         doc_ops=InMemoryDocProvider(docs=input_to_docs(actual_content, sentence_parser=sentence_parser)),
-        terms_per_context=args.terms_per_context,
+        terms_per_context=terms_per_context,
         text_parser=text_parser)
 
     pipeline.append(
