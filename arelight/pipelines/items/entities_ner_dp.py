@@ -5,22 +5,24 @@ from arekit.common.text.partitioning.terms import TermsPartitioning
 from arelight.ner.deep_pavlov import DeepPavlovNER
 from arelight.ner.obj_desc import NerObjectDescriptor
 from arelight.pipelines.items.entity import IndexedEntity
+from arelight.pipelines.items.id_assigner import IdAssigner
 
 
 class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
 
-    def __init__(self, obj_filter=None, ner_model_cfg=None, chunk_limit=128):
+    def __init__(self, id_assigner, obj_filter=None, ner_model_cfg=None, chunk_limit=128):
         """ chunk_limit: int
                 length of text part in words that is going to be provided in input.
         """
         assert(callable(obj_filter) or obj_filter is None)
         assert(isinstance(chunk_limit, int) and chunk_limit > 0)
+        assert(isinstance(id_assigner, IdAssigner))
 
         # Initialize bert-based model instance.
         self.__dp_ner = DeepPavlovNER(ner_model_cfg)
         self.__obj_filter = obj_filter
         self.__chunk_limit = chunk_limit
-        self.__entities_registered = 0
+        self.__id_assigner = id_assigner
         super(DeepPavlovNERPipelineItem, self).__init__(TermsPartitioning())
 
     def _get_parts_provider_func(self, input_data, pipeline_ctx):
@@ -57,10 +59,8 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
                     continue
 
                 value = " ".join(chunk_terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
-                entity = IndexedEntity(value=value, e_type=s_obj.ObjectType, entity_id=self.__entities_registered)
-                self.__entities_registered += 1
+                entity = IndexedEntity(value=value, e_type=s_obj.ObjectType, entity_id=self.__id_assigner.get_id())
                 yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
 
     def apply_core(self, input_data, pipeline_ctx):
-        super(DeepPavlovNERPipelineItem, self).apply_core(input_data=input_data, pipeline_ctx=pipeline_ctx)
-        self.__entities_registered = 0
+        return super(DeepPavlovNERPipelineItem, self).apply_core(input_data=input_data, pipeline_ctx=pipeline_ctx)

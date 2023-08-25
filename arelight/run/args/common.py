@@ -4,9 +4,29 @@ from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
+from arelight.pipelines.items.id_assigner import IdAssigner
 from arelight.run.args.base import BaseArg
 from arelight.run.entities.types import EntityFormattersService
 from arelight.samplers.types import SampleFormattersService
+
+
+def create_entity_parser(arg, id_assigner):
+    # NOTE: It is important that the IdAssigner is expected to be unique for all the
+    # entity parsers.
+    if arg == "default":
+        return TextEntitiesParser(id_assigner)
+    elif arg == "bert-ontonotes":
+        # We consider only such entity types that supported by ML model.
+        return DeepPavlovNERPipelineItem(
+            obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+            ner_model_cfg="ontonotes_mult",
+            id_assigner=id_assigner)
+    elif arg == "bert-ontonotes-eng":
+        # We consider only such entity types that supported by ML model.
+        return DeepPavlovNERPipelineItem(
+            obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+            ner_model_cfg="ontonotes_eng",
+            id_assigner=id_assigner)
 
 
 class InputTextArg(BaseArg):
@@ -303,21 +323,8 @@ class EntitiesParserArg(BaseArg):
 
     @staticmethod
     def read_argument(args):
-        arg = args.entities_parser
-        if arg == "default":
-            return TextEntitiesParser()
-        elif arg == "bert-ontonotes":
-            # We consider only such entity types that supported by ML model.
-            ppl_item = DeepPavlovNERPipelineItem(
-                obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
-                ner_model_cfg="ontonotes_mult")
-            return ppl_item
-        elif arg == "bert-ontonotes-eng":
-            # We consider only such entity types that supported by ML model.
-            ppl_item = DeepPavlovNERPipelineItem(
-                obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
-                ner_model_cfg="ontonotes_eng")
-            return ppl_item
+        id_assigner = IdAssigner()
+        return create_entity_parser(arg=args.entities_parser, id_assigner=id_assigner)
 
     @staticmethod
     def add_argument(parser, default):
