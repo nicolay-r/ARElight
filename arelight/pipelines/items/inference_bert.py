@@ -10,9 +10,7 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 from arelight.predict_provider import BasePredictProvider
 from arelight.predict_writer import BasePredictWriter
-
-from deeppavlov.models.preprocessors.torch_transformers_preprocessor import TorchTransformersPreprocessor
-from deeppavlov.models.torch_bert.torch_transformers_classifier import TorchTransformersClassifierModel
+from arelight.utils import auto_import
 
 
 class BertInferencePipelineItem(BasePipelineItem):
@@ -24,15 +22,21 @@ class BertInferencePipelineItem(BasePipelineItem):
         assert(isinstance(labels_count, int))
         assert(isinstance(samples_io, SamplesIO))
 
+        # Dynamic import for the deepavlov components.
+        torch_classifier_model = auto_import(
+            "deeppavlov.models.torch_bert.torch_transformers_classifier.TorchTransformersClassifierModel")
+        torch_preprocessor_model = auto_import(
+            "deeppavlov.models.preprocessors.torch_transformers_preprocessor.TorchTransformersPreprocessor")
+
         # Model classifier.
-        self.__model = TorchTransformersClassifierModel(
+        self.__model = torch_classifier_model(
             pretrained_bert=pretrained_bert,
             n_classes=labels_count,
             bert_config_file=bert_config_file,
             save_path="")
 
         # Setup processor.
-        self.__proc = TorchTransformersPreprocessor(
+        self.__proc = torch_preprocessor_model(
             # Consider the same as pretrained BERT.
             vocab_file=pretrained_bert if vocab_filepath is None else vocab_filepath,
             max_seq_length=max_seq_length)

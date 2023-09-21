@@ -16,7 +16,6 @@ from ru_sent_tokenize import ru_sent_tokenize
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.items.id_assigner import IdAssigner
 from arelight.run.args import const
 from arelight.run.args.common import create_entity_parser
