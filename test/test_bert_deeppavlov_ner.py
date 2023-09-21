@@ -1,22 +1,21 @@
 import unittest
-
 from arelight.ner.deep_pavlov import DeepPavlovNER
 from arelight.ner.obj_desc import NerObjectDescriptor
 
 
 class BertOntonotesTest(unittest.TestCase):
 
+    text = ".. При этом Москва неоднократно подчеркивала, что ее активность " \
+           "на балтике является ответом именно на действия НАТО и эскалацию " \
+           "враждебного подхода к Росcии вблизи ее восточных границ ..."
+
     def test_single_inference(self):
         """ Low level call of the NER.
             Note: Applicable only for a short input!
         """
 
-        text = ".. При этом Москва неоднократно подчеркивала, что ее активность " \
-               "на балтике является ответом именно на действия НАТО и эскалацию " \
-               "враждебного подхода к Росcии вблизи ее восточных границ ..."
-
-        ner = DeepPavlovNER(model_cfg="ontonotes_mult")
-        tokens = text.split(' ')
+        ner = DeepPavlovNER(model_name="ner_ontonotes_bert_mult")
+        tokens = self.text.split(' ')
         sequences = ner.extract(sequences=[tokens])
 
         print(len(sequences))

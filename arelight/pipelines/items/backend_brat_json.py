@@ -22,8 +22,7 @@ class BratBackendContentsPipelineItem(BasePipelineItem):
         assert(isinstance(input_data, SamplesIO))
         assert(isinstance(pipeline_ctx, PipelineContext))
 
-        samples_filepath = input_data.create_target(data_type=DataType.Test,
-                                                    data_folding=pipeline_ctx.provide("data_folding"))
+        samples_filepath = input_data.create_target(data_type=DataType.Test)
 
         contents = self.__brat_be.to_data(
            result_data_filepath=pipeline_ctx.provide("predict_fp"),

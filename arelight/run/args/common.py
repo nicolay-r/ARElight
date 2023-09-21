@@ -4,28 +4,42 @@ from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.id_assigner import IdAssigner
 from arelight.run.entities.types import EntityFormattersService
 from arelight.samplers.types import SampleFormattersService
 
 
-def create_entity_parser(arg, id_assigner):
-    # NOTE: It is important that the IdAssigner is expected to be unique for all the
-    # entity parsers.
-    if arg == "default":
+def create_entity_parser(ner_model_name, id_assigner, obj_filter_types=None):
+    """ NOTE: It is important that the IdAssigner is expected to be unique for all the
+        entity parsers.
+
+        obj_filter_types: str
+    """
+    assert(isinstance(ner_model_name, str) or ner_model_name is None)
+    assert(isinstance(obj_filter_types, list) or obj_filter_types is None)
+
+    if ner_model_name is None:
         return TextEntitiesParser(id_assigner)
-    elif arg == "bert-ontonotes":
-        # We consider only such entity types that supported by ML model.
+    else:
         return DeepPavlovNERPipelineItem(
-            obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
-            ner_model_cfg="ontonotes_mult",
+            obj_filter=None if obj_filter_types is None else lambda s_obj: s_obj.ObjectType in obj_filter_types,
+            ner_model_name=ner_model_name,
             id_assigner=id_assigner)
-    elif arg == "bert-ontonotes-eng":
-        # We consider only such entity types that supported by ML model.
-        return DeepPavlovNERPipelineItem(
-            obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
-            ner_model_cfg="ontonotes_eng",
-            id_assigner=id_assigner)
+
+
+def create_sentence_parser(arg):
+    if arg == "linesplit":
+        return lambda text: [t.strip() for t in text.split('\n')]
+    elif arg == "ru":
+        # Using ru_sent_tokenize library.
+        ru_sent_tokenize = importlib.import_module("ru_sent_tokenize")
+        return lambda text: ru_sent_tokenize.ru_sent_tokenize(text)
+    elif arg == "nltk_en":
+        # Using nltk library.
+        nltk = importlib.import_module("nltk")
+        tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+        return tokenizer.tokenize
+    else:
+        raise Exception("Arg `{}` was not found".format(arg))
 
 
 class BaseArg:
@@ -308,17 +322,7 @@ class SentenceParserArg(BaseArg):
     @staticmethod
     def read_argument(args):
         arg = args.sentence_parser
-        if arg == "linesplit":
-            return lambda text: [t.strip() for t in text.split('\n')]
-        elif arg == "ru":
-            # Using ru_sent_tokenize library.
-            ru_sent_tokenize = importlib.import_module("ru_sent_tokenize")
-            return lambda text: ru_sent_tokenize.ru_sent_tokenize(text)
-        elif arg == "nltk_en":
-            # Using nltk library.
-            nltk = importlib.import_module("nltk")
-            tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-            return tokenizer.tokenize
+        return create_sentence_parser(arg)
 
     @staticmethod
     def add_argument(parser, default="ru"):
@@ -329,22 +333,47 @@ class SentenceParserArg(BaseArg):
                             default=default)
 
 
-class EntitiesParserArg(BaseArg):
+class PretrainedBERTArg(BaseArg):
 
     @staticmethod
     def read_argument(args):
-        id_assigner = IdAssigner()
-        return create_entity_parser(arg=args.entities_parser, id_assigner=id_assigner)
+        return args.pretrained_bert
 
     @staticmethod
     def add_argument(parser, default):
-        parser.add_argument('--entities-parser',
-                            dest='entities_parser',
+        parser.add_argument('--pretrained-bert',
+                            dest='pretrained_bert',
                             type=str,
-                            choices=['no', 'bert-ontonotes', 'bert-ontonotes-eng'],
-                            default=default,
-                            help='Adopt entities parser in text processing (default: {})'.format(default))
+                            default=default)
 
+
+class NERModelNameArg(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.ner_model_name
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--ner-model-name',
+                            dest='ner_model_name',
+                            type=str,
+                            default=default)
+
+
+class NERObjectTypes(BaseArg):
+
+    @staticmethod
+    def read_argument(args):
+        return args.ner_types.split("|")
+
+    @staticmethod
+    def add_argument(parser, default):
+        parser.add_argument('--ner-types',
+                            dest='ner_types',
+                            type=str,
+                            default=default,
+                            help="Filters specific NER types; provide with `|` separator")
 
 class ModelLoadDirArg(BaseArg):
 
@@ -394,21 +423,6 @@ class BertConfigFilepathArg(BaseArg):
                             type=str,
                             default=default,
                             help='Bert config filepath')
-
-
-class BertCheckpointFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.bert_checkpoint
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--bert-checkpoint',
-                            dest='bert_checkpoint',
-                            type=str,
-                            default=default,
-                            help='Bert checkpoint filepath')
 
 
 class BertVocabFilepathArg(BaseArg):

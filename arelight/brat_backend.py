@@ -1,9 +1,10 @@
+from tqdm import tqdm
+
+import collections
 from arekit.common.docs.entity import DocumentEntity
 from arekit.contrib.networks.input.const import FrameVariantIndices
 from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
-from tqdm import tqdm
-import collections
 
 from os.path import dirname, realpath, join
 
@@ -178,6 +179,7 @@ class BratBackend(object):
                     display_value=sentence_entity_values[i],
                     e_type=sentence_entity_types[i],
                     id_in_doc=e_doc_id,
+                    childs=None,    # This is a temporary placeholder to meet AREkit requirements.
                     group_index=None)
 
                 e_doc_id += 1

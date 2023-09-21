@@ -11,10 +11,6 @@ def download_examples_data():
 
     data = {
         const.SYNONYMS_FILEPATH: "https://raw.githubusercontent.com/nicolay-r/RuSentRel/v1.1/synonyms.txt",
-        # NOTE: this is a pre-trained model and it is expected to be fine-tunned.
-        const.BERT_PRETRAINED_MODEL_TAR: "https://www.dropbox.com/s/cr6nejxjiqbyd5o/ra-20-srubert-large-neut-nli-pretrained-3l.tar.gz?dl=1",
-        # Fine-tuned on RuSentRel collection.
-        const.BERT_FINETUNED_MODEL_TAR: "https://www.dropbox.com/s/g73osmwyrqtr2at/ra-20-srubert-large-neut-nli-pretrained-3l-finetuned.tar.gz?dl=1"
     }
 
     # Perform downloading ...
@@ -49,8 +45,7 @@ def download_examples_data():
                         raise Exception("Attempted Path Traversal in Tar File")
             
                 tar.extractall(path, members, numeric_owner=numeric_owner) 
-                
-            
+
             safe_extract(f, path=target)
 
         # Remove .tar file

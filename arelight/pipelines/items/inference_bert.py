@@ -11,34 +11,31 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arelight.predict_provider import BasePredictProvider
 from arelight.predict_writer import BasePredictWriter
 
-from deeppavlov.models.bert import bert_classifier
-from deeppavlov.models.preprocessors.bert_preprocessor import BertPreprocessor
+from deeppavlov.models.preprocessors.torch_transformers_preprocessor import TorchTransformersPreprocessor
+from deeppavlov.models.torch_bert.torch_transformers_classifier import TorchTransformersClassifierModel
 
 
 class BertInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self, bert_config_file, model_checkpoint_path, vocab_filepath, samples_io,
-                 data_type, predict_writer, labels_count, max_seq_length, do_lowercase,
-                 batch_size=10):
+    def __init__(self, pretrained_bert, samples_io, data_type, predict_writer,
+                 labels_count, max_seq_length, bert_config_file=None, vocab_filepath=None, batch_size=10):
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
         assert(isinstance(labels_count, int))
-        assert(isinstance(do_lowercase, bool))
-        assert(isinstance(max_seq_length, int))
         assert(isinstance(samples_io, SamplesIO))
 
         # Model classifier.
-        self.__model = bert_classifier.BertClassifierModel(
-            bert_config_file=bert_config_file,
-            load_path=model_checkpoint_path,
-            keep_prob=1.0,
+        self.__model = TorchTransformersClassifierModel(
+            pretrained_bert=pretrained_bert,
             n_classes=labels_count,
+            bert_config_file=bert_config_file,
             save_path="")
 
         # Setup processor.
-        self.__proc = BertPreprocessor(vocab_file=vocab_filepath,
-                                       do_lower_case=do_lowercase,
-                                       max_seq_length=max_seq_length)
+        self.__proc = TorchTransformersPreprocessor(
+            # Consider the same as pretrained BERT.
+            vocab_file=pretrained_bert if vocab_filepath is None else vocab_filepath,
+            max_seq_length=max_seq_length)
 
         self.__writer = predict_writer
         self.__data_type = data_type
@@ -83,9 +80,7 @@ class BertInferencePipelineItem(BasePipelineItem):
                     yield [row_ids[i], int(uint_label)]
 
         # Fetch other required in furter information from input_data.
-        samples_filepath = self.__samples_io.create_target(
-            data_type=self.__data_type,
-            data_folding=pipeline_ctx.provide("data_folding"))
+        samples_filepath = self.__samples_io.create_target(data_type=self.__data_type)
 
         # Setup predicted result writer.
         tgt = pipeline_ctx.provide_or_none("predict_fp")

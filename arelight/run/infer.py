@@ -12,9 +12,10 @@ from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
+from arelight.pipelines.items.id_assigner import IdAssigner
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.args import common, const
-from arelight.run.args.common import DoLowercaseArg
+from arelight.run.args.common import create_entity_parser
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
 from arelight.run.utils import create_labels_scaler, read_synonyms_collection
@@ -33,13 +34,13 @@ if __name__ == '__main__':
     common.TokensPerContextArg.add_argument(parser, default=128)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
-    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
+    common.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
+    common.PretrainedBERTArg.add_argument(parser, default="bert-base-uncased")
     common.SentenceParserArg.add_argument(parser)
-    common.BertCheckpointFilepathArg.add_argument(parser, default=const.BERT_FINETUNED_CKPT_PATH)
-    common.BertConfigFilepathArg.add_argument(parser, default=const.BERT_CONFIG_PATH)
-    common.BertVocabFilepathArg.add_argument(parser, default=const.BERT_VOCAB_PATH)
+    common.BertConfigFilepathArg.add_argument(parser, default=None)
+    common.BertVocabFilepathArg.add_argument(parser, default=None)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
-    DoLowercaseArg.add_argument(parser, default=const.BERT_DO_LOWERCASE)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -49,22 +50,22 @@ if __name__ == '__main__':
     texts_from_files = common.FromFilesArg.read_argument(args)
     text_from_arg = common.InputTextArg.read_argument(args)
     texts_from_dataframe = common.FromDataframeArg.read_argument(args)
-    entities_parser = common.EntitiesParserArg.read_argument(args)
+    ner_model_name = common.NERModelNameArg.read_argument(args)
+    ner_object_types = common.NERObjectTypes.read_argument(args)
     terms_per_context = common.TermsPerContextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
+    pretrained_bert = common.PretrainedBERTArg.read_argument(args)
 
     pipeline = demo_infer_texts_bert_pipeline(
-        texts_count=len(actual_content),
+        pretrained_bert=pretrained_bert,
         samples_output_dir=dirname(backend_template),
         samples_prefix=basename(backend_template),
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
         labels_scaler=create_labels_scaler(common.LabelsCountArg.read_argument(args)),
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),
         bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
-        bert_finetuned_ckpt_path=common.BertCheckpointFilepathArg.read_argument(args),
-        do_lowercase=DoLowercaseArg.read_argument(args),
         max_seq_length=common.TokensPerContextArg.read_argument(args))
 
     synonyms_collection_path = common.SynonymsCollectionFilepathArg.read_argument(args)
@@ -73,7 +74,9 @@ if __name__ == '__main__':
 
     text_parser = BaseTextParser(pipeline=[
         TermsSplitterParser(),
-        entities_parser,
+        create_entity_parser(ner_model_name=ner_model_name,
+                             id_assigner=IdAssigner(),
+                             obj_filter_types=ner_object_types),
         EntitiesGroupingPipelineItem(
             lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                 synonyms=synonyms, value=value))

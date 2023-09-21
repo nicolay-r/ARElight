@@ -16,18 +16,15 @@ from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 
 
-def demo_infer_texts_bert_pipeline(texts_count,
+def demo_infer_texts_bert_pipeline(pretrained_bert,
                                    samples_output_dir,
                                    samples_prefix,
-                                   bert_config_path,
-                                   bert_vocab_path,
-                                   bert_finetuned_ckpt_path,
                                    entity_fmt,
                                    labels_scaler,
+                                   bert_config_path=None,
+                                   bert_vocab_path=None,
                                    text_b_type=SampleFormattersService.name_to_type("nli_m"),
-                                   do_lowercase=False,
                                    max_seq_length=128):
-    assert(isinstance(texts_count, int))
     assert(isinstance(samples_output_dir, str))
     assert(isinstance(samples_prefix, str))
     assert(isinstance(labels_scaler, BaseLabelScaler))
@@ -52,14 +49,13 @@ def demo_infer_texts_bert_pipeline(texts_count,
             save_labels_func=lambda data_type: data_type != DataType.Test),
 
         BertInferencePipelineItem(
+            pretrained_bert=pretrained_bert,
             data_type=DataType.Test,
             samples_io=samples_io,
             predict_writer=TsvPredictWriter(),
             bert_config_file=bert_config_path,
-            model_checkpoint_path=bert_finetuned_ckpt_path,
             vocab_filepath=bert_vocab_path,
             max_seq_length=max_seq_length,
-            do_lowercase=do_lowercase,
             labels_count=labels_scaler.LabelsCount),
 
         BratBackendContentsPipelineItem(label_to_rel={

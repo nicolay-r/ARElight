@@ -21,8 +21,10 @@ from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
+from arelight.pipelines.items.id_assigner import IdAssigner
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.args import common, const
+from arelight.run.args.common import create_entity_parser
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.utils import read_synonyms_collection
 from arelight.samplers.bert import create_bert_sample_provider
@@ -37,7 +39,8 @@ if __name__ == '__main__':
     # Provide arguments.
     common.InputTextArg.add_argument(parser, default=None)
     common.FromFilesArg.add_argument(parser)
-    common.EntitiesParserArg.add_argument(parser, default="bert-ontonotes")
+    common.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
+    common.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
     common.TermsPerContextArg.add_argument(parser, default=const.TERMS_PER_CONTEXT)
     common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     common.FromDataframeArg.add_argument(parser)
@@ -53,7 +56,8 @@ if __name__ == '__main__':
     text_from_arg = common.InputTextArg.read_argument(args)
     texts_from_files = common.FromFilesArg.read_argument(args)
     texts_from_dataframe = common.FromDataframeArg.read_argument(args)
-    entities_parser = common.EntitiesParserArg.read_argument(args)
+    ner_model_name = common.NERModelNameArg.read_argument(args)
+    ner_object_types = common.NERObjectTypes.read_argument(args)
     sentence_parser = common.SentenceParserArg.read_argument(args)
     entity_fmt = create_entity_formatter(common.EntityFormatterTypesArg.read_argument(args))
     input_texts = text_from_arg if text_from_arg is not None else \
@@ -75,7 +79,10 @@ if __name__ == '__main__':
     # Declare text parser.
     text_parser = BaseTextParser(pipeline=[
         TermsSplitterParser(),
-        entities_parser,
+        create_entity_parser(
+            ner_model_name=ner_model_name,
+            id_assigner=IdAssigner(),
+            obj_filter_types=ner_object_types),
         EntitiesGroupingPipelineItem(lambda value:
             SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                 synonyms=synonyms, value=value))
