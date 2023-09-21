@@ -5,6 +5,7 @@ from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.docs.sentence import BaseDocumentSentence
 from arekit.common.experiment.data_type import DataType
+from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
@@ -67,6 +68,8 @@ class TestInfer(unittest.TestCase):
             bert_config_path=None,
             max_seq_length=None)
 
+        pipeline = BasePipeline(pipeline)
+
         synonyms_collection_path = "../data/synonyms.txt"
         synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
             SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
@@ -89,10 +92,6 @@ class TestInfer(unittest.TestCase):
             doc_ops=InMemoryDocProvider(docs=self.input_to_docs(actual_content)),
             terms_per_context=50,
             text_parser=text_parser)
-
-        pipeline.append(
-            BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
-        )
 
         pipeline.run(None, {
             "template_filepath": join(const.DATA_DIR, "brat_template.html"),

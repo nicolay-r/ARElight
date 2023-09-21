@@ -1,8 +1,12 @@
 import gzip
+import logging
 
 from arekit.common.utils import progress_bar_iter, create_dir_if_not_exists
 
 from arelight.predict_writer import BasePredictWriter
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 class TsvPredictWriter(BasePredictWriter):
@@ -34,6 +38,7 @@ class TsvPredictWriter(BasePredictWriter):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        logger.info(f"Saved: {self._target}")
         self.__f.close()
 
     # endregion

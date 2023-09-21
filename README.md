@@ -31,59 +31,24 @@ pip install git+https://github.com/nicolay-r/arelight@v0.24.0
 python standalone.py
 ```
 
-## Inference
-
-> **Supported Languages**: Russian
+## Usage
 
 Infer sentiment attitudes from a mass-media document(s).
-
-Using the `BERT` fine-tuned model version:
 ```bash
-python3 -m arelight.run.infer.py --from-files data/texts-inosmi-rus/e1.txt \
+python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e1.txt \
+    --ner-model-name "ner_ontonotes_bert_mult" \
+    --ner-types "ORG|PERSON|LOC|GPE" \
+    --synonyms data/synonyms.txt \
     --labels-count 3 \
     --terms-per-context 50 \
+    --sentence-parser "ru" \
+    --text-b-type "nli_m" \
     --tokens-per-context 128 \
-    --text-b-type nli_m \
-    --sentence-parser ru \
+    --pretrained-bert "bert-base-uncased" \
     -o output/brat_inference_output
 ```
-From `CSV` file (you need to have `text` column; sentence parser could be disabled):
-```bash
-python3 -m arelight.run.infer.py  \
-    --from-dataframe data/examples.csv \
-    --entities-parser bert-ontonotes \
-    --terms-per-context 50 \
-    --sentence-parser ru \
-    -o output/data
-```    
 <p align="center">
     <img src="docs/inference-bert-e1.png"/>
-</p>
-
-## Serialization 
-
-> **Supported Languages**: Russian/English
-
-From list of files
-```bash
-python3 -m arelight.run.serialize --from-files data/texts-inosmi-rus/e1.txt \
-    --entities-parser bert-ontonotes \
-    --terms-per-context 50 \
-    --sentence-parser ru \
-    -o output/e1
-```
-From `CSV` file (you need to have `text` column; sentence parser could be disabled):
-```bash
-python3 -m arelight.run.serialize   \
-    --from-dataframe data/examples.csv \
-    --entities-parser bert-ontonotes \
-    --terms-per-context 50 \
-    --sentence-parser ru \
-    -o output/data
-```    
-
-<p align="center">
-    <img src="docs/samples-bert.png">
 </p>
 
 ## Reference 

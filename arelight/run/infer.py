@@ -3,6 +3,7 @@ from os.path import join, dirname, basename
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
+from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
@@ -11,7 +12,6 @@ from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.items.id_assigner import IdAssigner
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.args import common, const
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     common.PredictOutputFilepathArg.add_argument(parser, default=const.OUTPUT_TEMPLATE)
     common.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
     common.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
-    common.PretrainedBERTArg.add_argument(parser, default="bert-base-uncased")
+    common.PretrainedBERTArg.add_argument(parser, default=None)
     common.SentenceParserArg.add_argument(parser)
     common.BertConfigFilepathArg.add_argument(parser, default=None)
     common.BertVocabFilepathArg.add_argument(parser, default=None)
@@ -58,6 +58,7 @@ if __name__ == '__main__':
     backend_template = common.PredictOutputFilepathArg.read_argument(args)
     pretrained_bert = common.PretrainedBERTArg.read_argument(args)
 
+    # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
         pretrained_bert=pretrained_bert,
         samples_output_dir=dirname(backend_template),
@@ -66,12 +67,16 @@ if __name__ == '__main__':
         labels_scaler=create_labels_scaler(common.LabelsCountArg.read_argument(args)),
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),
         bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
-        max_seq_length=common.TokensPerContextArg.read_argument(args))
+        max_seq_length=common.TokensPerContextArg.read_argument(args),
+        brat_backend=True)
+
+    pipeline = BasePipeline(pipeline)
 
     synonyms_collection_path = common.SynonymsCollectionFilepathArg.read_argument(args)
     synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
         SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
+    # Setup text parser.
     text_parser = BaseTextParser(pipeline=[
         TermsSplitterParser(),
         create_entity_parser(ner_model_name=ner_model_name,
@@ -82,6 +87,7 @@ if __name__ == '__main__':
                 synonyms=synonyms, value=value))
     ])
 
+    # Setup data annotation pipeline.
     data_pipeline = create_neutral_annotation_pipeline(
         synonyms=synonyms,
         dist_in_terms_bound=terms_per_context,
@@ -89,14 +95,13 @@ if __name__ == '__main__':
         terms_per_context=terms_per_context,
         text_parser=text_parser)
 
-    pipeline.append(
-        BratHtmlEmbeddingPipelineItem(brat_url="http://localhost:8001/")
-    )
-
-    pipeline.run(None, {
-        "template_filepath": join(const.DATA_DIR, "brat_template.html"),
-        "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
-        "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
-        "data_type_pipelines": {DataType.Test: data_pipeline},
-        "doc_ids": list(range(len(actual_content))),
+    # Launch application.
+    pipeline.run(
+        input_data=None,
+        params_dict={
+            "template_filepath": join(const.DATA_DIR, "brat_template.html"),
+            "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
+            "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
+            "data_type_pipelines": {DataType.Test: data_pipeline},
+            "doc_ids": list(range(len(actual_content)))
     })
