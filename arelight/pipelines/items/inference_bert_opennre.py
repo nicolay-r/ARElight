@@ -7,6 +7,7 @@ from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.utils.io_utils.samples import SamplesIO
+
 from opennre.encoder import BERTEntityEncoder, BERTEncoder
 from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN

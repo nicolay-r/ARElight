@@ -13,10 +13,10 @@ from arelight.predict_writer import BasePredictWriter
 from arelight.utils import auto_import
 
 
-class BertInferencePipelineItem(BasePipelineItem):
+class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert, samples_io, data_type, predict_writer,
-                 labels_count, max_seq_length, bert_config_file=None, vocab_filepath=None, batch_size=10):
+                 labels_count, max_seq_length, batch_size=10):
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
         assert(isinstance(labels_count, int))
@@ -32,13 +32,13 @@ class BertInferencePipelineItem(BasePipelineItem):
         self.__model = torch_classifier_model(
             pretrained_bert=pretrained_bert,
             n_classes=labels_count,
-            bert_config_file=bert_config_file,
+            bert_config_file=None,
             save_path="")
 
         # Setup processor.
         self.__proc = torch_preprocessor_model(
             # Consider the same as pretrained BERT.
-            vocab_file=pretrained_bert if vocab_filepath is None else vocab_filepath,
+            vocab_file=pretrained_bert,
             max_seq_length=max_seq_length)
 
         self.__writer = predict_writer

@@ -1,5 +1,5 @@
 import unittest
-from os.path import join
+from os.path import join, realpath, dirname
 
 from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
@@ -17,11 +17,9 @@ from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.id_assigner import IdAssigner
-from arelight.run.args import const
-from arelight.run.args.common import create_entity_parser
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
-from arelight.run.utils import create_labels_scaler
+from arelight.run.utils import create_labels_scaler, create_entity_parser
 
 
 class TestInfer(unittest.TestCase):
@@ -35,6 +33,9 @@ class TestInfer(unittest.TestCase):
            и газ.  Европейский-Союз крайне зависим от России в плане поставок нефти и
            газа."""
     ]
+
+    current_dir = dirname(realpath(__file__))
+    TEST_DATA_DIR = join(current_dir, "data")
 
     @staticmethod
     def iter_groups(filepath):
@@ -81,7 +82,7 @@ class TestInfer(unittest.TestCase):
             text_parser=text_parser)
 
         pipeline.run(None, {
-            "template_filepath": join(const.DATA_DIR, "brat_template.html"),
+            "template_filepath": join(self.TEST_DATA_DIR, "brat_template.html"),
             "data_type_pipelines": {DataType.Test: data_pipeline},
             "doc_ids": list(range(len(actual_content))),
         })
@@ -95,7 +96,6 @@ class TestInfer(unittest.TestCase):
             bert_type="deeppavlov",
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             labels_scaler=create_labels_scaler(3),
-            bert_config_path=None,
             max_seq_length=None,
             checkpoint_path=None)
 
@@ -109,7 +109,6 @@ class TestInfer(unittest.TestCase):
             pretrained_bert="DeepPavlov/rubert-base-cased",
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             labels_scaler=create_labels_scaler(3),
-            bert_config_path=None,
             max_seq_length=128,
             bert_type="opennre",
             checkpoint_path="../data/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar")

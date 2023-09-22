@@ -14,33 +14,30 @@ from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotatio
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.items.id_assigner import IdAssigner
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.run.args import common, const
-from arelight.run.args.common import create_entity_parser
+from arelight.run import args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
-from arelight.run.utils import create_labels_scaler, read_synonyms_collection
+from arelight.run.utils import create_labels_scaler, read_synonyms_collection, create_entity_parser
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    common.InputTextArg.add_argument(parser, default=None)
-    common.FromFilesArg.add_argument(parser)
-    common.FromDataframeArg.add_argument(parser)
-    common.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
-    common.LabelsCountArg.add_argument(parser, default=3)
-    common.TermsPerContextArg.add_argument(parser, default=50)
-    common.TokensPerContextArg.add_argument(parser, default=128)
-    common.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
-    common.PredictOutputFilepathArg.add_argument(parser, default=None)
-    common.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
-    common.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
-    common.PretrainedBERTArg.add_argument(parser, default=None)
-    common.SentenceParserArg.add_argument(parser)
-    common.BertConfigFilepathArg.add_argument(parser, default=None)
-    common.BertVocabFilepathArg.add_argument(parser, default=None)
-    common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    args.InputTextArg.add_argument(parser, default=None)
+    args.FromFilesArg.add_argument(parser)
+    args.FromDataframeArg.add_argument(parser)
+    args.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
+    args.LabelsCountArg.add_argument(parser, default=3)
+    args.TermsPerContextArg.add_argument(parser, default=50)
+    args.TokensPerContextArg.add_argument(parser, default=128)
+    args.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
+    args.OutputFilepathArg.add_argument(parser, default=None)
+    args.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
+    args.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
+    args.PretrainedBERTArg.add_argument(parser, default=None)
+    args.SentenceParserArg.add_argument(parser)
+    args.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
     parser.add_argument("--bert-framework", dest="bert_framework", type=str, default="opennre", choices=["opennre", "deeppavlov"])
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
 
@@ -48,17 +45,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Reading text-related parameters.
-    sentence_parser = common.SentenceParserArg.read_argument(args)
-    texts_from_files = common.FromFilesArg.read_argument(args)
-    text_from_arg = common.InputTextArg.read_argument(args)
-    texts_from_dataframe = common.FromDataframeArg.read_argument(args)
-    ner_model_name = common.NERModelNameArg.read_argument(args)
-    ner_object_types = common.NERObjectTypes.read_argument(args)
-    terms_per_context = common.TermsPerContextArg.read_argument(args)
+    sentence_parser = args.SentenceParserArg.read_argument(args)
+    texts_from_files = args.FromFilesArg.read_argument(args)
+    text_from_arg = args.InputTextArg.read_argument(args)
+    texts_from_dataframe = args.FromDataframeArg.read_argument(args)
+    ner_model_name = args.NERModelNameArg.read_argument(args)
+    ner_object_types = args.NERObjectTypes.read_argument(args)
+    terms_per_context = args.TermsPerContextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
-    backend_template = common.PredictOutputFilepathArg.read_argument(args)
-    pretrained_bert = common.PretrainedBERTArg.read_argument(args)
+    backend_template = args.OutputFilepathArg.read_argument(args)
+    pretrained_bert = args.PretrainedBERTArg.read_argument(args)
 
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
@@ -66,17 +63,15 @@ if __name__ == '__main__':
         samples_output_dir=dirname(backend_template),
         samples_prefix=basename(backend_template),
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
-        labels_scaler=create_labels_scaler(common.LabelsCountArg.read_argument(args)),
-        bert_config_path=common.BertConfigFilepathArg.read_argument(args),
-        bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
-        max_seq_length=common.TokensPerContextArg.read_argument(args),
+        labels_scaler=create_labels_scaler(args.LabelsCountArg.read_argument(args)),
+        max_seq_length=args.TokensPerContextArg.read_argument(args),
         checkpoint_path=args.bert_torch_checkpoint,
         bert_type=args.bert_framework,
         brat_backend=True)
 
     pipeline = BasePipeline(pipeline)
 
-    synonyms_collection_path = common.SynonymsCollectionFilepathArg.read_argument(args)
+    synonyms_collection_path = args.SynonymsCollectionFilepathArg.read_argument(args)
     synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
         SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
@@ -103,7 +98,7 @@ if __name__ == '__main__':
     pipeline.run(
         input_data=None,
         params_dict={
-            "template_filepath": join(const.DATA_DIR, "brat_template.html"),
+            "template_filepath": join(dirname(backend_template), "brat_template.html"),
             "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
             "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
             "data_type_pipelines": {DataType.Test: data_pipeline},

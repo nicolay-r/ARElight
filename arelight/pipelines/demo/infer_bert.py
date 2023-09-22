@@ -14,8 +14,8 @@ from arekit.contrib.utils.pipelines.items.sampling.base import BaseSerializerPip
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
 from arelight.pipelines.items.backend_brat_json import BratBackendContentsPipelineItem
-from arelight.pipelines.items.inference_bert import BertInferencePipelineItem
 from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInferencePipelineItem
+from arelight.pipelines.items.inference_transformers_dp import TransformersDeepPavlovInferencePipelineItem
 from arelight.predict_writer_csv import TsvPredictWriter
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
@@ -28,8 +28,6 @@ def demo_infer_texts_bert_pipeline(pretrained_bert,
                                    labels_scaler,
                                    checkpoint_path,
                                    bert_type,
-                                   bert_config_path=None,
-                                   bert_vocab_path=None,
                                    brat_backend=False,
                                    text_b_type=SampleFormattersService.name_to_type("nli_m"),
                                    max_seq_length=128):
@@ -76,13 +74,11 @@ def demo_infer_texts_bert_pipeline(pretrained_bert,
     # Add BERT processing pipeline.
     if bert_type == "deeppavlov":
         pipeline += [
-            BertInferencePipelineItem(
+            TransformersDeepPavlovInferencePipelineItem(
                 pretrained_bert=pretrained_bert,
                 data_type=DataType.Test,
                 samples_io=samples_io,
                 predict_writer=TsvPredictWriter(),
-                bert_config_file=bert_config_path,
-                vocab_filepath=bert_vocab_path,
                 max_seq_length=max_seq_length,
                 labels_count=labels_scaler.LabelsCount),
         ]

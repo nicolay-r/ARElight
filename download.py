@@ -1,16 +1,19 @@
 import os
 import tarfile
+from os.path import dirname, realpath, join
 
 from arekit.common import utils
 
-from arelight.run.args import const
+current_dir = dirname(realpath(__file__))
+DATA_DIR = join(current_dir, "./data")
 
 
 def download_examples_data():
     root_dir = utils.get_default_download_dir()
 
     data = {
-        const.SYNONYMS_FILEPATH: "https://raw.githubusercontent.com/nicolay-r/RuSentRel/v1.1/synonyms.txt",
+        join(DATA_DIR, "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar"):
+            "https://www.dropbox.com/scl/fi/rwjf7ag3w3z90pifeywrd/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar?rlkey=p0mmu81o6c2u6iboe9m20uzqk&dl=1",
     }
 
     # Perform downloading ...

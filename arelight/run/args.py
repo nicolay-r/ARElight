@@ -2,44 +2,9 @@ import importlib
 
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.pipelines.items.entities_default import TextEntitiesParser
-from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.run.entities.types import EntityFormattersService
+from arelight.run.utils import create_sentence_parser
 from arelight.samplers.types import SampleFormattersService
-
-
-def create_entity_parser(ner_model_name, id_assigner, obj_filter_types=None):
-    """ NOTE: It is important that the IdAssigner is expected to be unique for all the
-        entity parsers.
-
-        obj_filter_types: str
-    """
-    assert(isinstance(ner_model_name, str) or ner_model_name is None)
-    assert(isinstance(obj_filter_types, list) or obj_filter_types is None)
-
-    if ner_model_name is None:
-        return TextEntitiesParser(id_assigner)
-    else:
-        return DeepPavlovNERPipelineItem(
-            obj_filter=None if obj_filter_types is None else lambda s_obj: s_obj.ObjectType in obj_filter_types,
-            ner_model_name=ner_model_name,
-            id_assigner=id_assigner)
-
-
-def create_sentence_parser(arg):
-    if arg == "linesplit":
-        return lambda text: [t.strip() for t in text.split('\n')]
-    elif arg == "ru":
-        # Using ru_sent_tokenize library.
-        ru_sent_tokenize = importlib.import_module("ru_sent_tokenize")
-        return lambda text: ru_sent_tokenize.ru_sent_tokenize(text)
-    elif arg == "nltk_en":
-        # Using nltk library.
-        nltk = importlib.import_module("nltk")
-        tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
-        return tokenizer.tokenize
-    else:
-        raise Exception("Arg `{}` was not found".format(arg))
 
 
 class BaseArg:
@@ -69,7 +34,7 @@ class InputTextArg(BaseArg):
                             help='Input text for processing')
 
 
-class PredictOutputFilepathArg(BaseArg):
+class OutputFilepathArg(BaseArg):
 
     @staticmethod
     def read_argument(args):
@@ -408,36 +373,6 @@ class EntityFormatterTypesArg(BaseArg):
                             choices=list(EntityFormattersService.iter_names()),
                             default=default,
                             help='Entity formatter type')
-
-
-class BertConfigFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.bert_config
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--bert-config',
-                            dest='bert_config',
-                            type=str,
-                            default=default,
-                            help='Bert config filepath')
-
-
-class BertVocabFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.bert_vocab
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--bert-vocab',
-                            dest='bert_vocab',
-                            type=str,
-                            default=default,
-                            help='Bert vocab filepath')
 
 
 class BertSaveFilepathArg(BaseArg):
