@@ -17,13 +17,13 @@ from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt impo
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from rusenttokenize import ru_sent_tokenize
 
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.id_assigner import IdAssigner
-from arelight.run.utils import read_synonyms_collection
 
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
@@ -68,9 +68,7 @@ class TestCombinedPipeline(unittest.TestCase):
                газа."""
         ]
 
-        # Declare synonyms collection.
-        synonyms_filepath = join(self.ORIGIN_DATA_DIR, "synonyms.txt")
-        synonyms = read_synonyms_collection(synonyms_filepath)
+        synonyms = SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
         # Declare text parser.
         text_parser = BaseTextParser(pipeline=[

@@ -21,7 +21,7 @@ from arelight.run.args import const
 from arelight.run.args.common import create_entity_parser
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
-from arelight.run.utils import read_synonyms_collection, create_labels_scaler
+from arelight.run.utils import create_labels_scaler
 
 
 class TestInfer(unittest.TestCase):
@@ -52,7 +52,6 @@ class TestInfer(unittest.TestCase):
             doc = Document(doc_id=doc_id, sentences=sentences)
             docs.append(doc)
         return docs
-        self.launch(pipeline)
 
     def launch(self, pipeline):
 
@@ -60,10 +59,7 @@ class TestInfer(unittest.TestCase):
         actual_content = self.texts
 
         pipeline = BasePipeline(pipeline)
-
-        synonyms_collection_path = "../data/synonyms.txt"
-        synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
-            SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
+        synonyms = SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
         id_assigner = IdAssigner()
         text_parser = BaseTextParser(pipeline=[

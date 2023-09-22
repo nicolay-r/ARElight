@@ -38,7 +38,6 @@ Infer sentiment attitudes from a mass-media document(s).
 python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e1.txt \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
-    --synonyms data/synonyms.txt \
     --labels-count 3 \
     --terms-per-context 50 \
     --sentence-parser "ru" \
