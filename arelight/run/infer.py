@@ -41,6 +41,8 @@ if __name__ == '__main__':
     common.BertConfigFilepathArg.add_argument(parser, default=None)
     common.BertVocabFilepathArg.add_argument(parser, default=None)
     common.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    parser.add_argument("--bert-framework", dest="bert_framework", type=str, default="opennre", choices=["opennre", "deeppavlov"])
+    parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -68,6 +70,8 @@ if __name__ == '__main__':
         bert_config_path=common.BertConfigFilepathArg.read_argument(args),
         bert_vocab_path=common.BertVocabFilepathArg.read_argument(args),
         max_seq_length=common.TokensPerContextArg.read_argument(args),
+        checkpoint_path=args.bert_torch_checkpoint,
+        bert_type=args.bert_framework,
         brat_backend=True)
 
     pipeline = BasePipeline(pipeline)

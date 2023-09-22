@@ -52,20 +52,12 @@ class TestInfer(unittest.TestCase):
             doc = Document(doc_id=doc_id, sentences=sentences)
             docs.append(doc)
         return docs
+        self.launch(pipeline)
 
-    def test(self):
+    def launch(self, pipeline):
 
         # We consider a texts[0] from the constant list.
         actual_content = self.texts
-
-        pipeline = demo_infer_texts_bert_pipeline(
-            samples_output_dir="./data",
-            samples_prefix="samples",
-            pretrained_bert="bert-base-uncased",
-            entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
-            labels_scaler=create_labels_scaler(3),
-            bert_config_path=None,
-            max_seq_length=None)
 
         pipeline = BasePipeline(pipeline)
 
@@ -97,3 +89,33 @@ class TestInfer(unittest.TestCase):
             "data_type_pipelines": {DataType.Test: data_pipeline},
             "doc_ids": list(range(len(actual_content))),
         })
+
+    def test_deeppavlov(self):
+
+        pipeline = demo_infer_texts_bert_pipeline(
+            samples_output_dir="./data",
+            samples_prefix="samples",
+            pretrained_bert="bert-base-uncased",
+            bert_type="deeppavlov",
+            entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
+            labels_scaler=create_labels_scaler(3),
+            bert_config_path=None,
+            max_seq_length=None,
+            checkpoint_path=None)
+
+        self.launch(pipeline)
+
+    def test_opennre(self):
+
+        pipeline = demo_infer_texts_bert_pipeline(
+            samples_output_dir="./data",
+            samples_prefix="samples",
+            pretrained_bert="DeepPavlov/rubert-base-cased",
+            entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
+            labels_scaler=create_labels_scaler(3),
+            bert_config_path=None,
+            max_seq_length=128,
+            bert_type="opennre",
+            checkpoint_path="../data/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar")
+
+        self.launch(pipeline)

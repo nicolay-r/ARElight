@@ -3,4 +3,5 @@ transformers==4.31.0
 torch==2.0.1
 pytorch-crf==0.7.2
 arekit @ git+https://github.com/nicolay-r/AREkit@0.24.0-rc
+opennre @ git+https://github.com/thunlp/OpenNRE
 nltk==3.4.5

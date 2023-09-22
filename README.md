@@ -44,7 +44,9 @@ python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e1.txt \
     --sentence-parser "ru" \
     --text-b-type "nli_m" \
     --tokens-per-context 128 \
-    --pretrained-bert "bert-base-uncased" \
+    --bert-framework "opennre" \
+    --pretrained-bert "DeepPavlov/rubert-base-cased" \
+    --bert-torch-checkpoint "data/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar" \
     -o output/brat_inference_output
 ```
 <p align="center">
