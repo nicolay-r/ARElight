@@ -50,7 +50,7 @@ class TestBratEmbedding(unittest.TestCase):
                               brat_url="http://localhost:8001/")
 
     def test_train(self):
-        template = self.__create_template(samples_data_filepath=join(self.TEST_DATA_DIR, "sample-clean-train-0.tsv.gz"),
+        template = self.__create_template(samples_data_filepath=join(self.TEST_DATA_DIR, "sample-clean-train-0.tsv"),
                                           result_data_filepath=None,
                                           labels_scaler=ThreeLabelScaler(),
                                           docs_range=(0, 2))
