@@ -1,5 +1,6 @@
+import utils
 import unittest
-from os.path import join, dirname, realpath
+from rusenttokenize import ru_sent_tokenize
 
 from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
@@ -18,7 +19,6 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
-from rusenttokenize import ru_sent_tokenize
 
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
@@ -34,10 +34,6 @@ class TestCombinedPipeline(unittest.TestCase):
         AREkit might be applied towards data preparation for BERT
         model.
     """
-
-    current_dir = dirname(realpath(__file__))
-    ORIGIN_DATA_DIR = join(current_dir, "../data")
-    TEST_DATA_DIR = join(current_dir, "data")
 
     @staticmethod
     def input_to_docs(texts):
@@ -94,7 +90,7 @@ class TestCombinedPipeline(unittest.TestCase):
             BertExperimentInputSerializerPipelineItem(
                 rows_provider=rows_provider,
                 storage=RowCacheStorage(),
-                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=NativeCsvWriter(delimiter=',')),
+                samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
                 save_labels_func=lambda data_type: data_type != DataType.Test)
         ])
 

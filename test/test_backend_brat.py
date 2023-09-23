@@ -1,17 +1,14 @@
 import json
 import unittest
-from os.path import join, dirname, realpath
+import utils
+from os.path import join
 
-from arelight.brat_backend import BratBackend
+from arelight.backend.brat.converter import BratBackend
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 
 
 class TestBratEmbedding(unittest.TestCase):
-
-    current_dir = dirname(realpath(__file__))
-    TEST_DATA_DIR = join(current_dir, "data")
-    ORIGIN_DATA_DIR = join(current_dir, "../data")
 
     def __to_html(self, template_filepath, contents, brat_url):
         # Loading template file.
@@ -45,25 +42,25 @@ class TestBratEmbedding(unittest.TestCase):
                              "NEG": "RED"},
             docs_range=docs_range)
 
-        return self.__to_html(template_filepath=join(self.ORIGIN_DATA_DIR, "brat_template.html"),
+        return self.__to_html(template_filepath=join(utils.TEST_DATA_DIR, "brat_template.html"),
                               contents=contents,
                               brat_url="http://localhost:8001/")
 
     def test_train(self):
-        template = self.__create_template(samples_data_filepath=join(self.TEST_DATA_DIR, "sample-clean-train-0.tsv"),
+        template = self.__create_template(samples_data_filepath=join(utils.TEST_DATA_DIR, "sample-clean-train-0.tsv"),
                                           result_data_filepath=None,
                                           labels_scaler=ThreeLabelScaler(),
                                           docs_range=(0, 2))
 
-        with open(join(self.TEST_DATA_DIR, "output_train.html"), "w") as output:
+        with open(join(utils.TEST_DATA_DIR, "output_train.html"), "w") as output:
             output.write(template)
 
     def test(self):
-        template = self.__create_template(samples_data_filepath=join(self.TEST_DATA_DIR, "sample-test-0.tsv.gz"),
-                                          result_data_filepath=join(self.TEST_DATA_DIR, "out.tsv.gz"),
+        template = self.__create_template(samples_data_filepath=join(utils.TEST_DATA_DIR, "sample-test-0.tsv.gz"),
+                                          result_data_filepath=join(utils.TEST_DATA_DIR, "out.tsv.gz"),
                                           labels_scaler=ThreeLabelScaler())
 
-        with open(join(self.TEST_DATA_DIR, "output.html"), "w") as output:
+        with open(join(utils.TEST_DATA_DIR, "output.html"), "w") as output:
             output.write(template)
 
 

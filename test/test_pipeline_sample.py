@@ -1,10 +1,11 @@
+import utils
 import unittest
 import ru_sent_tokenize
 from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.docs.sentence import BaseDocumentSentence
 from ru_sent_tokenize import ru_sent_tokenize
-from os.path import dirname, join, realpath
+from os.path import join
 
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
@@ -45,10 +46,6 @@ class BertTestSerialization(unittest.TestCase):
         model.
     """
 
-    current_dir = dirname(realpath(__file__))
-    ORIGIN_DATA_DIR = join(current_dir, "../data")
-    TEST_DATA_DIR = join(current_dir, "data")
-
     @staticmethod
     def input_to_docs(texts):
         docs = []
@@ -78,7 +75,7 @@ class BertTestSerialization(unittest.TestCase):
         ]
 
         # Declare synonyms collection.
-        synonyms_filepath = join(self.ORIGIN_DATA_DIR, "synonyms.txt")
+        synonyms_filepath = join(utils.TEST_DATA_DIR, "rus_synonyms_rusentrel.txt")
 
         synonyms = StemmerBasedSynonymCollection(
             iter_group_values_lists=self.iter_groups(synonyms_filepath),
@@ -109,7 +106,7 @@ class BertTestSerialization(unittest.TestCase):
             BertExperimentInputSerializerPipelineItem(
                 rows_provider=rows_provider,
                 storage=RowCacheStorage(),
-                samples_io=SamplesIO(target_dir=self.TEST_DATA_DIR, writer=NativeCsvWriter(delimiter=',')),
+                samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
                 save_labels_func=lambda data_type: data_type != DataType.Test)
         ])
 

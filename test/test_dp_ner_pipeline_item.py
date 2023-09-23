@@ -1,4 +1,5 @@
 import unittest
+import utils
 from os.path import join, dirname, realpath
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
@@ -31,7 +32,7 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
         ])
 
         # Read file contents.
-        text_filepath = join(dirname(realpath(__file__)), "../data/texts-inosmi-rus/e2.txt")
+        text_filepath = join(utils.TEST_DATA_DIR, "rus_input_text_example.txt")
         with open(text_filepath, 'r') as f:
             text = f.read().rstrip()
 
@@ -46,7 +47,7 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
                "на балтике является ответом именно на действия НАТО и эскалацию " \
                "враждебного подхода к Росcии вблизи ее восточных границ ..."
 
-        synonyms = read_synonyms_collection("../data/synonyms.txt")
+        synonyms = read_synonyms_collection(join(utils.TEST_DATA_DIR, "rus_synonyms_rusentrel.txt"))
 
         # Declare text parser.
         text_parser = BaseTextParser(pipeline=[
@@ -79,7 +80,7 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
         ])
 
         # Read file contents.
-        text_filepath = join(dirname(realpath(__file__)), "../data/book-war-and-peace-test.txt")
+        text_filepath = join(utils.TEST_DATA_DIR, "book-war-and-peace-test.txt")
         with open(text_filepath, 'r') as f:
             text = f.read().rstrip()
 

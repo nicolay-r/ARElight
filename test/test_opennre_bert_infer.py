@@ -1,6 +1,7 @@
 import json
+import utils
 import unittest
-from os.path import join, dirname, realpath
+from os.path import join
 
 import torch
 from opennre.encoder import BERTEncoder
@@ -10,32 +11,33 @@ from opennre.model import SoftmaxNN
 from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInferencePipelineItem
 from arelight.predict_provider import BasePredictProvider
 from arelight.predict_writer_csv import TsvPredictWriter
+from arelight.run.utils import try_download_predefined_checkpoints
 
 
 class TestLoadModel(unittest.TestCase):
 
-    current_dir = dirname(realpath(__file__))
-    TEST_DATA_DIR = join(current_dir, "data")
-    ORIGIN_DATA_DIR = join(current_dir, "../data")
-
     def test_launch_model(self):
         rel2id = json.loads('{"0":0,"1":1,"2":2}')
+        try_download_predefined_checkpoints(checkpoint="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+                                            dir_to_download=utils.TEST_OUT_DIR)
         model = BERTEncoder(pretrain_path="DeepPavlov/rubert-base-cased", mask_entity=True, max_length=512)
         model = SoftmaxNN(model, len(rel2id), rel2id)
-        model.load_state_dict(torch.load("../data/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+        model.load_state_dict(torch.load(join(utils.TEST_OUT_DIR, "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar"),
                                          map_location=torch.device('cpu'))["state_dict"])
 
     def test_infer(self):
+        try_download_predefined_checkpoints(checkpoint="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+                                            dir_to_download=utils.TEST_OUT_DIR)
         self.infer_bert(pretrain_path="DeepPavlov/rubert-base-cased",
-                        ckpt_source="../data/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+                        ckpt_source=join(utils.TEST_OUT_DIR, "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar"),
                         rel2id=json.loads('{"0":0,"1":1,"2":2}'),
-                        output_file_gzip=join(self.TEST_DATA_DIR, "opennre-data-test.tsv.gz"))
+                        output_file_gzip=join(utils.TEST_OUT_DIR, "opennre-data-test.tsv.gz"))
 
     @staticmethod
     def infer_bert(pretrain_path, rel2id, output_file_gzip, ckpt_source=None, pooler='cls',
                    batch_size=6, max_length=128, mask_entity=True):
 
-        test_data_file = join(TestLoadModel.ORIGIN_DATA_DIR, "opennre-data-test-predict.json")
+        test_data_file = join(utils.TEST_DATA_DIR, "opennre-data-test-predict.json")
 
         model = BertOpenNREInferencePipelineItem.init_bert_model(pretrain_path=pretrain_path,
                                                                  rel2id=rel2id,

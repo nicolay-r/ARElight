@@ -5,7 +5,7 @@ from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 
-from arelight.brat_backend import BratBackend
+from arelight.backend.brat.converter import BratBackend
 
 
 class BratBackendContentsPipelineItem(BasePipelineItem):

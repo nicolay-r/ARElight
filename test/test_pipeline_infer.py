@@ -1,4 +1,5 @@
 import unittest
+import utils
 from os.path import join, realpath, dirname
 
 from arekit.common.docs.base import Document
@@ -90,7 +91,7 @@ class TestInfer(unittest.TestCase):
     def test_deeppavlov(self):
 
         pipeline = demo_infer_texts_bert_pipeline(
-            samples_output_dir="./data",
+            samples_output_dir=utils.TEST_OUT_DIR,
             samples_prefix="samples",
             pretrained_bert="bert-base-uncased",
             bert_type="deeppavlov",
@@ -104,13 +105,13 @@ class TestInfer(unittest.TestCase):
     def test_opennre(self):
 
         pipeline = demo_infer_texts_bert_pipeline(
-            samples_output_dir="./data",
+            samples_output_dir=utils.TEST_OUT_DIR,
             samples_prefix="samples",
             pretrained_bert="DeepPavlov/rubert-base-cased",
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             labels_scaler=create_labels_scaler(3),
             max_seq_length=128,
             bert_type="opennre",
-            checkpoint_path="../data/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar")
+            checkpoint_path="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar")
 
         self.launch(pipeline)

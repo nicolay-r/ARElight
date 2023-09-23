@@ -35,7 +35,7 @@ python standalone.py
 
 Infer sentiment attitudes from a mass-media document(s).
 ```bash
-python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e1.txt \
+python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --labels-count 3 \

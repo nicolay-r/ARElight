@@ -1,7 +1,8 @@
 import json
 import os
 import unittest
-from os.path import join, dirname, realpath, exists
+import utils
+from os.path import join, exists
 
 import pandas as pd
 
@@ -14,13 +15,10 @@ from arelight.backend.d3js.utils_graph import graph_to_radial
 
 class TestBackendD3JS(unittest.TestCase):
 
-    current_dir = dirname(realpath(__file__))
-    ORIGIN_DATA_DIR = join(current_dir, "../data")
-    TEST_DATA_DIR = join(current_dir, "data")
-    TEST_OUT_DIR = join(current_dir, "_out/d3js_test/")
+    TEST_OUT_LOCAL_DIR = join(utils.TEST_OUT_DIR, "d3js_test/")
 
     def compose_radial(self, graph, out_filename):
-        data_filepath = join(self.TEST_OUT_DIR, out_filename + ".json")
+        data_filepath = join(self.TEST_OUT_LOCAL_DIR, out_filename + ".json")
         with open(data_filepath, "w") as f:
             # Convert to radial graph.
             radial_graph = graph_to_radial(graph)
@@ -30,11 +28,11 @@ class TestBackendD3JS(unittest.TestCase):
         # Save the result content file.
         # We provide local path, i.e. file in the same folder.
         html_content = get_radial_web_ui(json_data_at_server_filepath=join(out_filename + ".json"))
-        with open(join(self.TEST_OUT_DIR, out_filename + ".html"), "w") as f_out:
+        with open(join(self.TEST_OUT_LOCAL_DIR, out_filename + ".html"), "w") as f_out:
             f_out.write(html_content)
 
     def compose_force(self, graph, out_filename):
-        data_filepath = join(self.TEST_OUT_DIR, out_filename + ".json")
+        data_filepath = join(self.TEST_OUT_LOCAL_DIR, out_filename + ".json")
         with open(data_filepath, "w") as f:
             content = json.dumps(graph, ensure_ascii=False).encode('utf8').decode()
             f.write(content)
@@ -42,13 +40,13 @@ class TestBackendD3JS(unittest.TestCase):
         # Save the result content file.
         # We provide local path, i.e. file in the same folder.
         html_content = get_force_web_ui(json_data_at_server_filepath=join(out_filename + ".json"))
-        with open(join(self.TEST_OUT_DIR, out_filename + ".html"), "w") as f_out:
+        with open(join(self.TEST_OUT_LOCAL_DIR, out_filename + ".html"), "w") as f_out:
             f_out.write(html_content)
 
     def test(self):
 
         # Reading source file.
-        data = pd.read_csv(join(self.TEST_DATA_DIR, "responses-d3js-backend-sample-data.csv"))
+        data = pd.read_csv(join(utils.TEST_DATA_DIR, "responses-d3js-backend-sample-data.csv"))
 
         # Value based visualization.
         relation_type = "WORKS_AS"
@@ -70,11 +68,11 @@ class TestBackendD3JS(unittest.TestCase):
             min_links=0.01
         )
 
-        if not exists(self.TEST_OUT_DIR):
-            os.makedirs(self.TEST_OUT_DIR)
+        if not exists(self.TEST_OUT_LOCAL_DIR):
+            os.makedirs(self.TEST_OUT_LOCAL_DIR)
 
         self.compose_force(graph=graph, out_filename=f"graph_force_{relation_type}")
         self.compose_radial(graph=graph, out_filename=f"graph_radial_{relation_type}")
 
         # Launch server to checkout the results.
-        os.system(f"cd {self.TEST_OUT_DIR} && python -m http.server 8000")
+        os.system(f"cd {self.TEST_OUT_LOCAL_DIR} && python -m http.server 8000")
