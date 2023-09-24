@@ -50,22 +50,6 @@ class OutputFilepathArg(BaseArg):
                             help='Inference output filepath')
 
 
-class VocabFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.vocab_filepath
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--vocab-filepath',
-                            dest='vocab_filepath',
-                            type=str,
-                            default=default,
-                            nargs='?',
-                            help='Custom vocabulary filepath')
-
-
 class FromDataframeArg(BaseArg):
 
     @staticmethod
@@ -118,60 +102,6 @@ class FromFilesArg(BaseArg):
                             default=default,
                             nargs='+',
                             help='Custom vocabulary filepath')
-
-
-class UseBalancingArg(BaseArg):
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def read_argument(args):
-        return args.balance_samples
-
-    @staticmethod
-    def add_argument(parser, default):
-        assert(isinstance(default, bool))
-        parser.add_argument('--balance-samples',
-                            dest='balance_samples',
-                            type=lambda x: (str(x).lower() == 'true'),
-                            default=str(default),
-                            nargs=1,
-                            help='Use balancing for Train type during sample serialization process"')
-
-
-class DistanceInTermsBetweenAttitudeEndsArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.dist_between_ends
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--dist-between-att-ends',
-                            dest='dist_between_ends',
-                            type=int,
-                            default=default,
-                            nargs='?',
-                            help='Distance in terms between attitude participants in terms.'
-                                 '(Default: {})'.format(None))
-
-
-class EmbeddingMatrixFilepathArg(BaseArg):
-    """ Embedding matrix, utilized as an input for model.
-    """
-
-    @staticmethod
-    def read_argument(args):
-        return args.embedding_matrix_filepath
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--emb-npz-filepath',
-                            dest='embedding_matrix_filepath',
-                            type=str,
-                            default=default,
-                            help='RusVectores embedding filepath')
 
 
 class LabelsCountArg(BaseArg):
@@ -263,25 +193,6 @@ class SynonymsCollectionFilepathArg(BaseArg):
                             help="List of synonyms provided in lines of the source text file.")
 
 
-class DoLowercaseArg(BaseArg):
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def read_argument(args):
-        return args.do_lowercase
-
-    @staticmethod
-    def add_argument(parser, default):
-        assert (isinstance(default, int))
-        parser.add_argument('--do-lowercase',
-                            dest='do_lowercase',
-                            type=bool,
-                            default=default,
-                            nargs='?')
-
-
 class SentenceParserArg(BaseArg):
 
     @staticmethod
@@ -340,21 +251,6 @@ class NERObjectTypes(BaseArg):
                             default=default,
                             help="Filters specific NER types; provide with `|` separator")
 
-class ModelLoadDirArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.model_load_dir
-
-    @staticmethod
-    def add_argument(parser, default=None):
-        parser.add_argument('--model-state-dir',
-                            dest='model_load_dir',
-                            type=str,
-                            default=default,
-                            nargs='?',
-                            help='Use pretrained state as initial')
-
 
 class EntityFormatterTypesArg(BaseArg):
 
@@ -373,51 +269,6 @@ class EntityFormatterTypesArg(BaseArg):
                             choices=list(EntityFormattersService.iter_names()),
                             default=default,
                             help='Entity formatter type')
-
-
-class BertSaveFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.bert_savepath
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--bert-savepath',
-                            dest='bert_savepath',
-                            type=str,
-                            default=default,
-                            help='Bert state save filepath')
-
-
-class InputSamplesFilepath(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.input_samples
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--input-samples',
-                            dest='input_samples',
-                            type=str,
-                            default=default,
-                            help='Input Samples')
-
-
-class InputSamplesDir(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.input_samples_dir
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--input-samples-dir',
-                            dest='input_samples_dir',
-                            type=str,
-                            default=default,
-                            help='Input Samples')
 
 
 class BertTextBFormatTypeArg(BaseArg):
