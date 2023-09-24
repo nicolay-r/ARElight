@@ -1,6 +1,6 @@
 import unittest
 import utils
-from os.path import join, dirname, realpath
+from os.path import join
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.entities.base import Entity

@@ -1,3 +1,7 @@
+import json
+from os import makedirs
+from os.path import join, exists
+
 ui_web_force_template = """
     <!DOCTYPE html>
     <meta charset="utf-8">
@@ -129,3 +133,18 @@ def get_force_web_ui(json_data_at_server_filepath):
         "<SOURCE_JSON_FILEPATH>", json_data_at_server_filepath)
 
     return html_content
+
+
+def save_force_graph(graph, out_dir, out_filename):
+    data_filepath = join(out_dir, out_filename + ".json")
+
+    if not exists(out_dir):
+        makedirs(out_dir)
+
+    with open(data_filepath, "w") as f:
+        content = json.dumps(graph, ensure_ascii=False).encode('utf8').decode()
+        f.write(content)
+
+    html_content = get_force_web_ui(json_data_at_server_filepath=join(out_filename + ".json"))
+    with open(join(out_dir, out_filename + ".html"), "w") as f_out:
+        f_out.write(html_content)

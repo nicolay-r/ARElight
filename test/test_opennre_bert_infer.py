@@ -1,4 +1,6 @@
 import json
+import os
+
 import utils
 import unittest
 from os.path import join
@@ -9,9 +11,9 @@ from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
 
 from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInferencePipelineItem
+from arelight.pipelines.items.utils import try_download_predefined_checkpoints
 from arelight.predict_provider import BasePredictProvider
 from arelight.predict_writer_csv import TsvPredictWriter
-from arelight.run.utils import try_download_predefined_checkpoints
 
 
 class TestLoadModel(unittest.TestCase):
@@ -39,13 +41,10 @@ class TestLoadModel(unittest.TestCase):
 
         test_data_file = join(utils.TEST_DATA_DIR, "opennre-data-test-predict.json")
 
-        model = BertOpenNREInferencePipelineItem.init_bert_model(pretrain_path=pretrain_path,
-                                                                 rel2id=rel2id,
-                                                                 ckpt_source=ckpt_source,
-                                                                 device_type="cpu",
-                                                                 max_length=max_length,
-                                                                 mask_entity=mask_entity,
-                                                                 pooler=pooler)
+        model = BertOpenNREInferencePipelineItem.init_bert_model(
+            pretrain_path=pretrain_path, rel2id=rel2id, ckpt_source=ckpt_source,
+            device_type="cpu", max_length=max_length, mask_entity=mask_entity,
+            dir_to_donwload=os.getcwd(), pooler=pooler)
 
         eval_loader = SentenceRELoader(test_data_file,
                                        model.rel2id,

@@ -60,10 +60,6 @@ if __name__ == '__main__':
     backend_template = cmd_args.OutputFilepathArg.read_argument(args)
     pretrained_bert = cmd_args.PretrainedBERTArg.read_argument(args)
 
-    # Check predefined checkpoints for local downloading.
-    try_download_predefined_checkpoints(checkpoint=args.bert_torch_checkpoint,
-                                        dir_to_download=os.getcwd())
-
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
         pretrained_bert=pretrained_bert,
@@ -73,8 +69,8 @@ if __name__ == '__main__':
         labels_scaler=create_labels_scaler(cmd_args.LabelsCountArg.read_argument(args)),
         max_seq_length=cmd_args.TokensPerContextArg.read_argument(args),
         checkpoint_path=args.bert_torch_checkpoint,
-        bert_type=args.bert_framework,
-        brat_backend=args.backend)
+        infer_engines=args.bert_framework,
+        backend_engines=args.backend)
 
     pipeline = BasePipeline(pipeline)
 
@@ -105,6 +101,7 @@ if __name__ == '__main__':
     pipeline.run(
         input_data=None,
         params_dict={
+            "backend_template": backend_template,
             "template_filepath": join(dirname(backend_template), "brat_template.html"),
             "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
             "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,

@@ -23,11 +23,11 @@ class TestBratEmbedding(unittest.TestCase):
 
         return template
 
-    def __create_template(self, result_data_filepath, samples_data_filepath, labels_scaler, docs_range=(0, 5)):
+    def __create_template(self, infer_predict_filepath, samples_data_filepath, labels_scaler, docs_range=(0, 5)):
         brat_be = BratBackend()
 
         contents = brat_be.to_data(
-            result_data_filepath=result_data_filepath,
+            infer_predict_filepath=infer_predict_filepath,
             samples_data_filepath=samples_data_filepath,
             label_to_rel={str(labels_scaler.label_to_uint(PositiveLabel())): "POS",
                           str(labels_scaler.label_to_uint(NegativeLabel())): "NEG"},
@@ -46,21 +46,13 @@ class TestBratEmbedding(unittest.TestCase):
                               contents=contents,
                               brat_url="http://localhost:8001/")
 
-    def test_train(self):
-        template = self.__create_template(samples_data_filepath=join(utils.TEST_DATA_DIR, "sample-clean-train-0.tsv"),
-                                          result_data_filepath=None,
-                                          labels_scaler=ThreeLabelScaler(),
-                                          docs_range=(0, 2))
-
-        with open(join(utils.TEST_DATA_DIR, "output_train.html"), "w") as output:
-            output.write(template)
-
     def test(self):
-        template = self.__create_template(samples_data_filepath=join(utils.TEST_DATA_DIR, "sample-test-0.tsv.gz"),
-                                          result_data_filepath=join(utils.TEST_DATA_DIR, "out.tsv.gz"),
-                                          labels_scaler=ThreeLabelScaler())
+        template = self.__create_template(
+            samples_data_filepath=join(utils.TEST_DATA_DIR, "brat-backend-samples-test.csv"),
+            infer_predict_filepath=join(utils.TEST_OUT_DIR, "brat-backend-predict.tsv.gz"),
+            labels_scaler=ThreeLabelScaler())
 
-        with open(join(utils.TEST_DATA_DIR, "output.html"), "w") as output:
+        with open(join(utils.TEST_OUT_DIR, "brat-backend-output.html"), "w") as output:
             output.write(template)
 
 

@@ -314,12 +314,12 @@ class BratBackend(object):
 
         return term
 
-    def __to_data(self, samples, result, obj_color_types, rel_color_types, label_to_rel, docs_range):
+    def __to_data(self, samples, infer_predict, obj_color_types, rel_color_types, label_to_rel, docs_range):
         assert(isinstance(obj_color_types, dict))
         assert(isinstance(rel_color_types, dict))
         assert(isinstance(label_to_rel, dict))
         assert(isinstance(samples, BaseRowsStorage))
-        assert(isinstance(result, BaseRowsStorage) or result is None)
+        assert(isinstance(infer_predict, BaseRowsStorage) or infer_predict is None)
 
         # Composing whole output document text.
         text_terms, relations = self.__extract_data_from_samples(
@@ -329,8 +329,8 @@ class BratBackend(object):
         text = " ".join([self.__term_to_text(t) for t in text_terms])
 
         # Defining the source of labels: from result or predefined.
-        labels_src = self.__iter_predicted_labels(result, label_to_rel) \
-            if result is not None else self.__iter_sample_labels(samples, label_to_rel)
+        labels_src = self.__iter_predicted_labels(infer_predict, label_to_rel) \
+            if infer_predict is not None else self.__iter_sample_labels(samples, label_to_rel)
 
         # Filling coll data.
         coll_data = dict()
@@ -348,7 +348,7 @@ class BratBackend(object):
         return text, coll_data, doc_data
 
     def to_data(self, obj_color_types, rel_color_types, samples_data_filepath,
-                result_data_filepath, label_to_rel, docs_range=None):
+                infer_predict_filepath, label_to_rel, docs_range=None):
         assert(isinstance(docs_range, tuple) or docs_range is None)
         assert(isinstance(label_to_rel, dict))
 
@@ -356,11 +356,10 @@ class BratBackend(object):
         result_reader = PandasCsvReader()
         text, coll_data, doc_data = self.__to_data(
             samples=samples_reader.read(samples_data_filepath),
-            result=result_reader.read(result_data_filepath) if result_data_filepath is not None else None,
+            infer_predict=result_reader.read(infer_predict_filepath) if infer_predict_filepath is not None else None,
             obj_color_types=obj_color_types,
             rel_color_types=rel_color_types,
             label_to_rel=label_to_rel,
             docs_range=docs_range)
 
         return {"text": text, "coll_data": coll_data, "doc_data": doc_data}
-

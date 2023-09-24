@@ -1,4 +1,5 @@
 import json
+import os
 from os.path import join, dirname
 
 import torch
@@ -12,6 +13,7 @@ from opennre.encoder import BERTEntityEncoder, BERTEncoder
 from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
 
+from arelight.pipelines.items.utils import try_download_predefined_checkpoints
 from arelight.predict_provider import BasePredictProvider
 from arelight.predict_writer import BasePredictWriter
 
@@ -20,7 +22,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert, checkpoint_path, samples_io,
                  data_type, predict_writer, labels_scaler, max_seq_length,
-                 batch_size=10, device_type='cpu'):
+                 batch_size=10, device_type='cpu', dir_to_download=None):
         assert(isinstance(predict_writer, BasePredictWriter))
         assert(isinstance(data_type, DataType))
         assert(isinstance(samples_io, SamplesIO))
@@ -34,6 +36,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__batch_size = batch_size
         self.__device_type = device_type
         self.__labels_scaler = labels_scaler
+        self.__dir_to_download = os.getcwd() if dir_to_download is None else dir_to_download
 
         # We compose specific mapping required by opennre to perform labels mapping.
         rel2id = {}
@@ -48,7 +51,8 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                                             pooler='cls',
                                             max_length=max_seq_length,
                                             mask_entity=True,
-                                            device_type=device_type)
+                                            device_type=device_type,
+                                            dir_to_donwload=dir_to_download)
 
     @staticmethod
     def load_bert_sentence_encoder(pooler, max_length, pretrain_path, mask_entity):
@@ -70,10 +74,13 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             raise NotImplementedError
 
     @staticmethod
-    def init_bert_model(pretrain_path, rel2id, ckpt_source, device_type,
+    def init_bert_model(pretrain_path, rel2id, ckpt_source, device_type, dir_to_donwload=None,
                         pooler='cls', max_length=128, mask_entity=True):
         """ This is a main and core method for inference based on OpenNRE framework.
         """
+        # Check predefined checkpoints for local downloading.
+        try_download_predefined_checkpoints(checkpoint=ckpt_source, dir_to_download=dir_to_donwload)
+
         # Load original model.
         bert_encoder = BertOpenNREInferencePipelineItem.load_bert_sentence_encoder(
             pooler=pooler, mask_entity=mask_entity, max_length=max_length, pretrain_path=pretrain_path)
@@ -116,7 +123,6 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
         def __iter_predict_result():
             # Compose evaluator.
-            print(samples_filepath)
             sentence_eval = SentenceRELoader(path=samples_filepath,
                                              rel2id=self.__model.rel2id,
                                              tokenizer=self.__model.sentence_encoder.tokenize,

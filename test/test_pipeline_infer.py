@@ -94,7 +94,7 @@ class TestInfer(unittest.TestCase):
             samples_output_dir=utils.TEST_OUT_DIR,
             samples_prefix="samples",
             pretrained_bert="bert-base-uncased",
-            bert_type="deeppavlov",
+            infer_engines="deeppavlov",
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             labels_scaler=create_labels_scaler(3),
             max_seq_length=None,
@@ -111,7 +111,7 @@ class TestInfer(unittest.TestCase):
             entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
             labels_scaler=create_labels_scaler(3),
             max_seq_length=128,
-            bert_type="opennre",
+            infer_engines="opennre",
             checkpoint_path="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar")
 
         self.launch(pipeline)

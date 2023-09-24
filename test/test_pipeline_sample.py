@@ -1,3 +1,5 @@
+from arekit.common.data import const
+
 import utils
 import unittest
 import ru_sent_tokenize
@@ -105,7 +107,10 @@ class BertTestSerialization(unittest.TestCase):
         pipeline = BasePipeline([
             BertExperimentInputSerializerPipelineItem(
                 rows_provider=rows_provider,
-                storage=RowCacheStorage(),
+                storage=RowCacheStorage(force_collect_columns=[
+                    # These additional columns required for BRAT visualization.
+                    const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
+                ]),
                 samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
                 save_labels_func=lambda data_type: data_type != DataType.Test)
         ])

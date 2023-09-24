@@ -25,7 +25,7 @@ class BratBackendContentsPipelineItem(BasePipelineItem):
         samples_filepath = input_data.create_target(data_type=DataType.Test)
 
         contents = self.__brat_be.to_data(
-           result_data_filepath=pipeline_ctx.provide("predict_fp"),
+           infer_predict_filepath=pipeline_ctx.provide("predict_fp"),
            samples_data_filepath=samples_filepath,
            obj_color_types=self.__obj_color_types,
            rel_color_types=self.__rel_color_types,
