@@ -17,7 +17,7 @@ from ru_sent_tokenize import ru_sent_tokenize
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.items.id_assigner import IdAssigner
+from arelight.pipelines.items.utils import IdAssigner
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
 from arelight.run.utils import create_labels_scaler, create_entity_parser

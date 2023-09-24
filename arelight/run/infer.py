@@ -1,5 +1,4 @@
 import argparse
-import os
 from os.path import join, dirname, basename
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
@@ -13,13 +12,11 @@ from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.items.id_assigner import IdAssigner
-from arelight.pipelines.items.utils import input_to_docs
+from arelight.pipelines.items.utils import input_to_docs, IdAssigner
 from arelight.run import cmd_args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
-from arelight.run.utils import create_labels_scaler, read_synonyms_collection, create_entity_parser, \
-    try_download_predefined_checkpoints
+from arelight.run.utils import create_labels_scaler, read_synonyms_collection, create_entity_parser
 
 if __name__ == '__main__':
 

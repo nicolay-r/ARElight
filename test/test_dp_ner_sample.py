@@ -23,7 +23,7 @@ from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.id_assigner import IdAssigner
+from arelight.pipelines.items.utils import IdAssigner
 
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes

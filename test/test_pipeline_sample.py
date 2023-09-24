@@ -28,7 +28,7 @@ from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_default import TextEntitiesParser
-from arelight.pipelines.items.id_assigner import IdAssigner
+from arelight.pipelines.items.utils import IdAssigner
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 
