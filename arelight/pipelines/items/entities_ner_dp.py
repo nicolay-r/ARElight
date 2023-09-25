@@ -5,7 +5,7 @@ from arekit.common.text.partitioning.terms import TermsPartitioning
 from arelight.ner.deep_pavlov import DeepPavlovNER
 from arelight.ner.obj_desc import NerObjectDescriptor
 from arelight.pipelines.items.entity import IndexedEntity
-from arelight.pipelines.items.utils import IdAssigner
+from arelight.utils import IdAssigner
 
 
 class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):

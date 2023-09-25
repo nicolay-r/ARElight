@@ -1,4 +1,5 @@
 from arekit.common.data import const
+from arekit.common.pipeline.context import PipelineContext
 
 import utils
 import unittest
@@ -22,15 +23,15 @@ from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymColle
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
-from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_default import TextEntitiesParser
-from arelight.pipelines.items.utils import IdAssigner
+from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
+from arelight.utils import IdAssigner
 
 
 class EntityFilter(object):
@@ -98,23 +99,7 @@ class BertTestSerialization(unittest.TestCase):
 
         # Composing labels formatter and experiment preparation.
         doc_ops = InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
-
-        rows_provider = create_bert_sample_provider(
-            label_scaler=single_label_scaler,
-            provider_type=BertSampleProviderTypes.NLI_M,
-            entity_formatter=SharpPrefixedEntitiesSimpleFormatter())
-
-        pipeline = BasePipeline([
-            BertExperimentInputSerializerPipelineItem(
-                rows_provider=rows_provider,
-                storage=RowCacheStorage(force_collect_columns=[
-                    # These additional columns required for BRAT visualization.
-                    const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
-                ]),
-                samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
-                save_labels_func=lambda data_type: data_type != DataType.Test)
-        ])
-
+        pipeline = BasePipeline([AREkitSerializerPipelineItem()])
         synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
                                                  stemmer=MystemWrapper(),
                                                  is_read_only=False)
@@ -127,12 +112,22 @@ class BertTestSerialization(unittest.TestCase):
                                                            text_parser=text_parser,
                                                            terms_per_context=50)
 
-        pipeline.run(input_data=None,
+        pipeline.run(input_data=PipelineContext(d={}),
                      params_dict={
                          "doc_ids": list(range(len(texts))),
-                         "data_type_pipelines": {DataType.Test: test_pipeline}
+                         "data_type_pipelines": {
+                                 DataType.Test: test_pipeline
+                         },
+                         "rows_provider": create_bert_sample_provider(
+                                label_scaler=single_label_scaler,
+                                provider_type=BertSampleProviderTypes.NLI_M,
+                                entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
+                         "save_labels_func": lambda _: False,
+                         "samples_io": SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
+                         "storage": RowCacheStorage(force_collect_columns=[
+                             const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
+                         ])
                      })
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,11 +12,14 @@ from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.items.utils import input_to_docs, IdAssigner
+from arelight.pipelines.demo.result import PipelineResult
+from arelight.pipelines.demo.utils import get_samples_setup_settings
+from arelight.pipelines.items.utils import input_to_docs
 from arelight.run import cmd_args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormatterTypes
-from arelight.run.utils import create_labels_scaler, read_synonyms_collection, create_entity_parser
+from arelight.run.utils import create_labels_scaler, read_synonyms_collection, create_entity_parser, merge_dictionaries
+from arelight.utils import IdAssigner
 
 if __name__ == '__main__':
 
@@ -60,9 +63,6 @@ if __name__ == '__main__':
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
         pretrained_bert=pretrained_bert,
-        samples_output_dir=dirname(backend_template),
-        samples_prefix=basename(backend_template),
-        entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled),
         labels_scaler=create_labels_scaler(cmd_args.LabelsCountArg.read_argument(args)),
         max_seq_length=cmd_args.TokensPerContextArg.read_argument(args),
         checkpoint_path=args.bert_torch_checkpoint,
@@ -94,14 +94,34 @@ if __name__ == '__main__':
         terms_per_context=terms_per_context,
         text_parser=text_parser)
 
+    #########################################
+    # Settings Setup.
+    #########################################
+
+    settings_sampling_setup = get_samples_setup_settings(
+        infer_engines=args.bert_framework,
+        output_dir=dirname(backend_template),
+        labels_scaler=create_labels_scaler(cmd_args.LabelsCountArg.read_argument(args)),
+        entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled))
+
+    settings_sampling_input = {
+        "data_type_pipelines": {DataType.Test: data_pipeline},
+        "doc_ids": list(range(len(actual_content)))
+    }
+
+    settings_backend_brat = {
+        "backend_template": backend_template,
+        "template_filepath": join(dirname(backend_template), "brat_template.html"),
+        "brat_url": "http://localhost:8001/",
+        "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
+        "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
+    }
+
     # Launch application.
     pipeline.run(
-        input_data=None,
-        params_dict={
-            "backend_template": backend_template,
-            "template_filepath": join(dirname(backend_template), "brat_template.html"),
-            "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
-            "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
-            "data_type_pipelines": {DataType.Test: data_pipeline},
-            "doc_ids": list(range(len(actual_content)))
-    })
+        input_data=PipelineResult(),
+        params_dict=merge_dictionaries([
+            settings_sampling_setup,
+            settings_sampling_input,
+            settings_backend_brat
+        ]))

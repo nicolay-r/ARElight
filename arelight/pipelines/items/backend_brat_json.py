@@ -3,7 +3,6 @@ from os.path import dirname
 from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 from arelight.backend.brat.converter import BratBackend
 
@@ -19,10 +18,12 @@ class BratBackendContentsPipelineItem(BasePipelineItem):
         self.__label_to_rel = label_to_rel
 
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, SamplesIO))
+        assert(isinstance(input_data, PipelineContext))
         assert(isinstance(pipeline_ctx, PipelineContext))
 
-        samples_filepath = input_data.create_target(data_type=DataType.Test)
+        # Obtain the samples io.
+        samples_io = input_data.provide("samples_io")
+        samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
         contents = self.__brat_be.to_data(
            infer_predict_filepath=pipeline_ctx.provide("predict_fp"),
@@ -35,4 +36,6 @@ class BratBackendContentsPipelineItem(BasePipelineItem):
 
         pipeline_ctx.update("exp_root", exp_root)
 
-        return contents
+        # Save the result data in the pipeline output.
+        for key, value in contents.items():
+            input_data.update(key, value)

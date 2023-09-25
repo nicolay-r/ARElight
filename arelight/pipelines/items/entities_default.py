@@ -1,6 +1,6 @@
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arelight.pipelines.items.entity import IndexedEntity
-from arelight.pipelines.items.utils import IdAssigner
+from arelight.utils import IdAssigner
 
 
 class TextEntitiesParser(BasePipelineItem):

@@ -12,6 +12,9 @@ from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.ui_web_force import save_force_graph
 from arelight.backend.d3js.ui_web_radial import save_radial_graph
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.labels.formatter import TrheeLabelsFormatter
+from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.demo.result import PipelineResult
 
 
 class TestBackendD3JS(unittest.TestCase):
@@ -62,13 +65,16 @@ class TestBackendD3JS(unittest.TestCase):
 
         # TIP: you need to launch test_pipeline_sample.py first!
 
-        ppl = demo_infer_texts_bert_pipeline(
-            samples_output_dir=utils.TEST_OUT_DIR,
-            sampling_engines=None,
-            backend_engines="d3js_graphs")
+        ppl = demo_infer_texts_bert_pipeline(sampling_engines=None,
+                                             backend_engines="d3js_graphs")
 
         pipeline = BasePipeline(ppl)
-        pipeline.run(input_data=None,
+        ppl_result = PipelineResult()
+        ppl_result.update("predict_filepaths", value=[join(utils.TEST_OUT_DIR, "predict.tsv.gz")])
+        ppl_result.update("predict_labels_formatter", value=TrheeLabelsFormatter())
+        ppl_result.update("predict_labels_scaler", value=ThreeLabelScaler())
+
+        pipeline.run(input_data=ppl_result,
                      params_dict={
                         "backend_template": self.TEST_OUT_LOCAL_DIR + "out"
                      })

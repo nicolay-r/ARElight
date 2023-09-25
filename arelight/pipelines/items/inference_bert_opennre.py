@@ -7,7 +7,6 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 from opennre.encoder import BERTEntityEncoder, BERTEncoder
 from opennre.framework import SentenceRELoader
@@ -15,28 +14,20 @@ from opennre.model import SoftmaxNN
 
 from arelight.pipelines.items.utils import try_download_predefined_checkpoints
 from arelight.predict_provider import BasePredictProvider
-from arelight.predict_writer import BasePredictWriter
+from arelight.predict_writer_csv import TsvPredictWriter
 
 
 class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self, pretrained_bert, checkpoint_path, samples_io,
-                 data_type, predict_writer, labels_scaler, max_seq_length,
+    def __init__(self, pretrained_bert, checkpoint_path, labels_scaler, max_seq_length,
                  batch_size=10, device_type='cpu', dir_to_download=None):
-        assert(isinstance(predict_writer, BasePredictWriter))
-        assert(isinstance(data_type, DataType))
-        assert(isinstance(samples_io, SamplesIO))
         assert(isinstance(max_seq_length, int))
         assert(isinstance(labels_scaler, BaseLabelScaler))
 
-        self.__writer = predict_writer
-        self.__data_type = data_type
         self.__predict_provider = BasePredictProvider()
-        self.__samples_io = samples_io
         self.__batch_size = batch_size
         self.__device_type = device_type
         self.__labels_scaler = labels_scaler
-        self.__dir_to_download = os.getcwd() if dir_to_download is None else dir_to_download
 
         # We compose specific mapping required by opennre to perform labels mapping.
         rel2id = {}
@@ -52,7 +43,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                                             max_length=max_seq_length,
                                             mask_entity=True,
                                             device_type=device_type,
-                                            dir_to_donwload=dir_to_download)
+                                            dir_to_donwload=os.getcwd() if dir_to_download is None else dir_to_download)
 
     @staticmethod
     def load_bert_sentence_encoder(pooler, max_length, pretrain_path, mask_entity):
@@ -135,7 +126,8 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                                      eval_loader=sentence_eval)
 
         # Fetch other required in further information from input_data.
-        samples_filepath = self.__samples_io.create_target(data_type=self.__data_type)
+        samples_io = input_data.provide("samples_io")
+        samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
         # Setup predicted result writer.
         tgt = pipeline_ctx.provide_or_none("predict_fp")
@@ -143,7 +135,8 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             tgt = join(dirname(samples_filepath), "predict.tsv.gz")
 
         # Setup target filepath.
-        self.__writer.set_target(tgt)
+        writer = TsvPredictWriter()
+        writer.set_target(tgt)
 
         # Update for further pipeline items.
         pipeline_ctx.update("predict_fp", tgt)
@@ -153,7 +146,5 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             sample_id_with_uint_labels_iter=__iter_predict_result(),
             labels_count=self.__labels_scaler.LabelsCount)
 
-        with self.__writer:
-            self.__writer.write(title=title, contents_it=contents_it)
-
-        return self.__samples_io
+        with writer:
+            writer.write(title=title, contents_it=contents_it)

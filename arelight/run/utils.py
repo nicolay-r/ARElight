@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-
 def create_entity_parser(ner_model_name, id_assigner, obj_filter_types=None):
     """ NOTE: It is important that the IdAssigner is expected to be unique for all the
         entity parsers.
@@ -102,3 +101,13 @@ class EnumConversionService(object):
                 return item_name
 
         raise NotImplemented("Formatting type '{}' does not supported".format(enum_type))
+
+
+def merge_dictionaries(dict_iter):
+    d_out = {}
+    for d in dict_iter:
+        for k, v in d.items():
+            if k in d_out:
+                raise Exception("Key `{}` is already registred!".format(k))
+            d_out[k] = v
+    return d_out

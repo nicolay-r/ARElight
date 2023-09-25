@@ -15,6 +15,8 @@ from arekit.common.entities.base import Entity
 from arekit.common.frames.variants.base import FrameVariant
 from arekit.contrib.utils.processing.text.tokens import Tokens
 
+from arelight.arekit.parse_predict import iter_predicted_labels
+
 
 class BratBackend(object):
 
@@ -94,21 +96,6 @@ class BratBackend(object):
             char_ind = t_to + 1
 
         return objects
-
-    @staticmethod
-    def __iter_predicted_labels(result_data, label_to_rel):
-        assert(isinstance(result_data, BaseRowsStorage))
-        assert(isinstance(label_to_rel, dict))
-
-        for res_ind, row in result_data:
-
-            rel_type = None
-            for col_label, rel_name in label_to_rel.items():
-                if row[col_label] > 0:
-                    rel_type = rel_name
-                    break
-
-            yield res_ind, rel_type
 
     @staticmethod
     def __iter_sample_labels(samples, label_to_rel):
@@ -329,7 +316,7 @@ class BratBackend(object):
         text = " ".join([self.__term_to_text(t) for t in text_terms])
 
         # Defining the source of labels: from result or predefined.
-        labels_src = self.__iter_predicted_labels(infer_predict, label_to_rel) \
+        labels_src = iter_predicted_labels(infer_predict, label_to_rel) \
             if infer_predict is not None else self.__iter_sample_labels(samples, label_to_rel)
 
         # Filling coll data.

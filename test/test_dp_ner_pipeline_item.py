@@ -12,8 +12,8 @@ from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitt
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entity import IndexedEntity
-from arelight.pipelines.items.utils import IdAssigner
 from arelight.run.utils import read_synonyms_collection
+from arelight.utils import IdAssigner
 
 
 class BertOntonotesPipelineItemTest(unittest.TestCase):

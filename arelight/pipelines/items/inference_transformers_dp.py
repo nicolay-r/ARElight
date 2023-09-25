@@ -6,21 +6,16 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 from arelight.predict_provider import BasePredictProvider
-from arelight.predict_writer import BasePredictWriter
+from arelight.predict_writer_csv import TsvPredictWriter
 from arelight.utils import auto_import
 
 
 class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self, pretrained_bert, samples_io, data_type, predict_writer,
-                 labels_count, max_seq_length, batch_size=10):
-        assert(isinstance(predict_writer, BasePredictWriter))
-        assert(isinstance(data_type, DataType))
+    def __init__(self, pretrained_bert, labels_count, max_seq_length, batch_size=10):
         assert(isinstance(labels_count, int))
-        assert(isinstance(samples_io, SamplesIO))
 
         # Dynamic import for the deepavlov components.
         torch_classifier_model = auto_import(
@@ -41,18 +36,15 @@ class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
             vocab_file=pretrained_bert,
             max_seq_length=max_seq_length)
 
-        self.__writer = predict_writer
-        self.__data_type = data_type
         self.__labels_count = labels_count
         self.__predict_provider = BasePredictProvider()
-        self.__samples_io = samples_io
         self.__batch_size = batch_size
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(pipeline_ctx, PipelineContext))
 
         def __iter_predict_result():
-            samples = self.__samples_io.Reader.read(samples_filepath)
+            samples = samples_io.Reader.read(samples_filepath)
 
             used_row_ids = set()
             
@@ -83,8 +75,9 @@ class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
                 for i, uint_label in enumerate(self.__model(batch_features)):
                     yield [row_ids[i], int(uint_label)]
 
-        # Fetch other required in furter information from input_data.
-        samples_filepath = self.__samples_io.create_target(data_type=self.__data_type)
+        # Fetch other required in further information from input_data.
+        samples_io = input_data.provide("samples_io")
+        samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
         # Setup predicted result writer.
         tgt = pipeline_ctx.provide_or_none("predict_fp")
@@ -92,7 +85,8 @@ class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
             tgt = join(dirname(samples_filepath), "predict.tsv.gz")
 
         # Setup target filepath.
-        self.__writer.set_target(tgt)
+        writer = TsvPredictWriter()
+        writer.set_target(tgt)
 
         # Update for further pipeline items.
         pipeline_ctx.update("predict_fp", tgt)
@@ -102,7 +96,5 @@ class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
             sample_id_with_uint_labels_iter=__iter_predict_result(),
             labels_count=self.__labels_count)
 
-        with self.__writer:
-            self.__writer.write(title=title, contents_it=contents_it)
-
-        return self.__samples_io
+        with writer:
+            writer.write(title=title, contents_it=contents_it)

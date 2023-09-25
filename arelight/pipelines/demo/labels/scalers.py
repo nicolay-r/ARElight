@@ -1,12 +1,12 @@
 from collections import OrderedDict
 
 from arekit.common.labels.base import NoLabel
-from arekit.common.labels.scaler.sentiment import SentimentLabelScaler
+from arekit.common.labels.scaler.base import BaseLabelScaler
 
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 
 
-class ThreeLabelScaler(SentimentLabelScaler):
+class ThreeLabelScaler(BaseLabelScaler):
 
     def __init__(self):
 

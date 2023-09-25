@@ -1,11 +1,15 @@
 from os.path import dirname
 
+from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
+from arekit.common.labels.scaler.base import BaseLabelScaler
+from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 
+from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
@@ -15,17 +19,17 @@ from arelight.backend.d3js.ui_web_radial import save_radial_graph
 
 class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
-    def __init__(self, samples):
-        assert(isinstance(samples, SamplesIO))
-        self.__samples = samples
-
     @staticmethod
-    def __iter_relations(samples):
-        for _, sample_row in samples:
+    def __iter_relations(samples, labels):
+        assert(isinstance(samples, BaseRowsStorage))
+        assert(isinstance(labels, list))
+
+        for ind, row_data in enumerate(samples):
+            _, sample_row = row_data
             parsed_row = ParsedSampleRow(sample_row)
             source = ParsedSampleRowExtraService.calc("SourceValue", parsed_row=parsed_row)
             target = ParsedSampleRowExtraService.calc("TargetValue", parsed_row=parsed_row)
-            yield [source, target, "pos"]
+            yield [source, target, labels[ind]]
 
     def iter_column_value(self, samples, column_value):
         for _, sample_row in samples:
@@ -33,15 +37,31 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
             yield parsed_row[column_value]
 
     def apply_core(self, input_data, pipeline_ctx):
+        assert(isinstance(input_data, PipelineContext))
         assert(isinstance(pipeline_ctx, PipelineContext))
 
         target = pipeline_ctx.provide("backend_template")
+        predict_filepath = input_data.provide("predict_filepaths")[0]
+        result_reader = input_data.provide("predict_reader")
+        labels_fmt = input_data.provide("predict_labels_formatter")
+        assert(isinstance(labels_fmt, StringLabelsFormatter))
+        labels_scaler = input_data.provide("predict_labels_scaler")
+        assert(isinstance(labels_scaler, BaseLabelScaler))
+        predict_storage = result_reader.read(predict_filepath)
+        assert(isinstance(predict_storage, BaseRowsStorage))
 
-        samples_filepath = self.__samples.create_target(data_type=DataType.Test)
-        samples = self.__samples.Reader.read(samples_filepath)
+        # Reading samples.
+        samples_io = input_data.provide("samples_io")
+        samples_filepath = samples_io.create_target(data_type=DataType.Test)
+        samples = samples_io.Reader.read(samples_filepath)
+
+        # Reading labels.
+        labels_to_rel = {str(labels_scaler.label_to_uint(label)): labels_fmt.label_to_str(label)
+                         for label in labels_scaler.ordered_suppoted_labels()}
+        labels = list(iter_predicted_labels(predict_data=predict_storage, label_to_rel=labels_to_rel, keep_ind=False))
 
         graph = make_graph_from_relations_array(
-            relations=self.__iter_relations(samples),
+            relations=self.__iter_relations(samples, labels),
             entity_values=self.iter_column_value(samples=samples, column_value="entity_values"),
             entity_types=self.iter_column_value(samples=samples, column_value="entity_types"),
             min_links=1,

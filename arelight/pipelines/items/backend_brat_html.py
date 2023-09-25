@@ -1,29 +1,26 @@
-import json
 from os.path import join
 
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 
+from arelight.backend.brat.ui_web import get_web_ui
+
 
 class BratHtmlEmbeddingPipelineItem(BasePipelineItem):
 
-    def __init__(self, brat_url="http://localhost:8001/"):
-        self.__brat_url = brat_url
-
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, dict))
+        assert(isinstance(input_data, PipelineContext))
         assert(isinstance(pipeline_ctx, PipelineContext))
 
-        # Loading template file.
-        template_filepath = pipeline_ctx.provide_or_none("template_filepath")
-        with open(template_filepath, "r") as templateFile:
-            template = templateFile.read()
+        # Initialize brat-url (Optional from the pipeline context configuration).
+        brat_url = pipeline_ctx.provide_or_none("brat_url")
+        brat_url = "http://localhost:8001/" if brat_url is None else brat_url
 
-        # Replace template placeholders.
-        template = template.replace("$____COL_DATA_SEM____", json.dumps(input_data["coll_data"]))
-        template = template.replace("$____DOC_DATA_SEM____", json.dumps(input_data["doc_data"]))
-        template = template.replace("$____BRAT_URL____", self.__brat_url)
-        template = template.replace("$____TEXT____", input_data["text"])
+        # Instantiate template.
+        template = get_web_ui(coll_data=input_data.provide("coll_data"),
+                              doc_data=input_data.provide("doc_data"),
+                              brat_url=brat_url,
+                              text=input_data.provide("text"))
 
         # Setup predicted result writer.
         template_fp = pipeline_ctx.provide_or_none("brat_vis_fp")
@@ -34,5 +31,3 @@ class BratHtmlEmbeddingPipelineItem(BasePipelineItem):
         # Save results.
         with open(template_fp, "w") as output:
             output.write(template)
-
-        return template
