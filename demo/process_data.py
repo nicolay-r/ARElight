@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/var/www/demo/venv/bin/python3
 
 import cgi
 import cgitb
@@ -11,7 +11,11 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.result import PipelineResult
 
+# Setup folder for output.
+OUTPUT_DIR = join(dirname(realpath(__file__)), "./output")
+
 cgitb.enable()
+cgitb.enable(display=0, logdir=OUTPUT_DIR)
 
 # We consider OpenNRE engine for inference texts written in Russian.
 INFER_ENGINES = {
@@ -22,9 +26,6 @@ INFER_ENGINES = {
         "max_seq_length": 128
     }
 }
-
-# Setup folder for output.
-OUTPUT_DIR = join(dirname(realpath(__file__)), "./output")
 
 
 def do_infer(text):
@@ -40,7 +41,9 @@ def do_infer(text):
 
     ppl_result = PipelineResult(extra_params={
         # Just for reading samples.
-        "samples_io": SamplesIO(target_dir=OUTPUT_DIR, reader=PandasCsvReader(sep=',', compression=None), prefix="samples"),
+        "samples_io": SamplesIO(target_dir=OUTPUT_DIR,
+                                reader=PandasCsvReader(sep=',', compression=None, custom_extension=".csv"),
+                                prefix="samples"),
         # Since OpenNRE has it's own format, there is a need to provide path to it.
         "opennre_samples_filepath": join(OUTPUT_DIR, "samples-test-0.jsonl"),
         # Output directory.
@@ -52,7 +55,7 @@ def do_infer(text):
     ppl.run(input_data=ppl_result)
 
     # Extract from the pipeline.
-    return ppl_result.provide("d3js_graph_radial_html_template")
+    return ppl_result.provide("d3js_graph_force_html_template")
 
 
 def main():
@@ -63,7 +66,7 @@ def main():
 
     d3js_html_content = do_infer(text=None)
 
-    print("Content-type: text/plain\n")
+    print("Content-type: text/html\n")
     print(d3js_html_content)
 
 
