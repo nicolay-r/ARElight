@@ -163,21 +163,6 @@ class TermsPerContextArg(BaseArg):
                                  'creation process!'.format(default))
 
 
-class TokensPerContextArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.tokens_per_context
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--tokens-per-context',
-                            dest='tokens_per_context',
-                            type=int,
-                            default=default,
-                            nargs='?')
-
-
 class SynonymsCollectionFilepathArg(BaseArg):
 
     @staticmethod
@@ -206,20 +191,6 @@ class SentenceParserArg(BaseArg):
                             dest='sentence_parser',
                             type=str,
                             choices=['linesplit', 'ru', 'nltk_en'],
-                            default=default)
-
-
-class PretrainedBERTArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.pretrained_bert
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--pretrained-bert',
-                            dest='pretrained_bert',
-                            type=str,
                             default=default)
 
 

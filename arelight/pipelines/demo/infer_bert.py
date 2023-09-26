@@ -5,15 +5,13 @@ from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInference
 from arelight.pipelines.items.inference_transformers_dp import TransformersDeepPavlovInferencePipelineItem
 from arelight.pipelines.items.inference_writer import InferenceWriterPipelineItem
 from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
+from arelight.predict_writer_csv import TsvPredictWriter
 
 
 def demo_infer_texts_bert_pipeline(sampling_engines="arekit", infer_engines=None, backend_engines=None):
-    assert(isinstance(infer_engines, list) or infer_engines is None or isinstance(infer_engines, str))
     assert(isinstance(sampling_engines, list) or sampling_engines is None or isinstance(sampling_engines, str))
+    assert(isinstance(infer_engines, dict))
     assert(isinstance(backend_engines, list) or backend_engines is None or isinstance(backend_engines, str))
-
-    infer_engines = [infer_engines] if isinstance(infer_engines, str) else infer_engines
-    infer_engines = [] if infer_engines is None else infer_engines
 
     sampling_engines = [sampling_engines] if isinstance(sampling_engines, str) else sampling_engines
     sampling_engines = [] if sampling_engines is None else sampling_engines
@@ -33,13 +31,15 @@ def demo_infer_texts_bert_pipeline(sampling_engines="arekit", infer_engines=None
     # Inference Items
     #####################################################################
 
+    inference_writer = TsvPredictWriter()
+
     if "deeppavlov" in infer_engines:
-        pipeline += [TransformersDeepPavlovInferencePipelineItem(),
-                     InferenceWriterPipelineItem()]
+        pipeline += [TransformersDeepPavlovInferencePipelineItem(**infer_engines["deeppavlov"]),
+                     InferenceWriterPipelineItem(inference_writer)]
 
     if "opennre" in infer_engines:
-        pipeline += [BertOpenNREInferencePipelineItem(),
-                     InferenceWriterPipelineItem()]
+        pipeline += [BertOpenNREInferencePipelineItem(**infer_engines["opennre"]),
+                     InferenceWriterPipelineItem(inference_writer)]
 
     #####################################################################
     # Backend Items (after inference)

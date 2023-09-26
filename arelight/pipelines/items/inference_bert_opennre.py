@@ -11,14 +11,19 @@ from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
 
 from arelight.pipelines.items.utils import try_download_predefined_checkpoints
-from arelight.predict_provider import BasePredictProvider
 
 
 class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self):
-        self.__predict_provider = BasePredictProvider()
+    def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
+                 max_seq_length=128, pooler='cls', batch_size=10):
         self.__model = None
+        self.__pretrained_bert = pretrained_bert
+        self.__checkpoint_path = checkpoint_path
+        self.__device_type = device_type
+        self.__max_seq_length = max_seq_length
+        self.__pooler = pooler
+        self.__batch_size = batch_size
 
     @staticmethod
     def load_bert_sentence_encoder(pooler, max_length, pretrain_path, mask_entity):
@@ -102,7 +107,6 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         assert(isinstance(pipeline_ctx, PipelineContext))
 
         # Fetching the input data.
-        batch_size = input_data.provide("batch_size")
         labels_scaler = input_data.provide("labels_scaler")
         samples_io = input_data.provide("samples_io")
         samples_filepath = samples_io.create_target(data_type=DataType.Test)
@@ -119,15 +123,15 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             dir_to_download = pipeline_ctx.provide_or_none("dir_to_download")
 
             self.__model = self.init_bert_model(
-                pretrain_path=pipeline_ctx.provide("pretrained_bert"),
-                ckpt_source=pipeline_ctx.provide("checkpoint_path"),
-                device_type=pipeline_ctx.provide("device_type"),
-                max_length=pipeline_ctx.provide("max_seq_length"),
-                pooler='cls',
+                pretrain_path=self.__pretrained_bert,
+                ckpt_source=self.__checkpoint_path,
+                device_type=self.__device_type,
+                max_length=self.__max_seq_length,
+                pooler=self.__pooler,
                 rel2id=rel2id,
                 mask_entity=True,
                 dir_to_donwload=os.getcwd() if dir_to_download is None else dir_to_download)
 
-        iter_infer = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=batch_size)
+        iter_infer = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
         input_data.update("iter_infer", iter_infer)
 

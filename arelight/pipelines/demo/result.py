@@ -3,7 +3,6 @@ from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 
 from arelight.pipelines.demo.labels.formatter import TrheeLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
-from arelight.predict_writer_csv import TsvPredictWriter
 from arelight.run.utils import merge_dictionaries
 
 
@@ -23,7 +22,6 @@ class PipelineResult(PipelineContext):
             "iter_infer": None,
             # Inference stage -------------------------
             "predict_filepath": None,
-            "predict_writer": TsvPredictWriter(),  # The way we save the predicted results.
             "predict_reader": PandasCsvReader(compression='infer'),  # The way we can read the predicted results.
         }
 

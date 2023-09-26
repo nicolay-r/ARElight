@@ -32,16 +32,18 @@ if __name__ == '__main__':
     cmd_args.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
     cmd_args.LabelsCountArg.add_argument(parser, default=3)
     cmd_args.TermsPerContextArg.add_argument(parser, default=50)
-    cmd_args.TokensPerContextArg.add_argument(parser, default=128)
     cmd_args.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     cmd_args.OutputFilepathArg.add_argument(parser, default=None)
     cmd_args.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
     cmd_args.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
-    cmd_args.PretrainedBERTArg.add_argument(parser, default=None)
     cmd_args.SentenceParserArg.add_argument(parser)
     cmd_args.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None)
+    parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
+    parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
     parser.add_argument("--bert-framework", dest="bert_framework", type=str, default="opennre", choices=["opennre", "deeppavlov"])
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
+    parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=["brat", None])
 
     # Parsing arguments.
@@ -59,9 +61,25 @@ if __name__ == '__main__':
         texts_from_files if texts_from_files is not None else texts_from_dataframe
     backend_template = cmd_args.OutputFilepathArg.read_argument(args)
 
+    infer_engines_setup = {
+        "opennre": {
+            "pretrained_bert": args.pretrained_bert,
+            "checkpoint_path": args.bert_torch_checkpoint,
+            "device_type": args.device_type,
+            "max_seq_length": args.tokens_per_context,
+            "batch_size": args.batch_size,
+            "pooler": "cls",
+        },
+        "deeppavlov": {
+            "pretrained_bert": args.pretrained_bert,
+            "batch_size": args.batch_size,
+            "max_seq_length": args.tokens_per_context,
+        }
+    }
+
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
-        infer_engines=args.bert_framework,
+        infer_engines={key: infer_engines_setup[key] for key in [args.bert_framework]},
         backend_engines=args.backend)
 
     pipeline = BasePipeline(pipeline)
@@ -104,13 +122,6 @@ if __name__ == '__main__':
         "doc_ids": list(range(len(actual_content)))
     }
 
-    settings_opennre_setup = {
-        "pretrained_bert": cmd_args.PretrainedBERTArg.read_argument(args),
-        "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
-        "device_type": "cpu",
-        "max_seq_length": 128
-    }
-
     settings_backend_brat = {
         "backend_template": backend_template,
         "template_filepath": join(dirname(backend_template), "brat_template.html"),
@@ -124,6 +135,5 @@ if __name__ == '__main__':
         params_dict=merge_dictionaries([
             settings_sampling_setup,
             settings_sampling_input,
-            settings_opennre_setup,
             settings_backend_brat
         ]))

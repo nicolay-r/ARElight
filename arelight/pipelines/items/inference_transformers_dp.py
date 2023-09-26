@@ -11,11 +11,14 @@ from arelight.utils import auto_import
 
 class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self):
+    def __init__(self, pretrained_bert=None, max_seq_length=128, batch_size=10):
         # Model classifier.
         self.__predict_provider = BasePredictProvider()
         self.__model = None
         self.__proc = None
+        self.__max_seq_length = max_seq_length
+        self.__pretrained_bert = pretrained_bert
+        self.__batch_size = batch_size
 
     def __iter_predict_result(self, samples, batch_size):
 
@@ -53,7 +56,6 @@ class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
         assert(isinstance(pipeline_ctx, PipelineContext))
 
         # Fetching the batch-size from the parameters.
-        batch_size = input_data.provide("batch_size")
         labels_scaler = input_data.provide("labels_scaler")
         samples_io = input_data.provide("samples_io")
         samples_filepath = samples_io.create_target(data_type=DataType.Test)
@@ -67,20 +69,17 @@ class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
             torch_classifier_model = auto_import(
                 "deeppavlov.models.torch_bert.torch_transformers_classifier.TorchTransformersClassifierModel")
 
-            pretrained_bert = pipeline_ctx.provide("pretrained_bert")
-            max_seq_length = pipeline_ctx.provide("max_seq_length")
-
             # Initialize bert model.
-            self.__model = torch_classifier_model(pretrained_bert=pretrained_bert,
+            self.__model = torch_classifier_model(pretrained_bert=self.__pretrained_bert,
                                                   n_classes=labels_scaler.LabelsCount,
                                                   bert_config_file=None,
                                                   save_path="")
             # Setup processor.
             self.__proc = torch_preprocessor_model(
                 # Consider the same as pretrained BERT.
-                vocab_file=pretrained_bert,
-                max_seq_length=max_seq_length)
+                vocab_file=self.__pretrained_bert,
+                max_seq_length=self.__max_seq_length)
 
         iter_infer = self.__iter_predict_result(samples=samples_io.Reader.read(samples_filepath),
-                                                batch_size=batch_size)
+                                                batch_size=self.__batch_size)
         input_data.update("iter_infer", iter_infer)

@@ -98,9 +98,7 @@ class TestInfer(unittest.TestCase):
             text_parser=text_parser)
 
         pipeline.run(PipelineContext(d={
-                         "batch_size": 10,
                          "labels_scaler": create_labels_scaler(3),
-                         "predict_writer": TsvPredictWriter()
                      }),
                      params_dict={
                          "template_filepath": join(self.TEST_DATA_DIR, "brat_template.html"),
@@ -117,22 +115,29 @@ class TestInfer(unittest.TestCase):
                          "storage": RowCacheStorage(force_collect_columns=[
                              const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
                          ]),
-                         # --------
-                         "pretrained_bert": "DeepPavlov/rubert-base-cased",
-                         "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
-                         "device_type": "cpu",
-                         "max_seq_length": 128
                      })
 
     def test_deeppavlov(self):
 
-        pipeline = demo_infer_texts_bert_pipeline(infer_engines="deeppavlov")
+        pipeline = demo_infer_texts_bert_pipeline(infer_engines={
+            "deeppavlov": {
+                "pretrained_bert": "DeepPavlov/rubert-base-cased",
+                "max_seq_length": 128
+            }
+        })
         writer = NativeCsvWriter(delimiter=',')
         self.launch(pipeline, writer)
 
     def test_opennre(self):
 
-        pipeline = demo_infer_texts_bert_pipeline(infer_engines="opennre")
+        pipeline = demo_infer_texts_bert_pipeline(infer_engines={
+            "opennre": {
+                "pretrained_bert": "DeepPavlov/rubert-base-cased",
+                "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+                "device_type": "cpu",
+                "max_seq_length": 128
+            }
+        })
 
         writer = OpenNREJsonWriter(
             text_columns=[BaseSingleTextProvider.TEXT_A, PairTextProvider.TEXT_B],

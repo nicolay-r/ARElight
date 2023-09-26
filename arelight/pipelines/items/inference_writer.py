@@ -4,13 +4,14 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.items.base import BasePipelineItem
 
 from arelight.predict_provider import BasePredictProvider
-from arelight.predict_writer_csv import TsvPredictWriter
+from arelight.predict_writer import BasePredictWriter
 
 
 class InferenceWriterPipelineItem(BasePipelineItem):
 
-    def __init__(self):
-        pass
+    def __init__(self, writer):
+        assert(isinstance(writer, BasePredictWriter))
+        self.__writer = writer
 
     def apply_core(self, input_data, pipeline_ctx):
 
@@ -23,11 +24,7 @@ class InferenceWriterPipelineItem(BasePipelineItem):
         if tgt is None:
             tgt = join(dirname(samples_filepath), "predict.tsv.gz")
 
-        # Setup target filepath.
-        writer = input_data.provide("predict_writer")
-        assert(isinstance(writer, TsvPredictWriter))
-
-        writer.set_target(tgt)
+        self.__writer.set_target(tgt)
 
         # Update for further pipeline items.
         input_data.update("predict_filepath", tgt)
@@ -37,5 +34,5 @@ class InferenceWriterPipelineItem(BasePipelineItem):
             sample_id_with_uint_labels_iter=input_data.provide("iter_infer"),
             labels_count=input_data.provide("labels_scaler").LabelsCount)
 
-        with writer:
-            writer.write(title=title, contents_it=contents_it)
+        with self.__writer:
+            self.__writer.write(title=title, contents_it=contents_it)
