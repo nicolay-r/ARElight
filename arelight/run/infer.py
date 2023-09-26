@@ -1,5 +1,5 @@
 import argparse
-from os.path import join, dirname, basename
+from os.path import join, dirname
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
@@ -58,14 +58,9 @@ if __name__ == '__main__':
     actual_content = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
     backend_template = cmd_args.OutputFilepathArg.read_argument(args)
-    pretrained_bert = cmd_args.PretrainedBERTArg.read_argument(args)
 
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
-        pretrained_bert=pretrained_bert,
-        labels_scaler=create_labels_scaler(cmd_args.LabelsCountArg.read_argument(args)),
-        max_seq_length=cmd_args.TokensPerContextArg.read_argument(args),
-        checkpoint_path=args.bert_torch_checkpoint,
         infer_engines=args.bert_framework,
         backend_engines=args.backend)
 
@@ -109,19 +104,26 @@ if __name__ == '__main__':
         "doc_ids": list(range(len(actual_content)))
     }
 
+    settings_opennre_setup = {
+        "pretrained_bert": cmd_args.PretrainedBERTArg.read_argument(args),
+        "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+        "device_type": "cpu",
+        "max_seq_length": 128
+    }
+
     settings_backend_brat = {
         "backend_template": backend_template,
         "template_filepath": join(dirname(backend_template), "brat_template.html"),
         "brat_url": "http://localhost:8001/",
-        "predict_fp": "{}.tsv.gz".format(backend_template) if backend_template is not None else None,
         "brat_vis_fp": "{}.html".format(backend_template) if backend_template is not None else None,
     }
 
     # Launch application.
     pipeline.run(
-        input_data=PipelineResult(),
+        input_data=PipelineResult({"batch_size": 10}),
         params_dict=merge_dictionaries([
             settings_sampling_setup,
             settings_sampling_input,
+            settings_opennre_setup,
             settings_backend_brat
         ]))

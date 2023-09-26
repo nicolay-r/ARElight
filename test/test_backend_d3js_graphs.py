@@ -70,9 +70,9 @@ class TestBackendD3JS(unittest.TestCase):
 
         pipeline = BasePipeline(ppl)
         ppl_result = PipelineResult()
-        ppl_result.update("predict_filepaths", value=[join(utils.TEST_OUT_DIR, "predict.tsv.gz")])
-        ppl_result.update("predict_labels_formatter", value=TrheeLabelsFormatter())
-        ppl_result.update("predict_labels_scaler", value=ThreeLabelScaler())
+        ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
+        ppl_result.update("labels_formatter", value=TrheeLabelsFormatter())
+        ppl_result.update("labels_scaler", value=ThreeLabelScaler())
 
         pipeline.run(input_data=ppl_result,
                      params_dict={

@@ -1,10 +1,8 @@
 import json
 import os
-from os.path import join, dirname
-
 import torch
+
 from arekit.common.experiment.data_type import DataType
-from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 
@@ -14,36 +12,13 @@ from opennre.model import SoftmaxNN
 
 from arelight.pipelines.items.utils import try_download_predefined_checkpoints
 from arelight.predict_provider import BasePredictProvider
-from arelight.predict_writer_csv import TsvPredictWriter
 
 
 class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
-    def __init__(self, pretrained_bert, checkpoint_path, labels_scaler, max_seq_length,
-                 batch_size=10, device_type='cpu', dir_to_download=None):
-        assert(isinstance(max_seq_length, int))
-        assert(isinstance(labels_scaler, BaseLabelScaler))
-
+    def __init__(self):
         self.__predict_provider = BasePredictProvider()
-        self.__batch_size = batch_size
-        self.__device_type = device_type
-        self.__labels_scaler = labels_scaler
-
-        # We compose specific mapping required by opennre to perform labels mapping.
-        rel2id = {}
-        for l in labels_scaler.ordered_suppoted_labels():
-            uint_label = labels_scaler.label_to_uint(l)
-            rel2id[str(uint_label)] = uint_label
-
-        # Load model
-        self.__model = self.init_bert_model(pretrain_path=pretrained_bert,
-                                            rel2id=rel2id,
-                                            ckpt_source=checkpoint_path,
-                                            pooler='cls',
-                                            max_length=max_seq_length,
-                                            mask_entity=True,
-                                            device_type=device_type,
-                                            dir_to_donwload=os.getcwd() if dir_to_download is None else dir_to_download)
+        self.__model = None
 
     @staticmethod
     def load_bert_sentence_encoder(pooler, max_length, pretrain_path, mask_entity):
@@ -109,42 +84,50 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                     yield data_ids[l_ind], pred[i].item()
                     l_ind += 1
 
+    def __iter_predict_result(self, samples_filepath, batch_size):
+        # Compose evaluator.
+        sentence_eval = SentenceRELoader(path=samples_filepath,
+                                         rel2id=self.__model.rel2id,
+                                         tokenizer=self.__model.sentence_encoder.tokenize,
+                                         batch_size=batch_size,
+                                         shuffle=False)
+
+        # Iter output results.
+        return self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
+                                 data_ids=list(self.extract_ids(samples_filepath)),
+                                 eval_loader=sentence_eval)
+
     def apply_core(self, input_data, pipeline_ctx):
-        assert (isinstance(pipeline_ctx, PipelineContext))
+        assert(isinstance(input_data, PipelineContext))
+        assert(isinstance(pipeline_ctx, PipelineContext))
 
-        def __iter_predict_result():
-            # Compose evaluator.
-            sentence_eval = SentenceRELoader(path=samples_filepath,
-                                             rel2id=self.__model.rel2id,
-                                             tokenizer=self.__model.sentence_encoder.tokenize,
-                                             batch_size=6,
-                                             shuffle=False)
-
-            # Iter output results.
-            return self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
-                                     data_ids=list(self.extract_ids(samples_filepath)),
-                                     eval_loader=sentence_eval)
-
-        # Fetch other required in further information from input_data.
+        # Fetching the input data.
+        batch_size = input_data.provide("batch_size")
+        labels_scaler = input_data.provide("labels_scaler")
         samples_io = input_data.provide("samples_io")
         samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
-        # Setup predicted result writer.
-        tgt = pipeline_ctx.provide_or_none("predict_fp")
-        if tgt is None:
-            tgt = join(dirname(samples_filepath), "predict.tsv.gz")
+        # We compose specific mapping required by opennre to perform labels mapping.
+        rel2id = {}
+        for label in labels_scaler.ordered_suppoted_labels():
+            uint_label = labels_scaler.label_to_uint(label)
+            rel2id[str(uint_label)] = uint_label
 
-        # Setup target filepath.
-        writer = TsvPredictWriter()
-        writer.set_target(tgt)
+        # Initialize model if the latter has not been yet.
+        if self.__model is None:
 
-        # Update for further pipeline items.
-        pipeline_ctx.update("predict_fp", tgt)
+            dir_to_download = pipeline_ctx.provide_or_none("dir_to_download")
 
-        # Gathering the content
-        title, contents_it = self.__predict_provider.provide(
-            sample_id_with_uint_labels_iter=__iter_predict_result(),
-            labels_count=self.__labels_scaler.LabelsCount)
+            self.__model = self.init_bert_model(
+                pretrain_path=pipeline_ctx.provide("pretrained_bert"),
+                ckpt_source=pipeline_ctx.provide("checkpoint_path"),
+                device_type=pipeline_ctx.provide("device_type"),
+                max_length=pipeline_ctx.provide("max_seq_length"),
+                pooler='cls',
+                rel2id=rel2id,
+                mask_entity=True,
+                dir_to_donwload=os.getcwd() if dir_to_download is None else dir_to_download)
 
-        with writer:
-            writer.write(title=title, contents_it=contents_it)
+        iter_infer = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=batch_size)
+        input_data.update("iter_infer", iter_infer)
+

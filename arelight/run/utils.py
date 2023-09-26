@@ -104,10 +104,10 @@ class EnumConversionService(object):
 
 
 def merge_dictionaries(dict_iter):
-    d_out = {}
+    merged_dict = {}
     for d in dict_iter:
-        for k, v in d.items():
-            if k in d_out:
-                raise Exception("Key `{}` is already registred!".format(k))
-            d_out[k] = v
-    return d_out
+        for key, value in d.items():
+            if key in merged_dict:
+                raise Exception("Key `{}` is already registred!".format(key))
+            merged_dict[key] = value
+    return merged_dict

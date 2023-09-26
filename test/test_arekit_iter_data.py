@@ -45,9 +45,7 @@ class TestAREkitIterData(unittest.TestCase):
 
         ppl_result = PipelineResult()
         ppl_result.update("samples_io", samples_io)
-        ppl_result.update("predict_filepaths", value=[join(utils.TEST_OUT_DIR, "predict.tsv.gz")])
-        ppl_result.update("predict_labels_formatter", value=TrheeLabelsFormatter())
-        ppl_result.update("predict_labels_scaler", value=ThreeLabelScaler())
+        ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
         pipeline.run(input_data=ppl_result,
                      params_dict={
                          "backend_template": join(utils.TEST_OUT_DIR, "out")

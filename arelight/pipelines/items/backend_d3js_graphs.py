@@ -7,7 +7,6 @@ from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
@@ -41,11 +40,11 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         assert(isinstance(pipeline_ctx, PipelineContext))
 
         target = pipeline_ctx.provide("backend_template")
-        predict_filepath = input_data.provide("predict_filepaths")[0]
+        predict_filepath = input_data.provide("predict_filepath")
         result_reader = input_data.provide("predict_reader")
-        labels_fmt = input_data.provide("predict_labels_formatter")
+        labels_fmt = input_data.provide("labels_formatter")
         assert(isinstance(labels_fmt, StringLabelsFormatter))
-        labels_scaler = input_data.provide("predict_labels_scaler")
+        labels_scaler = input_data.provide("labels_scaler")
         assert(isinstance(labels_scaler, BaseLabelScaler))
         predict_storage = result_reader.read(predict_filepath)
         assert(isinstance(predict_storage, BaseRowsStorage))
