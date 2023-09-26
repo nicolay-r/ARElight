@@ -34,16 +34,13 @@ def get_samples_setup_settings(infer_engines,
     else:
         writer = NativeCsvWriter(delimiter=',')
 
-    # Setup SamplesIO.
-    samples_io = SamplesIO(target_dir=output_dir,
-                           reader=PandasCsvReader(sep=',', compression="infer"),
-                           prefix=samples_prefix,
-                           writer=writer)
-
     return {
         "rows_provider": create_bert_sample_provider(
             provider_type=text_b_type, label_scaler=labels_scaler, entity_formatter=entity_fmt),
-        "samples_io": samples_io,
+        "samples_io": SamplesIO(target_dir=output_dir,
+                                reader=PandasCsvReader(sep=',', compression="infer"),
+                                prefix=samples_prefix,
+                                writer=writer),
         "storage": RowCacheStorage(force_collect_columns=[
             const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
         ]),

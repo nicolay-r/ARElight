@@ -12,8 +12,9 @@ from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
-from arelight.backend.d3js.ui_web_force import save_force_graph
-from arelight.backend.d3js.ui_web_radial import save_radial_graph
+from arelight.backend.d3js.ui_web_force import get_force_web_ui
+from arelight.backend.d3js.ui_web_radial import get_radial_web_ui
+from arelight.backend.d3js.utils_graph import save_graph
 
 
 class D3jsGraphsBackendPipelineItem(BasePipelineItem):
@@ -39,7 +40,7 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         assert(isinstance(input_data, PipelineContext))
         assert(isinstance(pipeline_ctx, PipelineContext))
 
-        target = pipeline_ctx.provide("backend_template")
+        target_dir = input_data.provide("d3js_graph_output_dir")
         predict_filepath = input_data.provide("predict_filepath")
         result_reader = input_data.provide("predict_reader")
         labels_fmt = input_data.provide("labels_formatter")
@@ -69,5 +70,15 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
         graph = graphs_operations(graph_A=graph, graph_B=graph, operation="SAME", min_links=0.01)
 
-        save_force_graph(graph=graph, out_dir=dirname(target), out_filename=f"graph_force")
-        save_radial_graph(graph=graph, out_dir=dirname(target), out_filename=f"graph_radial")
+        do_save = input_data.provide_or_none("d3js_graph_do_save")
+
+        html_content_force = save_graph(graph=graph, out_dir=target_dir, ui_func=get_force_web_ui,
+                                        out_filename=f"graph_force", convert_to_radial=False,
+                                        do_save_template=do_save if do_save is not None else True)
+
+        html_content_radial = save_graph(graph=graph, out_dir=target_dir, ui_func=get_radial_web_ui,
+                                         out_filename=f"graph_radial", convert_to_radial=True,
+                                         do_save_template=do_save if do_save is not None else True)
+
+        input_data.update("d3js_graph_radial_html_template", html_content_radial)
+        input_data.update("d3js_graph_force_html_template", html_content_force)

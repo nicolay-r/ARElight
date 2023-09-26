@@ -9,8 +9,9 @@ from arekit.common.pipeline.base import BasePipeline
 
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
-from arelight.backend.d3js.ui_web_force import save_force_graph
-from arelight.backend.d3js.ui_web_radial import save_radial_graph
+from arelight.backend.d3js.ui_web_force import get_force_web_ui
+from arelight.backend.d3js.ui_web_radial import get_radial_web_ui
+from arelight.backend.d3js.utils_graph import save_graph
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.formatter import TrheeLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
@@ -55,8 +56,10 @@ class TestBackendD3JS(unittest.TestCase):
         if not exists(self.TEST_OUT_LOCAL_DIR):
             os.makedirs(self.TEST_OUT_LOCAL_DIR)
 
-        save_force_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"graph_force_{relation_type}")
-        save_radial_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"graph_radial_{relation_type}")
+        save_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"graph_force_{relation_type}",
+                   ui_func=get_force_web_ui)
+        save_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"graph_radial_{relation_type}",
+                   ui_func=get_radial_web_ui)
 
         # Launch server to checkout the results.
         os.system(f"cd {self.TEST_OUT_LOCAL_DIR} && python -m http.server 8000")

@@ -11,7 +11,7 @@ class PipelineResult(PipelineContext):
         for the all items of the pipeline.
     """
 
-    def __init__(self, extra_params):
+    def __init__(self, extra_params=None):
         assert(isinstance(extra_params, dict))
 
         default_params = {
@@ -26,5 +26,5 @@ class PipelineResult(PipelineContext):
         }
 
         super(PipelineResult, self).__init__(
-            merge_dictionaries(dict_iter=[default_params, extra_params])
+            merge_dictionaries(dict_iter=[default_params, {} if extra_params is None else extra_params])
         )

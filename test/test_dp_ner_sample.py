@@ -1,3 +1,5 @@
+from arekit.contrib.utils.pipelines.items.sampling.base import BaseSerializerPipelineItem
+
 import utils
 import unittest
 from rusenttokenize import ru_sent_tokenize
@@ -16,7 +18,6 @@ from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
-from arekit.contrib.utils.pipelines.items.sampling.bert import BertExperimentInputSerializerPipelineItem
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
@@ -87,7 +88,7 @@ class TestCombinedPipeline(unittest.TestCase):
             entity_formatter=SharpPrefixedEntitiesSimpleFormatter())
 
         pipeline = BasePipeline([
-            BertExperimentInputSerializerPipelineItem(
+            BaseSerializerPipelineItem(
                 rows_provider=rows_provider,
                 storage=RowCacheStorage(),
                 samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),

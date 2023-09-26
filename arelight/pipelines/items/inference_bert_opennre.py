@@ -108,8 +108,12 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
         # Fetching the input data.
         labels_scaler = input_data.provide("labels_scaler")
-        samples_io = input_data.provide("samples_io")
-        samples_filepath = samples_io.create_target(data_type=DataType.Test)
+
+        # Try to obrain from the specific input variable.
+        samples_filepath = input_data.provide_or_none("opennre_samples_filepath")
+        if samples_filepath is None:
+            samples_io = input_data.provide("samples_io")
+            samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
         # We compose specific mapping required by opennre to perform labels mapping.
         rel2id = {}
