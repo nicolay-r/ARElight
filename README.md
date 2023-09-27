@@ -51,10 +51,6 @@ python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
 
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results:
 
-## Reference 
-
-* [Nicolay Rusnachenko: Language Models Application in Sentiment Attitude Extraction Task (2021) [RUS]](https://nicolay-r.github.io/website/data/rusnachenko2021language.pdf)
-
 ## Powered by
 
 * AREkit [[github]](https://github.com/nicolay-r/AREkit)
