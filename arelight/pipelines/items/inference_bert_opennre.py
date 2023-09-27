@@ -16,7 +16,9 @@ from arelight.pipelines.items.utils import try_download_predefined_checkpoints
 class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
-                 max_seq_length=128, pooler='cls', batch_size=10):
+                 max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True):
+        assert(isinstance(tokenizers_parallelism, bool))
+
         self.__model = None
         self.__pretrained_bert = pretrained_bert
         self.__checkpoint_path = checkpoint_path
@@ -24,6 +26,9 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__max_seq_length = max_seq_length
         self.__pooler = pooler
         self.__batch_size = batch_size
+
+        # Huggingface/Tokenizers compatibility.
+        os.environ['TOKENIZERS_PARALLELISM'] = str(tokenizers_parallelism).lower()
 
     @staticmethod
     def load_bert_sentence_encoder(pooler, max_length, pretrain_path, mask_entity):
