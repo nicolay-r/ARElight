@@ -44,7 +44,7 @@ if __name__ == '__main__':
     parser.add_argument("--bert-framework", dest="bert_framework", type=str, default="opennre", choices=["opennre", "deeppavlov"])
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
-    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=["brat", None])
+    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=["brat", None, "d3js_graphs"])
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -77,10 +77,22 @@ if __name__ == '__main__':
         }
     }
 
+    backend_setups = {
+        "d3js_graphs": {
+            "operation_type": "SAME",
+            "graph_min_links": 1,
+            "op_min_links": 0.1,
+            "ui_output": ["radial", "force"],
+            "graph_a_labels": None,
+            "graph_b_labels": None,
+            "weights": True,
+        }
+    }
+
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
         infer_engines={key: infer_engines_setup[key] for key in [args.bert_framework]},
-        backend_engines=args.backend)
+        backend_engines={key: backend_setups[key] for key in [args.backend]})
 
     pipeline = BasePipeline(pipeline)
 
@@ -112,7 +124,6 @@ if __name__ == '__main__':
     #########################################
 
     settings_sampling_setup = get_samples_setup_settings(
-        infer_engines=args.bert_framework,
         output_dir=dirname(backend_template),
         labels_scaler=create_labels_scaler(cmd_args.LabelsCountArg.read_argument(args)),
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled))
@@ -131,7 +142,11 @@ if __name__ == '__main__':
 
     # Launch application.
     pipeline.run(
-        input_data=PipelineResult({"batch_size": 10}),
+        input_data=PipelineResult({
+            "d3js_graph_output_dir": dirname(backend_template),
+            "d3js_graph_do_save": True,
+            "d3js_graph_launch_server": True,
+        }),
         params_dict=merge_dictionaries([
             settings_sampling_setup,
             settings_sampling_input,

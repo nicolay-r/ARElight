@@ -11,13 +11,10 @@ from arelight.predict_writer_csv import TsvPredictWriter
 def demo_infer_texts_bert_pipeline(sampling_engines="arekit", infer_engines=None, backend_engines=None):
     assert(isinstance(sampling_engines, list) or sampling_engines is None or isinstance(sampling_engines, str))
     assert(isinstance(infer_engines, dict))
-    assert(isinstance(backend_engines, list) or backend_engines is None or isinstance(backend_engines, str))
+    assert(isinstance(backend_engines, dict))
 
     sampling_engines = [sampling_engines] if isinstance(sampling_engines, str) else sampling_engines
     sampling_engines = [] if sampling_engines is None else sampling_engines
-
-    backend_engines = [backend_engines] if isinstance(backend_engines, str) else backend_engines
-    backend_engines = [] if backend_engines is None else backend_engines
 
     pipeline = []
     #####################################################################
@@ -56,7 +53,7 @@ def demo_infer_texts_bert_pipeline(sampling_engines="arekit", infer_engines=None
 
     if "d3js_graphs" in backend_engines:
         pipeline += [
-            D3jsGraphsBackendPipelineItem()
+            D3jsGraphsBackendPipelineItem(**backend_engines["d3js_graphs"])
         ]
 
     return pipeline
