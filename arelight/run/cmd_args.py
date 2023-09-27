@@ -104,21 +104,6 @@ class FromFilesArg(BaseArg):
                             help='Custom vocabulary filepath')
 
 
-class LabelsCountArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.labels_count
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--labels-count',
-                            dest="labels_count",
-                            type=int,
-                            default=default,
-                            help="Labels count in an output classifier")
-
-
 class StemmerArg(BaseArg):
 
     supported = {

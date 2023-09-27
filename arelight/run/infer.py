@@ -30,7 +30,6 @@ if __name__ == '__main__':
     cmd_args.FromFilesArg.add_argument(parser)
     cmd_args.FromDataframeArg.add_argument(parser)
     cmd_args.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
-    cmd_args.LabelsCountArg.add_argument(parser, default=3)
     cmd_args.TermsPerContextArg.add_argument(parser, default=50)
     cmd_args.EntityFormatterTypesArg.add_argument(parser, default="hidden-bert-styled")
     cmd_args.OutputFilepathArg.add_argument(parser, default=None)
@@ -38,6 +37,7 @@ if __name__ == '__main__':
     cmd_args.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
     cmd_args.SentenceParserArg.add_argument(parser)
     cmd_args.BertTextBFormatTypeArg.add_argument(parser, default='nli_m')
+    parser.add_argument('--labels-count', dest="labels_count", type=int, default=3)
     parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None)
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
     parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     settings_sampling_setup = get_samples_setup_settings(
         output_dir=dirname(backend_template),
-        labels_scaler=create_labels_scaler(cmd_args.LabelsCountArg.read_argument(args)),
+        labels_scaler=create_labels_scaler(args.labels_count),
         entity_fmt=create_entity_formatter(EntityFormatterTypes.HiddenBertStyled))
 
     settings_sampling_input = {

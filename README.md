@@ -38,7 +38,6 @@ Infer sentiment attitudes from a mass-media document(s).
 python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
-    --labels-count 3 \
     --terms-per-context 50 \
     --sentence-parser "ru" \
     --text-b-type "nli_m" \
@@ -46,11 +45,11 @@ python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
     --bert-framework "opennre" \
     --pretrained-bert "DeepPavlov/rubert-base-cased" \
     --bert-torch-checkpoint "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar" \
-    -o output/brat_inference_output
+    --backend d3js_graphs \
+    -o output/samples
 ```
-<p align="center">
-    <img src="docs/inference-bert-e1.png"/>
-</p>
+
+Launches server at `http://0.0.0.0:8000/` so you may analyse the results:
 
 ## Reference 
 
