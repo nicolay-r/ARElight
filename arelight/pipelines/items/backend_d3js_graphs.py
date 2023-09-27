@@ -121,7 +121,7 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
             if graph_ui_type not in self.__ui_types_output:
                 continue
 
-            html_content = save_graph(graph=graph, out_dir=target_dir, ui_func=get_force_web_ui,
+            html_content = save_graph(graph=graph, out_dir=target_dir, ui_func=ui_func,
                                       out_filename=f"graph_{graph_ui_type}",
                                       convert_to_radial=True if "radial" in graph_ui_type else False,
                                       do_save_template=do_save)
