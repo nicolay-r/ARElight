@@ -9,3 +9,6 @@ class InMemoryDocProvider(DocumentProvider):
 
     def by_id(self, doc_id):
         return self.__docs[doc_id]
+
+    def __len__(self):
+        return len(self.__docs)

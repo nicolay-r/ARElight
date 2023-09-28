@@ -7,22 +7,29 @@ from arekit.common.docs.sentence import BaseDocumentSentence
 from arelight.run.utils import logger
 
 
-def input_to_docs(input_data, sentence_parser):
+def input_to_docs(input_data, sentence_parser, docs_limit=None):
     """ input_data: list
         sentence_splitter: object
             how data is suppose to be separated onto sentences.
             str -> list(str)
     """
     assert(input_data is not None)
+    assert(isinstance(docs_limit, int) or docs_limit is None)
 
     docs = []
 
-    for doc_id, contents in enumerate(input_data):
+    for doc_ind, contents in enumerate(input_data):
+
         # setup input data.
         sentences = sentence_parser(contents)
         sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
+
         # Documents.
-        docs.append(Document(doc_id=doc_id, sentences=sentences))
+        docs.append(Document(doc_id=doc_ind, sentences=sentences))
+
+        # Optionally checking for the limit.
+        if docs_limit is not None and doc_ind >= docs_limit:
+            break
 
     return docs
 

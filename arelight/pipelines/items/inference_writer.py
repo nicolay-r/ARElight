@@ -1,6 +1,4 @@
-from os.path import dirname, join
-
-from arekit.common.experiment.data_type import DataType
+from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 
 from arelight.predict_provider import BasePredictProvider
@@ -14,20 +12,15 @@ class InferenceWriterPipelineItem(BasePipelineItem):
         self.__writer = writer
 
     def apply_core(self, input_data, pipeline_ctx):
-
-        # Fetch other required in further information from input_data.
-        samples_io = input_data.provide("samples_io")
-        samples_filepath = samples_io.create_target(data_type=DataType.Test)
+        assert(isinstance(input_data, PipelineContext))
 
         # Setup predicted result writer.
-        tgt = input_data.provide_or_none("predict_filepath")
-        if tgt is None:
-            tgt = join(dirname(samples_filepath), "predict.tsv.gz")
+        target = input_data.provide("predict_filepath")
 
-        self.__writer.set_target(tgt)
+        self.__writer.set_target(target)
 
         # Update for further pipeline items.
-        input_data.update("predict_filepath", tgt)
+        input_data.update("predict_filepath", target)
 
         # Gathering the content
         title, contents_it = BasePredictProvider().provide(

@@ -21,7 +21,6 @@ class PipelineResult(PipelineContext):
             # Inference stage -------------------------
             "iter_infer": None,
             # Inference stage -------------------------
-            "predict_filepath": None,
             "predict_reader": PandasCsvReader(compression='infer'),  # The way we can read the predicted results.
         }
 

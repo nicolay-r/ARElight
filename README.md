@@ -36,16 +36,19 @@ python standalone.py
 Infer sentiment attitudes from a mass-media document(s).
 ```bash
 python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
+    --sampling-framework "arekit" \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --terms-per-context 50 \
     --sentence-parser "ru" \
     --text-b-type "nli_m" \
     --tokens-per-context 128 \
+    --batch-size 10 \
     --bert-framework "opennre" \
     --pretrained-bert "DeepPavlov/rubert-base-cased" \
     --bert-torch-checkpoint "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar" \
-    --backend d3js_graphs \
+    --backend "d3js_graphs" \
+    --docs-limit 500 \
     -o output/samples
 ```
 

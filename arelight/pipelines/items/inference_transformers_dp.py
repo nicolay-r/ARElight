@@ -53,7 +53,6 @@ class TransformersDeepPavlovInferencePipelineItem(BasePipelineItem):
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(input_data, PipelineContext))
-        assert(isinstance(pipeline_ctx, PipelineContext))
 
         # Fetching the batch-size from the parameters.
         labels_scaler = input_data.provide("labels_scaler")

@@ -80,7 +80,7 @@ class TestCombinedPipeline(unittest.TestCase):
         single_label_scaler = SingleLabelScaler(NoLabel())
 
         # Composing labels formatter and experiment preparation.
-        doc_ops = InMemoryDocProvider(docs=self.input_to_docs(texts))
+        doc_provider = InMemoryDocProvider(docs=self.input_to_docs(texts))
 
         rows_provider = create_bert_sample_provider(
             label_scaler=single_label_scaler,
@@ -99,7 +99,7 @@ class TestCombinedPipeline(unittest.TestCase):
         test_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
                                                            dist_in_terms_bound=50,
                                                            dist_in_sentences=0,
-                                                           doc_ops=doc_ops,
+                                                           doc_provider=doc_provider,
                                                            text_parser=text_parser,
                                                            terms_per_context=50)
 

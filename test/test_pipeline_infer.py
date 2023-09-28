@@ -31,7 +31,6 @@ from ru_sent_tokenize import ru_sent_tokenize
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.predict_writer_csv import TsvPredictWriter
 from arelight.run.utils import create_entity_parser, create_labels_scaler
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
@@ -93,7 +92,7 @@ class TestInfer(unittest.TestCase):
             synonyms=synonyms,
             dist_in_terms_bound=100,
             dist_in_sentences=0,
-            doc_ops=InMemoryDocProvider(docs=self.input_to_docs(actual_content)),
+            doc_provider=InMemoryDocProvider(docs=self.input_to_docs(actual_content)),
             terms_per_context=50,
             text_parser=text_parser)
 

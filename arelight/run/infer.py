@@ -26,7 +26,7 @@ from arelight.pipelines.items.utils import input_to_docs
 from arelight.run import cmd_args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormattersService
-from arelight.run.utils import create_labels_scaler, read_synonyms_collection, create_entity_parser, merge_dictionaries
+from arelight.run.utils import read_synonyms_collection, create_entity_parser, merge_dictionaries
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
@@ -44,10 +44,10 @@ if __name__ == '__main__':
     cmd_args.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
     cmd_args.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
     cmd_args.SentenceParserArg.add_argument(parser)
-    parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default="arekit")
+    parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
+    parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument('--entity-fmt', dest='entity_fmt', type=str, choices=list(EntityFormattersService.iter_names()), default="hidden-bert-styled")
     parser.add_argument('--text-b-type', dest='text_b_type', type=str, default="nli_m", choices=list(SampleFormattersService.iter_names()))
-    parser.add_argument('--labels-count', dest="labels_count", type=int, default=3)
     parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None)
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
     parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
@@ -71,6 +71,7 @@ if __name__ == '__main__':
     actual_content = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
     output_template = args.output_template
+    docs_limit = args.docs_limit
 
     labels_scaler = SingleLabelScaler(NoLabel())
 
@@ -150,10 +151,12 @@ if __name__ == '__main__':
     ])
 
     # Setup data annotation pipeline.
+    docs = input_to_docs(actual_content, sentence_parser=sentence_parser, docs_limit=docs_limit)
+    doc_provider = InMemoryDocProvider(docs)
     data_pipeline = create_neutral_annotation_pipeline(
         synonyms=synonyms,
         dist_in_terms_bound=terms_per_context,
-        doc_ops=InMemoryDocProvider(docs=input_to_docs(actual_content, sentence_parser=sentence_parser)),
+        doc_provider=doc_provider,
         terms_per_context=terms_per_context,
         text_parser=text_parser)
 
@@ -163,7 +166,7 @@ if __name__ == '__main__':
 
     settings_sampling_input = {
         "data_type_pipelines": {DataType.Test: data_pipeline},
-        "doc_ids": list(range(len(actual_content)))
+        "doc_ids": list(range(len(doc_provider)))
     }
 
     settings_backend_brat = {
@@ -176,6 +179,9 @@ if __name__ == '__main__':
     # Launch application.
     pipeline.run(
         input_data=PipelineResult({
+            # We provide this settings for inference.
+            "predict_filepath": join(dirname(output_template), "predict.tsv.gz"),
+            "samples_io": sampling_engines_setup["arekit"]["samples_io"],
             "d3js_graph_output_dir": dirname(output_template),
             "d3js_graph_do_save": True,
             "d3js_graph_launch_server": True,

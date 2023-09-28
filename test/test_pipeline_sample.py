@@ -95,7 +95,7 @@ class BertTestSerialization(unittest.TestCase):
         ])
 
         # Composing labels formatter and experiment preparation.
-        doc_ops = InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
+        doc_provider = InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
         pipeline = BasePipeline([AREkitSerializerPipelineItem(
             rows_provider=create_bert_sample_provider(
             label_scaler=SingleLabelScaler(NoLabel()),
@@ -115,7 +115,7 @@ class BertTestSerialization(unittest.TestCase):
         test_pipeline = create_neutral_annotation_pipeline(synonyms=synonyms,
                                                            dist_in_terms_bound=50,
                                                            dist_in_sentences=0,
-                                                           doc_ops=doc_ops,
+                                                           doc_provider=doc_provider,
                                                            text_parser=text_parser,
                                                            terms_per_context=50)
 
