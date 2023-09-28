@@ -8,13 +8,10 @@ from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineI
 from arelight.predict_writer_csv import TsvPredictWriter
 
 
-def demo_infer_texts_bert_pipeline(sampling_engines="arekit", infer_engines=None, backend_engines=None):
-    assert(isinstance(sampling_engines, list) or sampling_engines is None or isinstance(sampling_engines, str))
+def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, backend_engines=None):
+    assert(isinstance(sampling_engines, dict))
     assert(isinstance(infer_engines, dict))
     assert(isinstance(backend_engines, dict))
-
-    sampling_engines = [sampling_engines] if isinstance(sampling_engines, str) else sampling_engines
-    sampling_engines = [] if sampling_engines is None else sampling_engines
 
     pipeline = []
     #####################################################################
@@ -22,7 +19,7 @@ def demo_infer_texts_bert_pipeline(sampling_engines="arekit", infer_engines=None
     #####################################################################
 
     if "arekit" in sampling_engines:
-        pipeline += [AREkitSerializerPipelineItem()]
+        pipeline += [AREkitSerializerPipelineItem(**sampling_engines["arekit"])]
 
     #####################################################################
     # Inference Items

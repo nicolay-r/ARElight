@@ -94,12 +94,19 @@ class BertTestSerialization(unittest.TestCase):
                     synonyms=synonyms, value=value))
         ])
 
-        # Single label scaler.
-        single_label_scaler = SingleLabelScaler(NoLabel())
-
         # Composing labels formatter and experiment preparation.
         doc_ops = InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
-        pipeline = BasePipeline([AREkitSerializerPipelineItem()])
+        pipeline = BasePipeline([AREkitSerializerPipelineItem(
+            rows_provider=create_bert_sample_provider(
+            label_scaler=SingleLabelScaler(NoLabel()),
+            provider_type=BertSampleProviderTypes.NLI_M,
+            entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
+            save_labels_func=lambda _: False,
+            samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
+            storage=RowCacheStorage(force_collect_columns=[
+                const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
+            ]))
+        ])
         synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
                                                  stemmer=MystemWrapper(),
                                                  is_read_only=False)
@@ -115,18 +122,7 @@ class BertTestSerialization(unittest.TestCase):
         pipeline.run(input_data=PipelineContext(d={}),
                      params_dict={
                          "doc_ids": list(range(len(texts))),
-                         "data_type_pipelines": {
-                                 DataType.Test: test_pipeline
-                         },
-                         "rows_provider": create_bert_sample_provider(
-                                label_scaler=single_label_scaler,
-                                provider_type=BertSampleProviderTypes.NLI_M,
-                                entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
-                         "save_labels_func": lambda _: False,
-                         "samples_io": SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
-                         "storage": RowCacheStorage(force_collect_columns=[
-                             const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
-                         ])
+                         "data_type_pipelines": {DataType.Test: test_pipeline}
                      })
 
 if __name__ == '__main__':

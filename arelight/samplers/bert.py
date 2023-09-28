@@ -14,8 +14,8 @@ def create_bert_sample_provider(provider_type, label_scaler, entity_formatter):
         supported bert_sample_encoders
     """
     assert(isinstance(provider_type, BertSampleProviderTypes))
-    assert(isinstance(entity_formatter, StringEntitiesFormatter))
     assert(isinstance(label_scaler, BaseLabelScaler))
+    assert(isinstance(entity_formatter, StringEntitiesFormatter))
 
     text_terms_mapper = BertDefaultStringTextTermsMapper(entity_formatter)
 

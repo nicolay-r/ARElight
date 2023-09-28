@@ -34,22 +34,6 @@ class InputTextArg(BaseArg):
                             help='Input text for processing')
 
 
-class OutputFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.inference_output_filepath
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('-o',
-                            dest='inference_output_filepath',
-                            type=str,
-                            default=default,
-                            nargs='?',
-                            help='Inference output filepath')
-
-
 class FromDataframeArg(BaseArg):
 
     @staticmethod
@@ -206,40 +190,3 @@ class NERObjectTypes(BaseArg):
                             type=str,
                             default=default,
                             help="Filters specific NER types; provide with `|` separator")
-
-
-class EntityFormatterTypesArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        name = args.entity_fmt
-        return EntityFormattersService.name_to_type(name)
-
-    @staticmethod
-    def add_argument(parser, default):
-        assert(isinstance(default, str))
-        assert(EntityFormattersService.is_supported(default))
-        parser.add_argument('--entity-fmt',
-                            dest='entity_fmt',
-                            type=str,
-                            choices=list(EntityFormattersService.iter_names()),
-                            default=default,
-                            help='Entity formatter type')
-
-
-class BertTextBFormatTypeArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return SampleFormattersService.name_to_type(args.text_b_type)
-
-    @staticmethod
-    def add_argument(parser, default):
-        assert(isinstance(default, str))
-        assert(SampleFormattersService.is_supported(default))
-        parser.add_argument('--text-b-type',
-                            dest='text_b_type',
-                            type=str,
-                            default=default,
-                            choices=list(SampleFormattersService.iter_names()),
-                            help='TextB format type (Default: {})'.format(default))
