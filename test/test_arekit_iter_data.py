@@ -35,7 +35,7 @@ class TestAREkitIterData(unittest.TestCase):
 
     def test_pipeline_item(self):
         samples_io = SamplesIO(target_dir=utils.TEST_DATA_DIR,
-                               reader=PandasCsvReader(sep=',', compression=None),
+                               reader=PandasCsvReader(sep=',', compression=None, custom_extension=".csv"),
                                prefix="arekit-iter-data",
                                writer=None)
 
@@ -43,7 +43,10 @@ class TestAREkitIterData(unittest.TestCase):
             D3jsGraphsBackendPipelineItem()
         ])
 
-        ppl_result = PipelineResult()
+        ppl_result = PipelineResult({
+            "d3js_graph_output_dir": utils.TEST_OUT_DIR,
+            "d3js_graph_do_save": True
+        })
         ppl_result.update("samples_io", samples_io)
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
         pipeline.run(input_data=ppl_result,

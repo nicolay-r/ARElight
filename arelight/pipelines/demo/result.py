@@ -12,7 +12,7 @@ class PipelineResult(PipelineContext):
     """
 
     def __init__(self, extra_params=None):
-        assert(isinstance(extra_params, dict))
+        assert(isinstance(extra_params, dict) or extra_params is None)
 
         default_params = {
             # Serialization parameters ----------------

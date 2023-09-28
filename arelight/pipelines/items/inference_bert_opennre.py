@@ -10,7 +10,8 @@ from opennre.encoder import BERTEntityEncoder, BERTEncoder
 from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
 
-from arelight.pipelines.items.utils import try_download_predefined_checkpoints
+from arelight.pipelines.items.utils import try_download_predefined_checkpoint
+from arelight.utils import get_default_download_dir
 
 
 class BertOpenNREInferencePipelineItem(BasePipelineItem):
@@ -50,19 +51,23 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             raise NotImplementedError
 
     @staticmethod
-    def init_bert_model(pretrain_path, rel2id, ckpt_source, device_type, dir_to_donwload=None,
+    def init_bert_model(pretrain_path, rel2id, ckpt_path, device_type, dir_to_donwload=None,
                         pooler='cls', max_length=128, mask_entity=True):
         """ This is a main and core method for inference based on OpenNRE framework.
         """
         # Check predefined checkpoints for local downloading.
-        try_download_predefined_checkpoints(checkpoint=ckpt_source, dir_to_download=dir_to_donwload)
+        predefined_ckpt_path = try_download_predefined_checkpoint(
+            checkpoint=ckpt_path, dir_to_download=dir_to_donwload)
+
+        # Update checkpoint path with the predefined one.
+        ckpt_path = predefined_ckpt_path if predefined_ckpt_path is not None else ckpt_path
 
         # Load original model.
         bert_encoder = BertOpenNREInferencePipelineItem.load_bert_sentence_encoder(
             pooler=pooler, mask_entity=mask_entity, max_length=max_length, pretrain_path=pretrain_path)
         # Load checkpoint.
         model = SoftmaxNN(bert_encoder, len(rel2id), rel2id)
-        model.load_state_dict(torch.load(ckpt_source, map_location=torch.device(device_type))['state_dict'])
+        model.load_state_dict(torch.load(ckpt_path, map_location=torch.device(device_type))['state_dict'])
         return model
 
     @staticmethod
@@ -109,7 +114,6 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(input_data, PipelineContext))
-        assert(isinstance(pipeline_ctx, PipelineContext))
 
         # Fetching the input data.
         labels_scaler = input_data.provide("labels_scaler")
@@ -129,18 +133,17 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         # Initialize model if the latter has not been yet.
         if self.__model is None:
 
-            dir_to_download = pipeline_ctx.provide_or_none("dir_to_download")
+            ckpt_dir = input_data.provide_or_none("opennre_ckpt_cache_dir")
 
             self.__model = self.init_bert_model(
                 pretrain_path=self.__pretrained_bert,
-                ckpt_source=self.__checkpoint_path,
+                ckpt_path=self.__checkpoint_path,
                 device_type=self.__device_type,
                 max_length=self.__max_seq_length,
                 pooler=self.__pooler,
                 rel2id=rel2id,
                 mask_entity=True,
-                dir_to_donwload=os.getcwd() if dir_to_download is None else dir_to_download)
+                dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 
         iter_infer = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
         input_data.update("iter_infer", iter_infer)
-

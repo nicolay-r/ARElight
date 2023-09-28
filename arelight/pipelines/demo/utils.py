@@ -22,6 +22,7 @@ def get_samples_setup_settings(output_dir,
         returns: dict
             dict of the parameters that are expected to be setted up.
     """
+    assert(isinstance(output_dir, str))
 
     writer = OpenNREJsonWriter(text_columns=[BaseSingleTextProvider.TEXT_A, PairTextProvider.TEXT_B],
                                keep_extra_columns=True,

@@ -1,4 +1,6 @@
 import importlib
+import os
+import sys
 
 
 def auto_import(name):
@@ -9,6 +11,24 @@ def auto_import(name):
 
     components = name.split('.')
     return getattr(__get_module(components[:-1]), components[-1])
+
+
+def get_default_download_dir():
+    """ Refered to NLTK toolkit approach
+        https://github.com/nltk/nltk/blob/8e771679cee1b4a9540633cc3ea17f4421ffd6c0/nltk/downloader.py#L1051
+    """
+
+    # On Windows, use %APPDATA%
+    if sys.platform == "win32" and "APPDATA" in os.environ:
+        homedir = os.environ["APPDATA"]
+
+    # Otherwise, install in the user's home directory.
+    else:
+        homedir = os.path.expanduser("~/")
+        if homedir == "~/":
+            raise ValueError("Could not find a default download directory")
+
+    return os.path.join(homedir, ".arelight")
 
 
 class IdAssigner(object):

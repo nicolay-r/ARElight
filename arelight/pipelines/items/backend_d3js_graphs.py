@@ -42,7 +42,7 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         self.__graph_a_filter = lambda _: True if graph_a_labels is None else lambda label: label in graph_a_labels
         self.__graph_b_filter = lambda _: True if graph_b_labels is None else lambda label: label in graph_b_labels
 
-        # Considering weights for grapsh.
+        # Considering weights for graphs.
         self.__graph_weights = weights
         self.__launch_server = launch_server
 
@@ -58,6 +58,8 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
             label = labels[ind]
 
             # Optional filtering
+            # if label == 'neu':      # TEMP.
+            #     continue            # TEMP.
             if labels_filter_func is not None and not labels_filter_func(label):
                 continue
 

@@ -27,7 +27,7 @@ def input_to_docs(input_data, sentence_parser):
     return docs
 
 
-def try_download_predefined_checkpoints(checkpoint, dir_to_download):
+def try_download_predefined_checkpoint(checkpoint, dir_to_download):
     """ This is for the simplicity of using the framework straightaway.
     """
     assert(isinstance(checkpoint, str))
@@ -43,11 +43,11 @@ def try_download_predefined_checkpoints(checkpoint, dir_to_download):
         target_path = join(dir_to_download, checkpoint)
 
         logger.info("Found predefined checkpoint: {}".format(checkpoint))
-
         # No need to do anything, file has been already downloaded.
-        if exists(target_path):
-            return
+        if not exists(target_path):
+            logger.info("Downloading checkpoint to: {}".format(target_path))
+            download(dest_file_path=target_path, source_url=url)
 
-        logger.info("Downloading checkpoint to: {}".format(target_path))
+        return target_path
 
-        download(dest_file_path=target_path, source_url=url)
+    return None

@@ -41,10 +41,10 @@ if __name__ == '__main__':
     parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None)
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
     parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
-    parser.add_argument("--bert-framework", dest="bert_framework", type=str, default="opennre", choices=["opennre", "deeppavlov"])
+    parser.add_argument("--bert-framework", dest="bert_framework", type=str, default=None, choices=[None, "opennre", "deeppavlov"])
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
-    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=["brat", None, "d3js_graphs"])
+    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "brat", "d3js_graphs"])
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -62,6 +62,7 @@ if __name__ == '__main__':
     backend_template = cmd_args.OutputFilepathArg.read_argument(args)
 
     infer_engines_setup = {
+        None: {},
         "opennre": {
             "pretrained_bert": args.pretrained_bert,
             "checkpoint_path": args.bert_torch_checkpoint,
@@ -78,6 +79,7 @@ if __name__ == '__main__':
     }
 
     backend_setups = {
+        None: {},
         "d3js_graphs": {
             "operation_type": "SAME",
             "graph_min_links": 1,
