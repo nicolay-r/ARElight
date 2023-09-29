@@ -9,9 +9,13 @@ from arelight.predict_writer_csv import TsvPredictWriter
 
 
 def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, backend_engines=None):
-    assert(isinstance(sampling_engines, dict))
-    assert(isinstance(infer_engines, dict))
-    assert(isinstance(backend_engines, dict))
+    assert(isinstance(sampling_engines, dict) or sampling_engines is None)
+    assert(isinstance(infer_engines, dict) or infer_engines is None)
+    assert(isinstance(backend_engines, dict) or backend_engines is None)
+
+    sampling_engines = {} if sampling_engines is None else sampling_engines
+    infer_engines = {} if infer_engines is None else infer_engines
+    backend_engines = {} if backend_engines is None else backend_engines
 
     pipeline = []
     #####################################################################

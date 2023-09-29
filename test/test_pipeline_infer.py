@@ -3,6 +3,7 @@ from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
+from arekit.contrib.utils.data.readers.jsonl import JsonlReader
 from arekit.contrib.utils.data.writers.json_opennre import OpenNREJsonWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 
@@ -31,7 +32,8 @@ from ru_sent_tokenize import ru_sent_tokenize
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.run.utils import create_entity_parser, create_labels_scaler
+from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
+from arelight.run.utils import create_labels_scaler
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.utils import IdAssigner
@@ -69,7 +71,27 @@ class TestInfer(unittest.TestCase):
             docs.append(doc)
         return docs
 
-    def launch(self, pipeline, writer):
+    def create_sampling_params(self):
+        writer = OpenNREJsonWriter(
+            text_columns=[BaseSingleTextProvider.TEXT_A, PairTextProvider.TEXT_B],
+            keep_extra_columns=False,
+            na_value="0")
+
+        return {
+            "rows_provider": create_bert_sample_provider(
+                label_scaler=SingleLabelScaler(NoLabel()),
+                provider_type=BertSampleProviderTypes.NLI_M,
+                entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
+            "save_labels_func": lambda _: False,
+            "samples_io": SamplesIO(target_dir=utils.TEST_OUT_DIR,
+                                    reader=JsonlReader(),
+                                    writer=writer),
+            "storage": RowCacheStorage(force_collect_columns=[
+                const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
+            ])
+        }
+
+    def launch(self, pipeline):
 
         # We consider a texts[0] from the constant list.
         actual_content = self.texts
@@ -78,11 +100,14 @@ class TestInfer(unittest.TestCase):
         synonyms = SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
         id_assigner = IdAssigner()
+
+        # Setup text parsing.
         text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
-            create_entity_parser(ner_model_name="ner_ontonotes_bert_mult",
-                                 id_assigner=id_assigner,
-                                 obj_filter_types=["ORG", "PERSON", "LOC", "GPE"]),
+            DeepPavlovNERPipelineItem(ner_model_name="ner_ontonotes_bert_mult",
+                                      id_assigner=id_assigner,
+                                      obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                                      chunk_limit=128),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
@@ -96,51 +121,43 @@ class TestInfer(unittest.TestCase):
             terms_per_context=50,
             text_parser=text_parser)
 
-        pipeline.run(PipelineContext(d={
+        pipeline.run(input_data=PipelineContext(d={
                          "labels_scaler": create_labels_scaler(3),
+                         "predict_filepath": join(dirname(utils.TEST_OUT_DIR), "predict.tsv.gz")
                      }),
                      params_dict={
-                         "template_filepath": join(self.TEST_DATA_DIR, "brat_template.html"),
-                         "data_type_pipelines": {DataType.Test: data_pipeline},
-                         "doc_ids": list(range(len(actual_content))),
-                         "rows_provider": create_bert_sample_provider(
-                             label_scaler=SingleLabelScaler(NoLabel()),
-                             provider_type=BertSampleProviderTypes.NLI_M,
-                             entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
-                         "save_labels_func": lambda _: False,
-                         "samples_io": SamplesIO(target_dir=utils.TEST_OUT_DIR,
-                                                 reader=PandasCsvReader(sep=',', compression="infer"),
-                                                 writer=writer),
-                         "storage": RowCacheStorage(force_collect_columns=[
-                             const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
-                         ]),
-                     })
+                                  "data_type_pipelines": {DataType.Test: data_pipeline},
+                                  "doc_ids": list(range(len(actual_content))),
+                              })
 
     def test_deeppavlov(self):
 
-        pipeline = demo_infer_texts_bert_pipeline(infer_engines={
-            "deeppavlov": {
-                "pretrained_bert": "DeepPavlov/rubert-base-cased",
-                "max_seq_length": 128
+        pipeline = demo_infer_texts_bert_pipeline(
+            sampling_engines={
+                "arekit": self.create_sampling_params()
+            },
+            infer_engines={
+                "deeppavlov": {
+                    "pretrained_bert": "DeepPavlov/rubert-base-cased",
+                    "max_seq_length": 128
             }
         })
         writer = NativeCsvWriter(delimiter=',')
-        self.launch(pipeline, writer)
+        self.launch(pipeline)
 
     def test_opennre(self):
 
-        pipeline = demo_infer_texts_bert_pipeline(infer_engines={
-            "opennre": {
-                "pretrained_bert": "DeepPavlov/rubert-base-cased",
-                "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
-                "device_type": "cpu",
-                "max_seq_length": 128
-            }
-        })
+        pipeline = demo_infer_texts_bert_pipeline(
+            sampling_engines={
+                "arekit": self.create_sampling_params()
+            },
+            infer_engines={
+                "opennre": {
+                    "pretrained_bert": "DeepPavlov/rubert-base-cased",
+                    "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+                    "device_type": "cpu",
+                    "max_seq_length": 128
+                }
+            })
 
-        writer = OpenNREJsonWriter(
-            text_columns=[BaseSingleTextProvider.TEXT_A, PairTextProvider.TEXT_B],
-            keep_extra_columns=False,
-            na_value="0")
-
-        self.launch(pipeline, writer)
+        self.launch(pipeline)

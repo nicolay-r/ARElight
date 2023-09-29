@@ -52,7 +52,7 @@ python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
     -o output/samples
 ```
 
-Launches server at `http://0.0.0.0:8000/` so you may analyse the results:
+Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 
 ## Powered by
 

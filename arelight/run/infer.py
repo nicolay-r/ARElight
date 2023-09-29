@@ -22,11 +22,13 @@ from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.result import PipelineResult
+from arelight.pipelines.items.entities_default import TextEntitiesParser
+from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run import cmd_args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormattersService
-from arelight.run.utils import read_synonyms_collection, create_entity_parser, merge_dictionaries
+from arelight.run.utils import read_synonyms_collection, merge_dictionaries
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
@@ -41,10 +43,11 @@ if __name__ == '__main__':
     cmd_args.FromDataframeArg.add_argument(parser)
     cmd_args.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
     cmd_args.TermsPerContextArg.add_argument(parser, default=50)
-    cmd_args.NERModelNameArg.add_argument(parser, default="ner_ontonotes_bert_mult")
-    cmd_args.NERObjectTypes.add_argument(parser, default="ORG|PERSON|LOC|GPE")
     cmd_args.SentenceParserArg.add_argument(parser)
+    parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default="ner_ontonotes_bert_mult")
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
+    parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
+    parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov"], default="deeppavlov")
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument('--entity-fmt', dest='entity_fmt', type=str, choices=list(EntityFormattersService.iter_names()), default="hidden-bert-styled")
     parser.add_argument('--text-b-type', dest='text_b_type', type=str, default="nli_m", choices=list(SampleFormattersService.iter_names()))
@@ -65,8 +68,9 @@ if __name__ == '__main__':
     texts_from_files = cmd_args.FromFilesArg.read_argument(args)
     text_from_arg = cmd_args.InputTextArg.read_argument(args)
     texts_from_dataframe = cmd_args.FromDataframeArg.read_argument(args)
-    ner_model_name = cmd_args.NERModelNameArg.read_argument(args)
-    ner_object_types = cmd_args.NERObjectTypes.read_argument(args)
+    ner_framework = args.ner_framework
+    ner_model_name = args.ner_model_name
+    ner_object_types = args.ner_types
     terms_per_context = cmd_args.TermsPerContextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
@@ -95,6 +99,16 @@ if __name__ == '__main__':
                 force_collect_columns=[const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND]),
             "save_labels_func": lambda data_type: data_type != DataType.Test
         }
+    }
+
+    entity_parsers = {
+        # Default parser.
+        None: lambda: TextEntitiesParser(IdAssigner()),
+        # Parser based on DeepPavlov backend.
+        "deeppavlov": lambda: DeepPavlovNERPipelineItem(
+            obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
+            ner_model_name=ner_model_name,
+            id_assigner=IdAssigner())
     }
 
     infer_engines_setup = {
@@ -142,9 +156,7 @@ if __name__ == '__main__':
     # Setup text parser.
     text_parser = BaseTextParser(pipeline=[
         TermsSplitterParser(),
-        create_entity_parser(ner_model_name=ner_model_name,
-                             id_assigner=IdAssigner(),
-                             obj_filter_types=ner_object_types),
+        entity_parsers[ner_framework](),
         EntitiesGroupingPipelineItem(
             lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                 synonyms=synonyms, value=value))

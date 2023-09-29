@@ -7,30 +7,10 @@ from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
-from arelight.pipelines.items.entities_default import TextEntitiesParser
-from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-
-def create_entity_parser(ner_model_name, id_assigner, obj_filter_types=None):
-    """ NOTE: It is important that the IdAssigner is expected to be unique for all the
-        entity parsers.
-
-        obj_filter_types: str
-    """
-    assert(isinstance(ner_model_name, str) or ner_model_name is None)
-    assert(isinstance(obj_filter_types, list) or obj_filter_types is None)
-
-    if ner_model_name is None:
-        return TextEntitiesParser(id_assigner)
-    else:
-        return DeepPavlovNERPipelineItem(
-            obj_filter=None if obj_filter_types is None else lambda s_obj: s_obj.ObjectType in obj_filter_types,
-            ner_model_name=ner_model_name,
-            id_assigner=id_assigner)
 
 
 def create_sentence_parser(arg):
