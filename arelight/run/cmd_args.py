@@ -2,9 +2,7 @@ import importlib
 
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 
-from arelight.run.entities.types import EntityFormattersService
 from arelight.run.utils import create_sentence_parser
-from arelight.samplers.types import SampleFormattersService
 
 
 class BaseArg:
@@ -161,32 +159,3 @@ class SentenceParserArg(BaseArg):
                             type=str,
                             choices=['linesplit', 'ru', 'nltk_en'],
                             default=default)
-
-
-class NERModelNameArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.ner_model_name
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--ner-model-name',
-                            dest='ner_model_name',
-                            type=str,
-                            default=default)
-
-
-class NERObjectTypes(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.ner_types.split("|")
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--ner-types',
-                            dest='ner_types',
-                            type=str,
-                            default=default,
-                            help="Filters specific NER types; provide with `|` separator")
