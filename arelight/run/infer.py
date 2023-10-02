@@ -141,7 +141,6 @@ if __name__ == '__main__':
         }
     }
 
-
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in [args.sampling_framework]},
