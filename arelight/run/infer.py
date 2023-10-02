@@ -124,57 +124,59 @@ if __name__ == '__main__':
             "graph_a_labels": None,
             "graph_b_labels": None,
             "weights": True,
-        }
+        },
+        "brat": {}
     }
 
     # Setup main pipeline.
-    pipeline = demo_infer_texts_bert_pipeline(
+    pipeline_items = demo_infer_texts_bert_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in [args.sampling_framework]},
         infer_engines={key: infer_engines_setup[key] for key in [args.bert_framework]},
         backend_engines={key: backend_setups[key] for key in [args.backend]})
 
-    pipeline = BasePipeline(pipeline)
+    pipeline = BasePipeline(pipeline_items)
 
-    synonyms_collection_path = cmd_args.SynonymsCollectionFilepathArg.read_argument(args)
-    synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
-        SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
+    # Setup list of settings considered to pass alongside with the pipeline.
+    settings = []
 
-    # Setup text parser.
-    text_parser = BaseTextParser(pipeline=[
-        TermsSplitterParser(),
-        create_entity_parser(ner_model_name=ner_model_name,
-                             id_assigner=IdAssigner(),
-                             obj_filter_types=ner_object_types),
-        EntitiesGroupingPipelineItem(
-            lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                synonyms=synonyms, value=value))
-    ])
+    if args.sampling_framework == "arekit":
+        synonyms_collection_path = cmd_args.SynonymsCollectionFilepathArg.read_argument(args)
+        synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
+            SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
-    # Setup data annotation pipeline.
-    docs = input_to_docs(actual_content, sentence_parser=sentence_parser, docs_limit=docs_limit)
-    doc_provider = InMemoryDocProvider(docs)
-    data_pipeline = create_neutral_annotation_pipeline(
-        synonyms=synonyms,
-        dist_in_terms_bound=terms_per_context,
-        doc_provider=doc_provider,
-        terms_per_context=terms_per_context,
-        text_parser=text_parser)
+        # Setup text parser.
+        text_parser = BaseTextParser(pipeline=[
+            TermsSplitterParser(),
+            create_entity_parser(ner_model_name=ner_model_name,
+                                 id_assigner=IdAssigner(),
+                                 obj_filter_types=ner_object_types),
+            EntitiesGroupingPipelineItem(
+                lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                    synonyms=synonyms, value=value))
+        ])
 
-    #########################################
-    # Settings Setup.
-    #########################################
+        # Setup data annotation pipeline.
+        docs = input_to_docs(actual_content, sentence_parser=sentence_parser, docs_limit=docs_limit)
+        doc_provider = InMemoryDocProvider(docs)
+        data_pipeline = create_neutral_annotation_pipeline(
+            synonyms=synonyms,
+            dist_in_terms_bound=terms_per_context,
+            doc_provider=doc_provider,
+            terms_per_context=terms_per_context,
+            text_parser=text_parser)
 
-    settings_sampling_input = {
-        "data_type_pipelines": {DataType.Test: data_pipeline},
-        "doc_ids": list(range(len(doc_provider)))
-    }
+        settings.append({
+            "data_type_pipelines": {DataType.Test: data_pipeline},
+            "doc_ids": list(range(len(doc_provider)))
+        })
 
-    settings_backend_brat = {
-        "backend_template": output_template,
-        "template_filepath": join(dirname(output_template), "brat_template.html"),
-        "brat_url": "http://localhost:8001/",
-        "brat_vis_fp": "{}.html".format(output_template) if output_template is not None else None,
-    }
+    if args.backend == "brat":
+        settings.append({
+            "backend_template": output_template,
+            "template_filepath": join(dirname(output_template), "brat_template.html"),
+            "brat_url": "http://localhost:8001/",
+            "brat_vis_fp": "{}.html".format(output_template) if output_template is not None else None,
+        })
 
     # Launch application.
     pipeline.run(
@@ -186,7 +188,4 @@ if __name__ == '__main__':
             "d3js_graph_do_save": True,
             "d3js_graph_launch_server": True,
         }),
-        params_dict=merge_dictionaries([
-            settings_sampling_input,
-            settings_backend_brat
-        ]))
+        params_dict=merge_dictionaries(settings))
