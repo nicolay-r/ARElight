@@ -1,4 +1,8 @@
 import unittest
+
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
+from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
+
 import utils
 from os.path import join
 
@@ -12,7 +16,7 @@ from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitt
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entity import IndexedEntity
-from arelight.run.utils import read_synonyms_collection
+from arelight.run.utils import iter_group_values
 from arelight.utils import IdAssigner
 
 
@@ -47,7 +51,9 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
                "на балтике является ответом именно на действия НАТО и эскалацию " \
                "враждебного подхода к Росcии вблизи ее восточных границ ..."
 
-        synonyms = read_synonyms_collection(join(utils.TEST_DATA_DIR, "rus_synonyms_rusentrel.txt"))
+        synonyms = StemmerBasedSynonymCollection(
+            iter_group_values_lists=iter_group_values(join(utils.TEST_DATA_DIR, "rus_synonyms_rusentrel.txt")),
+            stemmer=MystemWrapper(), is_read_only=False)
 
         # Declare text parser.
         text_parser = BaseTextParser(pipeline=[

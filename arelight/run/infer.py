@@ -16,7 +16,9 @@ from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.json_opennre import OpenNREJsonWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
+from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
 from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
@@ -28,7 +30,7 @@ from arelight.pipelines.items.utils import input_to_docs
 from arelight.run import cmd_args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormattersService
-from arelight.run.utils import read_synonyms_collection, merge_dictionaries
+from arelight.run.utils import merge_dictionaries, iter_group_values
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
@@ -41,10 +43,11 @@ if __name__ == '__main__':
     cmd_args.InputTextArg.add_argument(parser, default=None)
     cmd_args.FromFilesArg.add_argument(parser)
     cmd_args.FromDataframeArg.add_argument(parser)
-    cmd_args.SynonymsCollectionFilepathArg.add_argument(parser, default=None)
     cmd_args.TermsPerContextArg.add_argument(parser, default=50)
     cmd_args.SentenceParserArg.add_argument(parser)
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default="ner_ontonotes_bert_mult")
+    parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
+    parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov"], default="deeppavlov")
@@ -101,6 +104,13 @@ if __name__ == '__main__':
         }
     }
 
+    stemmer_types = {
+        None: lambda: None,
+        "mystem": lambda: MystemWrapper()
+    }
+
+    stemmer = stemmer_types[args.stemmer]()
+
     entity_parsers = {
         # Default parser.
         None: lambda: TextEntitiesParser(IdAssigner()),
@@ -108,7 +118,8 @@ if __name__ == '__main__':
         "deeppavlov": lambda: DeepPavlovNERPipelineItem(
             obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
             ner_model_name=ner_model_name,
-            id_assigner=IdAssigner())
+            id_assigner=IdAssigner(),
+            display_value_func=(lambda value: stemmer.lemmatize_to_str(value)) if stemmer is not None else None)
     }
 
     infer_engines_setup = {
@@ -154,9 +165,18 @@ if __name__ == '__main__':
 
     if args.sampling_framework == "arekit":
 
-        synonyms_collection_path = cmd_args.SynonymsCollectionFilepathArg.read_argument(args)
-        synonyms = read_synonyms_collection(synonyms_collection_path) if synonyms_collection_path is not None else \
-            SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
+        synonyms_setup = {
+            None: lambda: SimpleSynonymCollection(
+                iter_group_values_lists=iter_group_values(args.synonyms_filepath),
+                is_read_only=False),
+            "lemmatized": lambda: StemmerBasedSynonymCollection(
+                iter_group_values_lists=iter_group_values(args.synonyms_filepath),
+                stemmer=stemmer,
+                is_read_only=False)
+        }
+
+        # Create Synonyms Collection.
+        synonyms = synonyms_setup["lemmatized" if args.stemmer is not None else None]()
 
         # Setup text parser.
         text_parser = BaseTextParser(pipeline=[

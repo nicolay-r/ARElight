@@ -1,7 +1,5 @@
 import importlib
 
-from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
-
 from arelight.run.utils import create_sentence_parser
 
 
@@ -86,31 +84,6 @@ class FromFilesArg(BaseArg):
                             help='Custom vocabulary filepath')
 
 
-class StemmerArg(BaseArg):
-
-    supported = {
-        u"mystem": MystemWrapper()
-    }
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def read_argument(args):
-        return StemmerArg.supported[args.stemmer]
-
-    @staticmethod
-    def add_argument(parser, default):
-        assert(default in StemmerArg.supported)
-        parser.add_argument('--stemmer',
-                            dest='stemmer',
-                            type=str,
-                            choices=list(StemmerArg.supported.keys()),
-                            default=default,
-                            nargs='?',
-                            help='Stemmer (Default: {})'.format(default))
-
-
 class TermsPerContextArg(BaseArg):
 
     @staticmethod
@@ -128,21 +101,6 @@ class TermsPerContextArg(BaseArg):
                                  'NOTE: Use greater or equal value for this parameter during experiment'
                                  'process; otherwise you may encounter with exception during sample '
                                  'creation process!'.format(default))
-
-
-class SynonymsCollectionFilepathArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.synonyms_filepath
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--synonyms-filepath',
-                            dest='synonyms_filepath',
-                            type=str,
-                            default=default,
-                            help="List of synonyms provided in lines of the source text file.")
 
 
 class SentenceParserArg(BaseArg):

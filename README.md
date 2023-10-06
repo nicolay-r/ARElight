@@ -35,7 +35,7 @@ python standalone.py
 
 Infer sentiment attitudes from a mass-media document(s).
 ```bash
-python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
+python3 -m arelight.run.infer  \
     --sampling-framework "arekit" \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
@@ -49,7 +49,8 @@ python3 -m arelight.run.infer --from-files data/texts-inosmi-rus/e0.txt \
     --bert-torch-checkpoint "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar" \
     --backend "d3js_graphs" \
     --docs-limit 500 \
-    -o output/samples
+    -o output/samples \
+    --from-files data/texts-inosmi-rus/e0.txt
 ```
 
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results.

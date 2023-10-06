@@ -38,17 +38,14 @@ def create_labels_scaler(labels_count):
     raise NotImplementedError("Not supported")
 
 
-def read_synonyms_collection(filepath):
+def iter_group_values(filepath):
 
-    def __iter_groups(filepath):
-        with open(filepath, 'r') as file:
-            for group in iter_synonym_groups(file):
-                yield group
+    if filepath is None:
+        return None
 
-    return StemmerBasedSynonymCollection(
-        iter_group_values_lists=__iter_groups(filepath),
-        stemmer=MystemWrapper(),
-        is_read_only=False)
+    with open(filepath, 'r') as file:
+        for group in iter_synonym_groups(file):
+            yield group
 
 
 class EnumConversionService(object):
