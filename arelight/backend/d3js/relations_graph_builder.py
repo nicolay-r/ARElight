@@ -8,6 +8,21 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
         entity_types: list
     """
 
+    META_DOT = '.'
+    META_UNDERSCORE = '___'
+    META_AST = '***'
+
+    char_map = {
+        META_DOT: '·',
+        META_UNDERSCORE: '---',
+        META_AST: '^^^',
+    }
+
+    def __handle_meta_symbols(s):
+        for patter_orig, pattern_to in char_map.items():
+            s = s.replace(patter_orig, pattern_to)
+        return s
+
     nodes_ = {}
     links_ = {}
 
@@ -40,7 +55,12 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
         nodes_[source] += 1
         nodes_[target] += 1
 
-        s_t = source_type + "." + source + "___" + target_type + "." + target + "***" + label
+        meta_value = [source_type, META_DOT, source, META_UNDERSCORE, target_type, META_DOT, target, META_AST, label]
+
+        # Replacing patterns affect on the syntax of the result string.
+        s_t = "".join([__handle_meta_symbols(v) if v not in char_map.keys() else v
+                       for v in meta_value])
+
         if s_t not in links_:
             links_[s_t] = 0
         links_[s_t] += 1
