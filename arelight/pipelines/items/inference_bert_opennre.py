@@ -108,9 +108,13 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                                          shuffle=False)
 
         # Iter output results.
-        return self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
-                                 data_ids=list(self.extract_ids(samples_filepath)),
-                                 eval_loader=sentence_eval)
+        results_it = self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
+                                       data_ids=list(self.extract_ids(samples_filepath)),
+                                       eval_loader=sentence_eval)
+
+        total = len(sentence_eval.dataset)
+
+        return results_it, total
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(input_data, PipelineContext))
@@ -145,5 +149,6 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                 mask_entity=True,
                 dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 
-        iter_infer = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
+        iter_infer, total = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
         input_data.update("iter_infer", iter_infer)
+        input_data.update("iter_total", total)

@@ -20,6 +20,7 @@ class PipelineResult(PipelineContext):
             "labels_scaler": ThreeLabelScaler(),
             # Inference stage -------------------------
             "iter_infer": None,
+            "iter_total": None,
             # Inference stage -------------------------
             "predict_reader": PandasCsvReader(compression='infer'),  # The way we can read the predicted results.
         }

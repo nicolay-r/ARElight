@@ -19,13 +19,11 @@ class InferenceWriterPipelineItem(BasePipelineItem):
 
         self.__writer.set_target(target)
 
-        # Update for further pipeline items.
-        input_data.update("predict_filepath", target)
-
         # Gathering the content
         title, contents_it = BasePredictProvider().provide(
             sample_id_with_uint_labels_iter=input_data.provide("iter_infer"),
             labels_count=input_data.provide("labels_scaler").LabelsCount)
 
         with self.__writer:
-            self.__writer.write(title=title, contents_it=contents_it)
+            self.__writer.write(title=title, contents_it=contents_it,
+                                total=input_data.provide_or_none("iter_total"))

@@ -1,7 +1,7 @@
 import gzip
 import logging
 
-from arekit.common.utils import progress_bar_iter, create_dir_if_not_exists
+from arekit.common.utils import progress_bar_defined, create_dir_if_not_exists
 
 from arelight.predict_writer import BasePredictWriter
 
@@ -20,12 +20,10 @@ class TsvPredictWriter(BasePredictWriter):
         line = "{}\n".format(self.__col_separator.join([str(p) for p in params]))
         self.__f.write(line.encode())
 
-    def write(self, title, contents_it):
+    def write(self, title, contents_it, total=None):
         self.__write(title)
 
-        wrapped_it = progress_bar_iter(iterable=contents_it,
-                                       desc='Writing output',
-                                       unit='rows')
+        wrapped_it = progress_bar_defined(iterable=contents_it, desc='Writing output', unit='rows', total=total)
 
         for contents in wrapped_it:
             self.__write(contents)

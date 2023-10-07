@@ -6,5 +6,5 @@ class BasePredictWriter(object):
     def set_target(self, target):
         self._target = target
 
-    def write(self, title, contents_it):
+    def write(self, title, contents_it, total=None):
         raise NotImplementedError()
