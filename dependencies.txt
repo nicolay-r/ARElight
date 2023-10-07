@@ -5,3 +5,4 @@ pytorch-crf==0.7.2
 arekit @ git+https://github.com/nicolay-r/AREkit@0.24.0-rc
 open-nre @ git+https://github.com/thunlp/OpenNRE@53b6c9400775ab066dc4f462e81ce05ea2b128e7
 nltk==3.4.5
+googletrans==3.1.0a0

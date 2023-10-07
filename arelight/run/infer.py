@@ -30,7 +30,7 @@ from arelight.pipelines.items.utils import input_to_docs
 from arelight.run import cmd_args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormattersService
-from arelight.run.utils import merge_dictionaries, iter_group_values
+from arelight.run.utils import merge_dictionaries, iter_group_values, translate_value
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
@@ -51,6 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov"], default="deeppavlov")
+    parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument('--entity-fmt', dest='entity_fmt', type=str, choices=list(EntityFormattersService.iter_names()), default="hidden-bert-styled")
     parser.add_argument('--text-b-type', dest='text_b_type', type=str, default="nli_m", choices=list(SampleFormattersService.iter_names()))
@@ -111,15 +112,32 @@ if __name__ == '__main__':
 
     stemmer = stemmer_types[args.stemmer]()
 
+    def __entity_display_value(entity_value):
+        """ This function describes how the result entity is expected to be visualized
+            and passed for further components of the pipeline after serialization.
+        """
+
+        display_value = entity_value
+
+        if stemmer is not None:
+            display_value = stemmer.lemmatize_to_str(display_value)
+
+        if args.translate_entity is not None:
+            src, dest = args.translate_entity.split(':')
+            display_value = translate_value(display_value, src=src, dest=dest)
+
+        return display_value
+
     entity_parsers = {
         # Default parser.
-        None: lambda: TextEntitiesParser(IdAssigner()),
+        None: lambda: TextEntitiesParser(id_assigner=IdAssigner(),
+                                         display_value_func=__entity_display_value),
         # Parser based on DeepPavlov backend.
         "deeppavlov": lambda: DeepPavlovNERPipelineItem(
             obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
             ner_model_name=ner_model_name,
             id_assigner=IdAssigner(),
-            display_value_func=(lambda value: stemmer.lemmatize_to_str(value)) if stemmer is not None else None)
+            display_value_func=__entity_display_value)
     }
 
     infer_engines_setup = {
