@@ -3,32 +3,36 @@
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.24.0-orange.svg)
 
-### :point_right: [DEMO](https://github.com/nicolay-r/ARElight/tree/v0.22.0#installation) :point_left:
-
-> **Supported Languages**: Russian
+### :point_right: [DEMO]() :point_left:
 
 <p align="center">
     <img src="logo.png"/>
 </p>
 
-ARElight is an application for a granular view onto sentiments between mentioned named entities in a mass-media texts written in Russian.
+ARElight is an application for a granular view onto sentiments between mentioned named entities 
+in a mass-media texts written in Russian.
 
-This project is commonly powered by [AREkit](https://github.com/nicolay-r/AREkit) framework.
-For Named Entity Recognition in text sentences, 
-we adopt [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov)  (BertOntoNotes model).
+### Sentiment Analysis Pipeline
+
+ARElight core is powered by [AREkit](https://github.com/nicolay-r/AREkit) framework,
+responsible for raw text sampling.
+To annotate objects in text, we use `BERT`-based models trained on
+`OntoNotes5` (powered by [DeepPavlov](https://github.com/deeppavlovteam/DeepPavlov))
+For relations annotation, we support 
+[OpenNRE](https://github.com/thunlp/OpenNRE)
+`BERT` models.
+The default inference is pretrained BERT with transfer learning based on 
+[RuSentRel](https://github.com/nicolay-r/RuSentRel)
+and 
+[RuAttitudes](https://github.com/nicolay-r/RuAttitudes)
+collections, that were sampled and translated into English via 
+[arekit-ss](https://github.com/nicolay-r/arekit-ss).
+
 
 # Installation
 
-1. Main library installation
 ```bash
 pip install git+https://github.com/nicolay-r/arelight@v0.24.0
-```
-
-2. (Optional) BRAT: [Download](https://github.com/nlplab/brat/releases/tag/v1.3_Crunchy_Frog) 
-  and install library, and run standalone server as follows:
-```
-./install.sh -u
-python standalone.py
 ```
 
 ## Usage

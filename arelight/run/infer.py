@@ -62,6 +62,7 @@ if __name__ == '__main__':
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "brat", "d3js_graphs"])
+    parser.add_argument("--d3js-host", dest="d3js_host", type=bool, default=True, choices=[True, False])
     parser.add_argument('-o', dest='output_template', type=str, default=None, nargs='?')
 
     # Parsing arguments.
@@ -236,6 +237,6 @@ if __name__ == '__main__':
             "samples_io": sampling_engines_setup["arekit"]["samples_io"],
             "d3js_graph_output_dir": dirname(output_template),
             "d3js_graph_do_save": True,
-            "d3js_graph_launch_server": True,
+            "d3js_graph_launch_server": args.d3js_host,
         }),
         params_dict=merge_dictionaries(settings))
