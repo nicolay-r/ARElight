@@ -130,11 +130,11 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
             input_data.update(f"d3js_graph_{graph_ui_type}_html_template", html_content)
 
-        launch_server = input_data.provide_or_none("d3js_graph_launch_server")
+        host_port = input_data.provide_or_none("d3js_host")
 
         # Launch server to checkout the results (Optionally)
-        if launch_server is not None and launch_server is True:
-            cmd = f"cd {target_dir} && python -m http.server 8000"
+        if host_port is not None:
+            cmd = f"cd {target_dir} && python -m http.server {host_port}"
             print("Launching WEB server for watching the results")
             logger.info(cmd)
             os.system(cmd)

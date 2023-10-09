@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "brat", "d3js_graphs"])
-    parser.add_argument("--d3js-host", dest="d3js_host", type=bool, default=True, choices=[True, False])
+    parser.add_argument("--d3js-host", dest="d3js_host", default=None, type=str)
     parser.add_argument('-o', dest='output_template', type=str, default=None, nargs='?')
 
     # Parsing arguments.
@@ -79,8 +79,9 @@ if __name__ == '__main__':
     terms_per_context = cmd_args.TermsPerContextArg.read_argument(args)
     actual_content = text_from_arg if text_from_arg is not None else \
         texts_from_files if texts_from_files is not None else texts_from_dataframe
-    output_template = args.output_template
     docs_limit = args.docs_limit
+    output_template = args.output_template
+    output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
 
     labels_scaler = SingleLabelScaler(NoLabel())
 
@@ -92,7 +93,7 @@ if __name__ == '__main__':
                 # We annotate everything with NoLabel.
                 label_scaler=SingleLabelScaler(NoLabel()),
                 entity_formatter=create_entity_formatter(EntityFormattersService.name_to_type(args.entity_fmt))),
-            "samples_io": SamplesIO(target_dir=dirname(output_template),
+            "samples_io": SamplesIO(target_dir=output_dir,
                                     prefix="samples",
                                     reader=JsonlReader(),
                                     writer=OpenNREJsonWriter(
@@ -224,7 +225,7 @@ if __name__ == '__main__':
     if args.backend == "brat":
         settings.append({
             "backend_template": output_template,
-            "template_filepath": join(dirname(output_template), "brat_template.html"),
+            "template_filepath": join(output_dir, "brat_template.html"),
             "brat_url": "http://localhost:8001/",
             "brat_vis_fp": "{}.html".format(output_template) if output_template is not None else None,
         })
@@ -233,10 +234,11 @@ if __name__ == '__main__':
     pipeline.run(
         input_data=PipelineResult({
             # We provide this settings for inference.
-            "predict_filepath": join(dirname(output_template), "predict.tsv.gz"),
+            "predict_filepath": join(output_dir, "predict.tsv.gz"),
             "samples_io": sampling_engines_setup["arekit"]["samples_io"],
-            "d3js_graph_output_dir": dirname(output_template),
+            "d3js_graph_output_dir": output_dir,
             "d3js_graph_do_save": True,
             "d3js_graph_launch_server": args.d3js_host,
+            "d3js_host": args.d3js_host,
         }),
         params_dict=merge_dictionaries(settings))

@@ -45,15 +45,15 @@ python3 -m arelight.run.infer  \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --terms-per-context 50 \
     --sentence-parser "ru" \
-    --text-b-type "nli_m" \
     --tokens-per-context 128 \
-    --batch-size 10 \
     --bert-framework "opennre" \
+    --batch-size 10 \
     --pretrained-bert "DeepPavlov/rubert-base-cased" \
     --bert-torch-checkpoint "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar" \
     --backend "d3js_graphs" \
+    --d3js-host 8000 \
     --docs-limit 500 \
-    -o output/samples \
+    -o "output" \
     --from-files data/texts-inosmi-rus/e0.txt
 ```
 
@@ -64,19 +64,20 @@ Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 <details>
 <summary>
 
-### D3JS: Operations between Graphs
+### `D3JS`: Operations between Graphs
 </summary>
     
 </details>
 <details>
 <summary>
 
-### D3JS: Launch Graph Builder and DEMO server
+### `D3JS`: Launch Graph Builder and DEMO server
 </summary>
-Launch Graph Builder for D3JS and (optionaly) start DEMO server for collections in `output` dir:
+
+Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
 
 ```bash
-python3 -m arelight.run.infer --backend "d3js_graphs" -o output --d3js-host True
+python3 -m arelight.run.infer --backend "d3js_graphs" -o output --d3js-host 8080 
 ```
 </details>
 
