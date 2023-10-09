@@ -59,6 +59,27 @@ python3 -m arelight.run.infer  \
 
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 
+## Advanced and Partial Usage
+
+<details>
+<summary>
+
+### D3JS: Operations between Graphs
+</summary>
+    
+</details>
+<details>
+<summary>
+
+### D3JS: Launch Graph Builder and DEMO server
+</summary>
+Launch Graph Builder for D3JS and (optionaly) start DEMO server for collections in `output` dir:
+
+```bash
+python3 -m arelight.run.infer --backend "d3js_graphs" -o output --d3js-host True
+```
+</details>
+
 ## Powered by
 
 * AREkit [[github]](https://github.com/nicolay-r/AREkit)
