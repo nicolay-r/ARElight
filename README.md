@@ -65,7 +65,15 @@ Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 ## Advanced and Partial Usage
 </summary>
 
-### `D3JS`: Operations between Graphs
+### Operations between Graphs
+
+```bash
+python3 -m arelight.run.operations.py --operation SIMILARITY --graph_a emask.json \
+  --graph_b jbezos.json --weights y --name elon_SIMILARITY_bezos \
+  --description "Similarity between Elon Mask and Jeph Bezos on X/Twitter"
+```
+
+![Operations](https://github.com/nicolay-r/ARElight/assets/14871187/90cdbbc8-4a88-4f5f-92a3-355594fa61f0)
 
 ### `D3JS`: Launch Graph Builder and DEMO server
 
