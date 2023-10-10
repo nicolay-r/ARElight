@@ -68,7 +68,7 @@ Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 ### Operations between Graphs
 
 ```bash
-python3 -m arelight.run.operations.py --operation SIMILARITY --graph_a emask.json \
+python3 -m arelight.run.operations --operation SIMILARITY --graph_a emask.json \
   --graph_b jbezos.json --weights y --name elon_SIMILARITY_bezos \
   --description "Similarity between Elon Mask and Jeph Bezos on X/Twitter"
 ```
