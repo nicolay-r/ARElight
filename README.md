@@ -54,25 +54,20 @@ python3 -m arelight.run.infer  \
     --d3js-host 8000 \
     --docs-limit 500 \
     -o "output" \
-    --from-files data/texts-inosmi-rus/e0.txt
+    --text "США намерена ввести санкции против России."
 ```
 
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 
-## Advanced and Partial Usage
-
 <details>
 <summary>
+
+## Advanced and Partial Usage
+</summary>
 
 ### `D3JS`: Operations between Graphs
-</summary>
-    
-</details>
-<details>
-<summary>
 
 ### `D3JS`: Launch Graph Builder and DEMO server
-</summary>
 
 Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
 

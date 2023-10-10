@@ -118,3 +118,16 @@ def merge_dictionaries(dict_iter):
                 raise Exception("Key `{}` is already registred!".format(key))
             merged_dict[key] = value
     return merged_dict
+
+
+def read_files(paths):
+
+    if paths is None:
+        return None
+
+    file_contents = []
+    for path in paths:
+        with open(path) as f:
+            file_contents.append(f.read().rstrip())
+
+    return file_contents

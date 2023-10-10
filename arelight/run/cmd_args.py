@@ -14,22 +14,6 @@ class BaseArg:
         raise NotImplementedError()
 
 
-class InputTextArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        return args.input_text
-
-    @staticmethod
-    def add_argument(parser, default):
-        parser.add_argument('--text',
-                            dest='input_text',
-                            type=str,
-                            default=default,
-                            nargs='?',
-                            help='Input text for processing')
-
-
 class FromDataframeArg(BaseArg):
 
     @staticmethod
@@ -56,32 +40,6 @@ class FromDataframeArg(BaseArg):
                             type=str,
                             default=default,
                             nargs=1)
-
-
-class FromFilesArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-        paths = args.from_files
-
-        if paths is None:
-            return None
-
-        file_contents = []
-        for path in paths:
-            with open(path) as f:
-                file_contents.append(f.read().rstrip())
-
-        return file_contents
-
-    @staticmethod
-    def add_argument(parser, default=None):
-        parser.add_argument('--from-files',
-                            dest='from_files',
-                            type=str,
-                            default=default,
-                            nargs='+',
-                            help='Custom vocabulary filepath')
 
 
 class TermsPerContextArg(BaseArg):
