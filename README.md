@@ -37,7 +37,7 @@ pip install git+https://github.com/nicolay-r/arelight@v0.24.0
 
 ## Usage
 
-Infer sentiment attitudes from a mass-media document(s).
+Infer sentiment attitudes from text file:
 ```bash
 python3 -m arelight.run.infer  \
     --sampling-framework "arekit" \
@@ -45,6 +45,7 @@ python3 -m arelight.run.infer  \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --terms-per-context 50 \
     --sentence-parser "ru" \
+    --text-b-type "nli_m" \
     --tokens-per-context 128 \
     --bert-framework "opennre" \
     --batch-size 10 \
@@ -54,7 +55,7 @@ python3 -m arelight.run.infer  \
     --d3js-host 8000 \
     --docs-limit 500 \
     -o "output" \
-    --text "США намерена ввести санкции против России."
+    --from-files "<PATH-TO-TEXT-FILE>"
 ```
 
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
