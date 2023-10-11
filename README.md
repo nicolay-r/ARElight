@@ -29,7 +29,7 @@ python3 -m arelight.run.infer  \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --terms-per-context 50 \
-    --sentence-parser "ru" \
+    --sentence-parser "nltk_en" \
     --tokens-per-context 128 \
     --bert-framework "opennre" \
     --batch-size 10 \
@@ -49,7 +49,7 @@ Below is an exapmpe for the `War And Peace Vol.1`
 
 [![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 
-![image](https://github.com/nicolay-r/ARElight/assets/14871187/edc313de-7706-4d3a-a973-82248abf6cbf)
+![image](https://github.com/nicolay-r/ARElight/assets/14871187/341f3b51-d639-46b6-83fe-99b542b1751b)
 
 <details>
 <summary>
