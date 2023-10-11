@@ -78,5 +78,5 @@ Checkout [wiki-page for greater details](https://github.com/nicolay-r/ARElight/w
 * AREkit [[github]](https://github.com/nicolay-r/AREkit)
 
 <p float="left">
-<a href="https://github.com/nicolay-r/AREkit"><img src="docs/arekit_logo.png"/></a>
+<a href="https://github.com/nicolay-r/AREkit"><img src="https://github.com/nicolay-r/ARElight/assets/14871187/01232f7a-970f-416c-b7a4-1cda48506afe"/></a>
 </p>
