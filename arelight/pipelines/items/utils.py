@@ -42,7 +42,9 @@ def try_download_predefined_checkpoint(checkpoint, dir_to_download):
 
     predefined_checkponts = {
         "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar":
-            "https://www.dropbox.com/scl/fi/rwjf7ag3w3z90pifeywrd/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar?rlkey=p0mmu81o6c2u6iboe9m20uzqk&dl=1"
+            "https://www.dropbox.com/scl/fi/rwjf7ag3w3z90pifeywrd/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar?rlkey=p0mmu81o6c2u6iboe9m20uzqk&dl=1",
+        "ra4-rsr1_bert-base-uncased_cls.pth.tar":
+            "https://www.dropbox.com/scl/fi/ca219n3qhht6aqs8d8h51/ra4-rsr1_bert-base-uncased_cls.pth.tar?rlkey=hdora33tm93tbpqk5yvj90k7c&dl=1"
     }
 
     if checkpoint in predefined_checkponts:
