@@ -42,7 +42,7 @@ python3 -m arelight.run.infer  \
     --from-files "<PATH-TO-TEXT-FILE>"
 ```
 
-> **NOTE:** [Details for ARElight launching for **non-english texts**](https://github.com/nicolay-r/ARElight/wiki/Low%E2%80%90Resource-Domain-Application)
+> **NOTE:** [Details for ARElight launching for **non-english texts**](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application))
  
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results. 
 
@@ -87,10 +87,6 @@ Launch Graph Builder for D3JS and (optional) start DEMO server for collections i
 ```bash
 python3 -m arelight.run.infer --backend "d3js_graphs" -o output --d3js-host 8080 
 ```
-
-### Other languages :ru:
-
-Checkout [wiki-page for greater details](https://github.com/nicolay-r/ARElight/wiki/Low%E2%80%90Resource-Domain-Application)
 
 </details>
 
