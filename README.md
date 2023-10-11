@@ -63,7 +63,22 @@ python3 -m arelight.run.operations --operation SIMILARITY --graph_a emask.json \
   --graph_b jbezos.json --weights y --name elon_SIMILARITY_bezos \
   --description "Similarity between Elon Mask and Jeph Bezos on X/Twitter"
 ```
-![Operations](https://github.com/nicolay-r/ARElight/assets/14871187/90cdbbc8-4a88-4f5f-92a3-355594fa61f0)
+
+For graph analysis you can perform several graph operations by this script:
+
+**Union** $(G_1 \cup G_2)$.
+Helps to unite several graphs, e.g. graphs of multiple social network users.
+Here, $G$ contains all the vertices and edges that are in $G_1$ and $G_2$. The edge weight is given by $W_e = W_{e1} + W_{e2}$, and the vertex weight is its weighted degree centrality: $W_v = \sum_{e \in E_v} W_e(e)$.
+
+**Intersection** $(G_1 \cap G_2)$.
+Helps to extract what is similar, e.g. what is similar between two social network users.
+In this operation, $G$ contains only the vertices and edges common to $G_1$ and $G_2$. The edge weight is given by $W_e = \min(W_{e1},W_{e2})$, and the vertex weight is its weighted degree centrality: $W_v = \sum_{e \in E_v} W_e(e)$.
+
+**Difference** $(G_1 - G_2)$.
+Helps to extract what is unique, e.g. what is unique in graph of user A in comparison to user B (note: this operation is not commutative).
+$G$ contains all the vertices from $G_1$ but only includes edges from $E_1$ that either don't appear in $E_2$ or have larger weights in $G_1$ compared to $G_2$. The edge weight is given by $W_e = W_{e1} - W_{e2}$ if $e \in E_1$, $e \in E_1 \cap E_2$ and $W_{e1}(e) > W_{e2}(e)$.
+
+![operations](https://github.com/nicolay-r/ARElight/assets/14871187/c0e6e8c9-a037-49b0-9404-86edbebf2a23)
 
 ### `D3JS`: Launch Graph Builder and DEMO server
 
