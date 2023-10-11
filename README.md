@@ -42,10 +42,9 @@ python3 -m arelight.run.infer  \
     --from-files "<PATH-TO-TEXT-FILE>"
 ```
 
+> **NOTE:** [Details for ARElight launching for **non-english texts**](https://github.com/nicolay-r/ARElight/wiki/Low%E2%80%90Resource-Domain-Application)
+ 
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results. 
-
-Below is an exapmpe for the `War And Peace Vol.1`
-([Details for ARElight launching for texts in non-english Texts](https://github.com/nicolay-r/ARElight/wiki/Low%E2%80%90Resource-Domain-Application))
 
 [![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 
