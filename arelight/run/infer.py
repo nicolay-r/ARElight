@@ -54,7 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument('--entity-fmt', dest='entity_fmt', type=str, choices=list(EntityFormattersService.iter_names()), default="hidden-bert-styled")
-    parser.add_argument('--text-b-type', dest='text_b_type', type=str, default="nli_m", choices=list(SampleFormattersService.iter_names()))
+    parser.add_argument('--text-b-type', dest='text_b_type', type=str, default=None, choices=list(SampleFormattersService.iter_names()))
     parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None)
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
     parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         None: {},
         "arekit": {
             "rows_provider": create_bert_sample_provider(
-                provider_type=SampleFormattersService.name_to_type(args.text_b_type),
+                provider_type=SampleFormattersService.name_to_type(args.text_b_type) if args.text_b_type is not None else None,
                 # We annotate everything with NoLabel.
                 label_scaler=SingleLabelScaler(NoLabel()),
                 entity_formatter=create_entity_formatter(EntityFormattersService.name_to_type(args.entity_fmt))),
