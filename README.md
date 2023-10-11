@@ -2,8 +2,9 @@
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.24.0-orange.svg)
+[![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 
-### :point_right: [DEMO]() :point_left:
+### :point_right: [DEMO](https://guardeec.github.io/arelight_demo/template.html) :point_left:
 
 <p align="center">
     <img src="logo.png"/>
@@ -43,6 +44,7 @@ python3 -m arelight.run.infer  \
 
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 
+[![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 
 <details>
 <summary>
