@@ -58,13 +58,13 @@ Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 
 ### Operations between Graphs
 
+For graph analysis you can perform several graph operations by this script:
+
 ```bash
 python3 -m arelight.run.operations --operation SIMILARITY --graph_a emask.json \
   --graph_b jbezos.json --weights y --name elon_SIMILARITY_bezos \
   --description "Similarity between Elon Mask and Jeph Bezos on X/Twitter"
 ```
-
-For graph analysis you can perform several graph operations by this script:
 
 **Union** $(G_1 \cup G_2)$.
 Helps to unite several graphs, e.g. graphs of multiple social network users.
