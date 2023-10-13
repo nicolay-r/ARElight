@@ -94,13 +94,14 @@ if __name__ == '__main__':
         if value is not None:
             return value
         # Use the name of the file.
-        if args.from_files is not None and isinstance(args.from_files, str):
-            return basename(args.from_files[0])
+        if args.from_files is not None:
+            return basename(args.from_files[0]) if isinstance(args.from_files, str) else "from-many-files"
         if args.from_dataframe is not None:
             return basename(args.from_dataframe[0])
-        # Default.
-        else:
-            return "samples"
+        if text_from_arg is not None:
+            return "text"
+
+        return "samples"
 
     collection_name = setup_collection_name(args.collection_name)
 
