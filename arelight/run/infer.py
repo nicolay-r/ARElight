@@ -26,13 +26,15 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
+from arelight.pipelines.items.translator_googletrans import TextAndEntitiesGoogleTranslator
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run import cmd_args
 from arelight.run.entities.factory import create_entity_formatter
 from arelight.run.entities.types import EntityFormattersService
-from arelight.run.utils import merge_dictionaries, iter_group_values, translate_value, read_files
+from arelight.run.utils import merge_dictionaries, iter_group_values, read_files
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
+from arelight.third_party.googletrans import translate_value
 from arelight.utils import IdAssigner
 
 if __name__ == '__main__':
@@ -52,6 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov"], default="deeppavlov")
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
+    parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument('--entity-fmt', dest='entity_fmt', type=str, choices=list(EntityFormattersService.iter_names()), default="hidden-bert-styled")
     parser.add_argument('--text-b-type', dest='text_b_type', type=str, default=None, choices=list(SampleFormattersService.iter_names()))
@@ -195,6 +198,14 @@ if __name__ == '__main__':
                 is_read_only=False)
         }
 
+        text_translator_setup = {
+            None: lambda: None,
+            "googletrans": lambda: TextAndEntitiesGoogleTranslator(
+                # We disable this modification here, because it is performed it takes place on another stage,
+                do_translate_entity=False if args.translate_entity else True,
+                src=args.translate_text.split(':')[0], dest=args.translate_text.split(':')[1]),
+        }
+
         # Create Synonyms Collection.
         synonyms = synonyms_setup["lemmatized" if args.stemmer is not None else None]()
 
@@ -202,6 +213,7 @@ if __name__ == '__main__':
         text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
             entity_parsers[ner_framework](),
+            text_translator_setup["googletrans" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))

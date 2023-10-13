@@ -1,46 +1,14 @@
 import importlib
-import time
 import logging
 from enum import Enum
 
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
-from googletrans import Translator
 
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-
-class SingletonTranslator(object):
-    _instance = None
-
-    def __init__(self):
-        raise RuntimeError('Call instance() instead')
-
-    @classmethod
-    def instance(cls):
-        if cls._instance is None:
-            cls._instance = Translator()
-        return cls._instance
-
-
-def translate_value(value, src, dest, attempts=10):
-    translator = SingletonTranslator.instance()
-
-    import logging
-    logger = logging.getLogger()  # get the default logger
-    logger.setLevel(50)
-
-    for i in range(attempts):
-        try:
-            return translator.translate(value, dest=dest, src=src).text
-        except:
-            logger.info("Unable to perform translation. Try {} out of {}.".format(i, attempts))
-            time.sleep(1)
-
-    raise Exception("Can't translate")
 
 
 def create_sentence_parser(arg):
