@@ -1,5 +1,5 @@
 import argparse
-from os.path import join, dirname
+from os.path import join, dirname, basename
 
 from arekit.common.data import const
 from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
@@ -47,6 +47,7 @@ if __name__ == '__main__':
     cmd_args.TermsPerContextArg.add_argument(parser, default=50)
     parser.add_argument('--text', dest='input_text', type=str, default=None, nargs='?', help='Input text for processing')
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
+    parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default="ner_ontonotes_bert_mult")
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
@@ -88,6 +89,21 @@ if __name__ == '__main__':
 
     labels_scaler = SingleLabelScaler(NoLabel())
 
+    def setup_collection_name(value):
+        # Considering Predefined name if the latter has been declared.
+        if value is not None:
+            return value
+        # Use the name of the file.
+        if args.from_files is not None and isinstance(args.from_files, str):
+            return basename(args.from_files[0])
+        if args.from_dataframe is not None:
+            return basename(args.from_dataframe[0])
+        # Default.
+        else:
+            return "samples"
+
+    collection_name = setup_collection_name(args.collection_name)
+
     sampling_engines_setup = {
         None: {},
         "arekit": {
@@ -97,7 +113,7 @@ if __name__ == '__main__':
                 label_scaler=SingleLabelScaler(NoLabel()),
                 entity_formatter=create_entity_formatter(EntityFormattersService.name_to_type(args.entity_fmt))),
             "samples_io": SamplesIO(target_dir=output_dir,
-                                    prefix="samples",
+                                    prefix=collection_name,
                                     reader=JsonlReader(),
                                     writer=OpenNREJsonWriter(
                                         text_columns=[BaseSingleTextProvider.TEXT_A, PairTextProvider.TEXT_B],
@@ -168,7 +184,6 @@ if __name__ == '__main__':
             "operation_type": "SAME",
             "graph_min_links": 1,
             "op_min_links": 0.1,
-            "ui_output": ["radial", "force"],
             "graph_a_labels": None,
             "graph_b_labels": None,
             "weights": True,
@@ -236,7 +251,6 @@ if __name__ == '__main__':
 
     if args.backend == "brat":
         settings.append({
-            "backend_template": output_template,
             "template_filepath": join(output_dir, "brat_template.html"),
             "brat_url": "http://localhost:8001/",
             "brat_vis_fp": "{}.html".format(output_template) if output_template is not None else None,
@@ -246,10 +260,9 @@ if __name__ == '__main__':
     pipeline.run(
         input_data=PipelineResult({
             # We provide this settings for inference.
-            "predict_filepath": join(output_dir, "predict.tsv.gz"),
+            "predict_filepath": join(output_dir, "{}-predict.tsv.gz".format(collection_name)),
             "samples_io": sampling_engines_setup["arekit"]["samples_io"],
             "d3js_graph_output_dir": output_dir,
-            "d3js_graph_do_save": True,
             "d3js_graph_launch_server": args.d3js_host,
             "d3js_host": args.d3js_host,
         }),

@@ -2,7 +2,6 @@ from arekit.common.data.input.providers.text.single import BaseSingleTextProvide
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
-from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from arekit.contrib.utils.data.readers.jsonl import JsonlReader
 from arekit.contrib.utils.data.writers.json_opennre import OpenNREJsonWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
@@ -123,7 +122,7 @@ class TestInfer(unittest.TestCase):
 
         pipeline.run(input_data=PipelineContext(d={
                          "labels_scaler": create_labels_scaler(3),
-                         "predict_filepath": join(dirname(utils.TEST_OUT_DIR), "predict.tsv.gz")
+                         "predict_filepath": join(utils.TEST_OUT_DIR, "predict.tsv.gz")
                      }),
                      params_dict={
                                   "data_type_pipelines": {DataType.Test: data_pipeline},
@@ -131,7 +130,6 @@ class TestInfer(unittest.TestCase):
                               })
 
     def test_deeppavlov(self):
-
         pipeline = demo_infer_texts_bert_pipeline(
             sampling_engines={
                 "arekit": self.create_sampling_params()

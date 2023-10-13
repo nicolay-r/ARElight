@@ -1,5 +1,6 @@
 import logging
 import os
+from os.path import join
 
 from arekit.common.data import const
 from arekit.common.data.storages.base import BaseRowsStorage
@@ -14,8 +15,7 @@ from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
-from arelight.backend.d3js.ui_web_force import get_force_web_ui
-from arelight.backend.d3js.ui_web_radial import get_radial_web_ui
+from arelight.backend.d3js.ui_web import save_demo_page
 from arelight.backend.d3js.utils_graph import save_graph
 
 
@@ -24,19 +24,12 @@ logger = logging.getLogger(__name__)
 
 class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
-    # List of the supported graphs with their UI functions.
-    graphs_web_ui = {
-        "radial": get_radial_web_ui,
-        "force": get_force_web_ui,
-    }
-
-    def __init__(self, operation_type="SAME", graph_min_links=1, op_min_links=0.01, ui_output=None,
+    def __init__(self, operation_type="SAME", graph_min_links=1, op_min_links=0.01,
                  graph_a_labels=None, graph_b_labels=None, weights=True, launch_server=False):
         assert(isinstance(operation_type, str) and operation_type in ["SAME", "DIFF", "PLUS", "MINUS"])
         self.__operation_type = operation_type
         self.__graph_min_links = graph_min_links
         self.__op_min_links = op_min_links
-        self.__ui_types_output = list(self.graphs_web_ui.keys()) if ui_output is None else ui_output
 
         # Setup filters for the A and B graphs for further operations application.
         self.__graph_a_filter = lambda _: True if graph_a_labels is None else lambda label: label in graph_a_labels
@@ -57,9 +50,6 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
             parsed_row = ParsedSampleRow(sample_row)
             label = labels[ind]
 
-            # Optional filtering
-            # if label == 'neu':      # TEMP.
-            #     continue            # TEMP.
             if labels_filter_func is not None and not labels_filter_func(label):
                 continue
 
@@ -114,25 +104,20 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
                                   operation=self.__operation_type,
                                   min_links=self.__op_min_links)
 
-        # Setups whether we would like to save the result graph template as a separate HTML file.
-        do_save = input_data.provide("d3js_graph_do_save")
+        # Save Graphs.
+        collection_name = samples_io.Prefix
+        for graph_type in ['force', 'radial']:
+            save_graph(graph=graph,
+                       # We consider the layout for files and keep graphs within the related folder type.
+                       out_dir=join(target_dir, graph_type),
+                       out_filename=f"{collection_name}",
+                       convert_to_radial=True if "radial" in graph_type else False)
 
-        for graph_ui_type, ui_func in self.graphs_web_ui.items():
-
-            # Consider only those that predefined in options.
-            if graph_ui_type not in self.__ui_types_output:
-                continue
-
-            html_content = save_graph(graph=graph, out_dir=target_dir, ui_func=ui_func,
-                                      out_filename=f"graph_{graph_ui_type}",
-                                      convert_to_radial=True if "radial" in graph_ui_type else False,
-                                      do_save_template=do_save)
-
-            input_data.update(f"d3js_graph_{graph_ui_type}_html_template", html_content)
-
-        host_port = input_data.provide_or_none("d3js_host")
+        # Save Graph description.
+        save_demo_page(target_dir=target_dir, collection_name=collection_name)
 
         # Launch server to checkout the results (Optionally)
+        host_port = input_data.provide_or_none("d3js_host")
         if host_port is not None:
             cmd = f"cd {target_dir} && python -m http.server {host_port}"
             print("Launching WEB server for watching the results")

@@ -16,6 +16,7 @@ class InferenceWriterPipelineItem(BasePipelineItem):
 
         # Setup predicted result writer.
         target = input_data.provide("predict_filepath")
+        print(target)
 
         self.__writer.set_target(target)
 

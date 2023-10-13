@@ -10,8 +10,6 @@ from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
-from arelight.pipelines.demo.labels.formatter import TrheeLabelsFormatter
-from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
 
@@ -20,7 +18,7 @@ class TestAREkitIterData(unittest.TestCase):
 
     def test(self):
         samples_io = SamplesIO(target_dir=utils.TEST_DATA_DIR,
-                               reader=PandasCsvReader(sep=',', compression=None),
+                               reader=PandasCsvReader(sep=',', compression=None, custom_extension=".csv"),
                                prefix="arekit-iter-data",
                                writer=None)
         samples_filepath = samples_io.create_target(data_type=DataType.Test)
@@ -45,12 +43,9 @@ class TestAREkitIterData(unittest.TestCase):
 
         ppl_result = PipelineResult({
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
-            "d3js_graph_do_save": True
+            "d3js_host": 8000,
         })
         ppl_result.update("samples_io", samples_io)
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
-        pipeline.run(input_data=ppl_result,
-                     params_dict={
-                         "backend_template": join(utils.TEST_OUT_DIR, "out")
-                     })
+        pipeline.run(input_data=ppl_result)
 
