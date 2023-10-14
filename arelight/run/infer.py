@@ -95,7 +95,7 @@ if __name__ == '__main__':
             return value
         # Use the name of the file.
         if args.from_files is not None:
-            return basename(args.from_files[0]) if isinstance(args.from_files, str) else "from-many-files"
+            return basename(args.from_files[0]) if len(args.from_files) == 1 else "from-many-files"
         if args.from_dataframe is not None:
             return basename(args.from_dataframe[0])
         if text_from_arg is not None:

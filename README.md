@@ -33,8 +33,8 @@ python3 -m arelight.run.infer  \
     --tokens-per-context 128 \
     --bert-framework "opennre" \
     --batch-size 10 \
-    --pretrained-bert "bert-base-uncased" \
-    --bert-torch-checkpoint "ra4-rsr1_bert-base-uncased_cls.pth.tar" \
+    --pretrained-bert "bert-base-cased" \
+    --bert-torch-checkpoint "ra4-rsr1_bert-base-cased_cls.pth.tar" \
     --backend "d3js_graphs" \
     --d3js-host 8000 \
     --docs-limit 500 \
