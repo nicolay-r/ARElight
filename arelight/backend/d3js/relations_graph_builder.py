@@ -1,4 +1,5 @@
-def make_graph_from_relations_array(relations, entity_values, entity_types, min_links=1, weights=True):
+def make_graph_from_relations_array(relations, entity_values, entity_types, min_links=1,
+                                    weights=True, do_auto_cleaning=True):
     """ This is a method composes a dictionary from the relations data between entities.
         (C) Maxim Kolomeets (Originally)
 
@@ -18,7 +19,20 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
         META_AST: '^^^',
     }
 
-    def __handle_meta_symbols(s):
+    def __clean_meta(entity_value):
+        """ We perform this processing to slightly clean the results obtained from NER or other
+            prior annotations that were made in the processing pipeline before this backend.
+        """
+        if not do_auto_cleaning:
+            return entity_value
+
+        # Remove last META_DOT Symbol both from
+        while entity_value[-1] == META_DOT:
+            entity_value = entity_value[:-1]
+
+        return entity_value
+
+    def __mask_meta(s):
         for patter_orig, pattern_to in char_map.items():
             s = s.replace(patter_orig, pattern_to)
         return s
@@ -58,8 +72,7 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
         meta_value = [source_type, META_DOT, source, META_UNDERSCORE, target_type, META_DOT, target, META_AST, label]
 
         # Replacing patterns affect on the syntax of the result string.
-        s_t = "".join([__handle_meta_symbols(v) if v not in char_map.keys() else v
-                       for v in meta_value])
+        s_t = "".join([__mask_meta(__clean_meta(v)) if v not in char_map.keys() else v for v in meta_value])
 
         if s_t not in links_:
             links_[s_t] = 0
