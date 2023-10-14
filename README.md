@@ -22,11 +22,11 @@ pip install git+https://github.com/nicolay-r/arelight@v0.24.0
 
 ## Usage
 
-Infer sentiment attitudes from text file:
+Infer sentiment attitudes from text file **in English**:
 ```bash
 python3 -m arelight.run.infer  \
     --sampling-framework "arekit" \
-    --ner-model-name "ner_ontonotes_bert_mult" \
+    --ner-model-name "ner_ontonotes_bert" \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --terms-per-context 50 \
     --sentence-parser "nltk_en" \
@@ -42,7 +42,7 @@ python3 -m arelight.run.infer  \
     --from-files "<PATH-TO-TEXT-FILE>"
 ```
 
-> **NOTE:** [Details for ARElight launching for **non-english texts**](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application))
+> **NOTE:** [Applying ARElight for **non-english texts**](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application)
  
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results. 
 
