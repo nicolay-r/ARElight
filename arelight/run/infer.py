@@ -42,7 +42,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    cmd_args.FromDataframeArg.add_argument(parser)
     cmd_args.SentenceParserArg.add_argument(parser)
     cmd_args.TermsPerContextArg.add_argument(parser, default=50)
     parser.add_argument('--text', dest='input_text', type=str, default=None, nargs='?', help='Input text for processing')
@@ -76,13 +75,11 @@ if __name__ == '__main__':
     sentence_parser = cmd_args.SentenceParserArg.read_argument(args)
     texts_from_files = read_files(args.from_files)
     text_from_arg = args.input_text
-    texts_from_dataframe = cmd_args.FromDataframeArg.read_argument(args)
     ner_framework = args.ner_framework
     ner_model_name = args.ner_model_name
     ner_object_types = args.ner_types
     terms_per_context = cmd_args.TermsPerContextArg.read_argument(args)
-    actual_content = [text_from_arg] if text_from_arg is not None else \
-        texts_from_files if texts_from_files is not None else texts_from_dataframe
+    actual_content = [text_from_arg] if text_from_arg is not None else texts_from_files
     docs_limit = args.docs_limit
     output_template = args.output_template
     output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template

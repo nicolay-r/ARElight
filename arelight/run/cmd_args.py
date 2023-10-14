@@ -1,5 +1,3 @@
-import importlib
-
 from arelight.run.utils import create_sentence_parser
 
 
@@ -12,34 +10,6 @@ class BaseArg:
     @staticmethod
     def add_argument(parser, default):
         raise NotImplementedError()
-
-
-class FromDataframeArg(BaseArg):
-
-    @staticmethod
-    def read_argument(args):
-
-        if args.from_dataframe is None:
-            return None
-
-        path = args.from_dataframe[0]
-
-        if path is None:
-            return None
-
-        # loading from CSV. file
-        if ".csv" in path:
-            pd = importlib.import_module("pandas")
-            df = pd.read_csv(path, delimiter=",")
-            return df["text"].astype(str).to_list()
-
-    @staticmethod
-    def add_argument(parser, default=None):
-        parser.add_argument('--from-dataframe',
-                            dest='from_dataframe',
-                            type=str,
-                            default=default,
-                            nargs=1)
 
 
 class TermsPerContextArg(BaseArg):

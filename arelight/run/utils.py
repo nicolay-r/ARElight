@@ -95,7 +95,15 @@ def read_files(paths):
 
     file_contents = []
     for path in paths:
-        with open(path) as f:
-            file_contents.append(f.read().rstrip())
+
+        if path.endswith(".csv"):
+            # Handle as a column from the csv file.
+            pd = importlib.import_module("pandas")
+            df = pd.read_csv(path, delimiter=",")
+            file_contents.extend(df["text"].astype(str).to_list())
+        else:
+            # Handle as a normal file.
+            with open(path) as f:
+                file_contents.append(f.read().rstrip())
 
     return file_contents
