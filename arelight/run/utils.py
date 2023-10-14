@@ -88,7 +88,7 @@ def merge_dictionaries(dict_iter):
     return merged_dict
 
 
-def read_files(paths):
+def read_files(paths, delimiter):
 
     if paths is None:
         return None
@@ -99,7 +99,7 @@ def read_files(paths):
         if path.endswith(".csv"):
             # Handle as a column from the csv file.
             pd = importlib.import_module("pandas")
-            df = pd.read_csv(path, delimiter=",")
+            df = pd.read_csv(path, delimiter=delimiter)
             file_contents.extend(df["text"].astype(str).to_list())
         else:
             # Handle as a normal file.

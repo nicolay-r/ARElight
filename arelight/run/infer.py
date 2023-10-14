@@ -46,6 +46,7 @@ if __name__ == '__main__':
     cmd_args.TermsPerContextArg.add_argument(parser, default=50)
     parser.add_argument('--text', dest='input_text', type=str, default=None, nargs='?', help='Input text for processing')
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
+    parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?')
     parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default="ner_ontonotes_bert_mult")
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
@@ -73,7 +74,7 @@ if __name__ == '__main__':
 
     # Reading text-related parameters.
     sentence_parser = cmd_args.SentenceParserArg.read_argument(args)
-    texts_from_files = read_files(args.from_files)
+    texts_from_files = read_files(paths=args.from_files, delimiter=args.csv_sep)
     text_from_arg = args.input_text
     ner_framework = args.ner_framework
     ner_model_name = args.ner_model_name
