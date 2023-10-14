@@ -10,7 +10,9 @@ def graph_to_radial(graph):
     for n in graph["nodes"]:
         nodes_[n["id"]] = {"w": n["c"]}
     for l in graph["links"]:
-        if "imports" not in nodes_[l["target"]]:
+        if l["target"] not in nodes_:
+            continue
+        elif "imports" not in nodes_[l["target"]]:
             nodes_[l["target"]]["imports"] = []
         nodes_[l["target"]]["imports"].append({
             "name": l["source"],

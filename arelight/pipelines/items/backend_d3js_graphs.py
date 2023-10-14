@@ -14,7 +14,6 @@ from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
 from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
-from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.ui_web import save_demo_page
 from arelight.backend.d3js.utils_graph import save_graph
 
@@ -24,12 +23,9 @@ logger = logging.getLogger(__name__)
 
 class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
-    def __init__(self, operation_type="SAME", graph_min_links=1, op_min_links=0.01,
-                 graph_a_labels=None, graph_b_labels=None, weights=True, launch_server=False):
-        assert(isinstance(operation_type, str) and operation_type in ["SAME", "DIFF", "PLUS", "MINUS"])
-        self.__operation_type = operation_type
+    def __init__(self, graph_min_links=0.01, graph_a_labels=None,
+                 graph_b_labels=None, weights=True, launch_server=False):
         self.__graph_min_links = graph_min_links
-        self.__op_min_links = op_min_links
 
         # Setup filters for the A and B graphs for further operations application.
         self.__graph_a_filter = lambda _: True if graph_a_labels is None else lambda label: label in graph_a_labels
@@ -85,24 +81,12 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
                          for label in labels_scaler.ordered_suppoted_labels()}
         labels = list(iter_predicted_labels(predict_data=predict_storage, label_to_str=labels_to_str, keep_ind=False))
 
-        graph_a = make_graph_from_relations_array(
+        graph = make_graph_from_relations_array(
             relations=self.__iter_relations(samples, labels, labels_filter_func=self.__graph_a_filter),
             entity_values=self.iter_column_value(samples=samples, column_value=const.ENTITY_VALUES),
             entity_types=self.iter_column_value(samples=samples, column_value=const.ENTITY_TYPES),
             min_links=self.__graph_min_links,
             weights=self.__graph_weights)
-
-        graph_b = make_graph_from_relations_array(
-            relations=self.__iter_relations(samples, labels, labels_filter_func=self.__graph_b_filter),
-            entity_values=self.iter_column_value(samples=samples, column_value=const.ENTITY_VALUES),
-            entity_types=self.iter_column_value(samples=samples, column_value=const.ENTITY_TYPES),
-            min_links=self.__graph_min_links,
-            weights=self.__graph_weights)
-
-        # Calculate the result graph.
-        graph = graphs_operations(graph_A=graph_a, graph_B=graph_b,
-                                  operation=self.__operation_type,
-                                  min_links=self.__op_min_links)
 
         # Save Graphs.
         collection_name = samples_io.Prefix

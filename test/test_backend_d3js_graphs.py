@@ -38,6 +38,11 @@ class TestBackendD3JS(unittest.TestCase):
         for x in data_single_type[column_name]:
             rel, label = x.split(';')
             source, target = rel.split('->')
+
+            # Remove brackets in original annotation.
+            source = source.replace("(", "")
+            label = label.replace(")", "")
+
             relations.append([source, target, label])
 
         graph = make_graph_from_relations_array(
@@ -70,8 +75,7 @@ class TestBackendD3JS(unittest.TestCase):
             backend_engines={
                 "d3js_graphs": {
                     "operation_type": "SAME",
-                    "graph_min_links": 1,
-                    "op_min_links": 0.1,
+                    "graph_min_links": 0.1,
                     "graph_a_labels": None,
                     "graph_b_labels": None,
                     "weights": True,

@@ -69,9 +69,11 @@ def graphs_operations(graph_A, graph_B, operation="PLUS", min_links=0.01):
                 used_nodes[t] = 0
             used_nodes[s] += links_[s_t]
             used_nodes[t] += links_[s_t]
+
     nodes = []
     for id in used_nodes:
         nodes.append({"id": id, "c": used_nodes[id]})
+
     return {"nodes": nodes, "links": links}
 
 

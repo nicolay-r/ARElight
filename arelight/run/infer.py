@@ -179,9 +179,7 @@ if __name__ == '__main__':
     backend_setups = {
         None: {},
         "d3js_graphs": {
-            "operation_type": "SAME",
             "graph_min_links": 1,
-            "op_min_links": 0.1,
             "graph_a_labels": None,
             "graph_b_labels": None,
             "weights": True,
