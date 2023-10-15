@@ -1,38 +1,20 @@
 from arekit.common.data.input.providers.const import IDLE_MODE
 from arekit.common.pipeline.conts import PARENT_CTX
-
 from arekit.common.entities.base import Entity
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 
-from arelight.utils import auto_import
 
-
-class TextAndEntitiesGoogleTranslator(BasePipelineItem):
-    """ Text translator, based on GoogleTranslate service
-        NOTE: Considered to be adopted right-after entities parsed
-        but before the input tokenization into list of terms.
-        For entities we update and assign its DisplayValue.
-        NOTE#2: Move this pipeline item as a separated github project.
+class MLTextTranslatorPipelineItem(BasePipelineItem):
+    """ Machine learning based translator pipeline item.
     """
 
-    def __init__(self, src, dest, do_translate_entity=True, attempts=10, timeout_for_connection_lost_sec=1.0):
-        assert(isinstance(src, str))
-        assert(isinstance(src, str))
-        self.__src = src
-        self.__dest = dest
-        self.__attempts = attempts
-        self.__timeout_for_connection_lost = timeout_for_connection_lost_sec
+    def __init__(self, batch_translate_model, do_translate_entity=True):
+        """ Model, which is based on translation of the text,
+            represented as a list of words.
+        """
         self.__do_translate_entity = do_translate_entity
-
-        # We do auto-import so we not depend on the actually installed library.
-        translate_value = auto_import("arelight.third_party.googletrans.translate_value")
-        # Translation of the list of data.
-        self.__translate = lambda cont: translate_value(cont, dest=self.__dest, src=self.__src, return_text=False)
-
-        import logging
-        self.logger = logging.getLogger()  # get the default logger
-        self.logger.setLevel(50)
+        self.__translate = batch_translate_model
 
     def fast_most_accurate_approach(self, input_data, entity_placeholder_template="<entityTag={}/>"):
         """ This approach assumes that the translation won't corrupt the original
@@ -62,38 +44,35 @@ class TextAndEntitiesGoogleTranslator(BasePipelineItem):
         # Register all named entities in order of their appearance in text.
         content.extend([e.Value for e in origin_entities])
 
-        # Due to the potential opportunity of connection lost,
-        # we wrap everything in a loop with multiple attempts.
-        for attempt_index in range(self.__attempts):
-            # Compose text parts.
-            translated_parts = [part.text for part in self.__translate(content)]
+        # Compose text parts.
+        translated_parts = self.__translate(content)
 
-            # Take the original text.
-            text = translated_parts[0]
-            for entity_index in range(len(origin_entities)):
-                if entity_placeholder_template.format(entity_index) not in text:
-                    return []
+        # Take the original text.
+        text = translated_parts[0]
+        for entity_index in range(len(origin_entities)):
+            if entity_placeholder_template.format(entity_index) not in text:
+                return []
 
-            # Enumerate entities.
-            from_ind = 0
-            text_parts = []
-            for entity_index, translated_value in enumerate(translated_parts[1:]):
-                entity_placeholder_instance = entity_placeholder_template.format(entity_index)
-                # Cropping text part.
-                to_ind = text.index(entity_placeholder_instance)
+        # Enumerate entities.
+        from_ind = 0
+        text_parts = []
+        for entity_index, translated_value in enumerate(translated_parts[1:]):
+            entity_placeholder_instance = entity_placeholder_template.format(entity_index)
+            # Cropping text part.
+            to_ind = text.index(entity_placeholder_instance)
 
-                if self.__do_translate_entity:
-                    origin_entities[entity_index].set_display_value(translated_value.strip())
+            if self.__do_translate_entity:
+                origin_entities[entity_index].set_display_value(translated_value.strip())
 
-                # Register entities.
-                text_parts.append(text[from_ind:to_ind])
-                text_parts.append(origin_entities[entity_index])
-                # Update from index.
-                from_ind = to_ind + len(entity_placeholder_instance)
+            # Register entities.
+            text_parts.append(text[from_ind:to_ind])
+            text_parts.append(origin_entities[entity_index])
+            # Update from index.
+            from_ind = to_ind + len(entity_placeholder_instance)
 
-            # Consider the remaining part.
-            text_parts.append(text[from_ind:])
-            return text_parts
+        # Consider the remaining part.
+        text_parts.append(text[from_ind:])
+        return text_parts
 
     def default_pre_part_splitting_approach(self, input_data):
         """ This is the original strategy, based on the manually cropped named entities
@@ -123,18 +102,16 @@ class TextAndEntitiesGoogleTranslator(BasePipelineItem):
 
         __optionally_register(parts_to_join)
 
-        # Due to the potential opportunity of connection lost, we wrap everything in a loop with multiple attempts.
-        for attempt_index in range(self.__attempts):
-            # Compose text parts.
-            translated_parts = [part.text for part in self.__translate(content)]
+        # Compose text parts.
+        translated_parts = self.__translate(content)
 
-            for entity_ind, entity_part_ind in enumerate(origin_entity_ind):
-                entity = origin_entities[entity_ind]
-                if self.__do_translate_entity:
-                    entity.set_display_value(translated_parts[entity_part_ind].strip())
-                translated_parts[entity_part_ind] = entity
+        for entity_ind, entity_part_ind in enumerate(origin_entity_ind):
+            entity = origin_entities[entity_ind]
+            if self.__do_translate_entity:
+                entity.set_display_value(translated_parts[entity_part_ind].strip())
+            translated_parts[entity_part_ind] = entity
 
-            return translated_parts
+        return translated_parts
 
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(pipeline_ctx, PipelineContext))

@@ -16,7 +16,7 @@ class SingletonTranslator(object):
         return cls._instance
 
 
-def translate_value(value, src, dest, attempts=10, return_text=True):
+def translate_value(value, src, dest, attempts=10):
     """ This is a main wrapping for GoogleTranslation API calls.
     """
     translator = SingletonTranslator.instance()
@@ -28,7 +28,7 @@ def translate_value(value, src, dest, attempts=10, return_text=True):
     for i in range(attempts):
         try:
             translated = translator.translate(value, dest=dest, src=src)
-            return translated.text if return_text else translated
+            return translated.text
         except:
             logger.info("Unable to perform translation. Try {} out of {}.".format(i, attempts))
             time.sleep(1)

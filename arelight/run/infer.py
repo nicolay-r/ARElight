@@ -27,12 +27,12 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.translator_googletrans import TextAndEntitiesGoogleTranslator
+from arelight.pipelines.items.translator_googletrans import MLTextTranslatorPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.run.utils import merge_dictionaries, iter_group_values, read_files, create_sentence_parser
+from arelight.run.utils import merge_dictionaries, iter_group_values, read_files, create_sentence_parser, \
+    create_translate_model
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
-from arelight.third_party.googletrans import translate_value
 from arelight.utils import IdAssigner
 
 if __name__ == '__main__':
@@ -52,6 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov"], default="deeppavlov")
+    parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=["googletrans"])
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
@@ -121,6 +122,13 @@ if __name__ == '__main__':
             "save_labels_func": lambda data_type: data_type != DataType.Test
         }
     }
+    
+    translate_model = {
+        None: lambda: None,
+        "googletrans": lambda: create_translate_model("googletrans")
+    }
+
+    translator = translate_model[args.translate_framework]()
 
     stemmer_types = {
         None: lambda: None,
@@ -141,7 +149,7 @@ if __name__ == '__main__':
 
         if args.translate_entity is not None:
             src, dest = args.translate_entity.split(':')
-            display_value = translate_value(display_value, src=src, dest=dest)
+            display_value = translator([display_value], src=src, dest=dest)[0]
 
         return display_value
 
@@ -209,10 +217,12 @@ if __name__ == '__main__':
 
         text_translator_setup = {
             None: lambda: None,
-            "googletrans": lambda: TextAndEntitiesGoogleTranslator(
-                # We disable this modification here, because it is performed it takes place on another stage,
-                do_translate_entity=False if args.translate_entity else True,
-                src=args.translate_text.split(':')[0], dest=args.translate_text.split(':')[1]),
+            "ml-based": lambda: MLTextTranslatorPipelineItem(
+                batch_translate_model=lambda content: translator(
+                    str_list=content,
+                    src=args.translate_text.split(':')[0],
+                    dest=args.translate_text.split(':')[1]),
+                do_translate_entity=False)
         }
 
         # Create Synonyms Collection.
@@ -222,7 +232,7 @@ if __name__ == '__main__':
         text_parser = BaseTextParser(pipeline=[
             TermsSplitterParser(),
             entity_parsers[ner_framework](),
-            text_translator_setup["googletrans" if args.translate_text is not None else None](),
+            text_translator_setup["ml-based" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))

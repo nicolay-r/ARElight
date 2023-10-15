@@ -5,7 +5,7 @@ from enum import Enum
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
-
+from arelight.utils import auto_import
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +25,16 @@ def create_sentence_parser(arg):
         return tokenizer.tokenize
     else:
         raise Exception("Arg `{}` was not found".format(arg))
+
+
+def create_translate_model(arg):
+
+    if arg == "googletrans":
+        # We do auto-import so we not depend on the actually installed library.
+        translate_value = auto_import("arelight.third_party.googletrans.translate_value")
+        # Translation of the list of data.
+        # Returns the list of strings.
+        return lambda str_list, src, dest: [translate_value(s, dest=dest, src=src) for s in str_list]
 
 
 def create_labels_scaler(labels_count):
