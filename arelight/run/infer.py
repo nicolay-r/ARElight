@@ -27,7 +27,7 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.translator_googletrans import MLTextTranslatorPipelineItem
+from arelight.pipelines.items.translator_ml import MLTextTranslatorPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.utils import merge_dictionaries, iter_group_values, read_files, create_sentence_parser, \
     create_translate_model

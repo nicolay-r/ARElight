@@ -1,6 +1,6 @@
 import json
 import os
-from os.path import join, basename
+from os.path import join
 
 from arekit.common.utils import create_dir_if_not_exists
 
