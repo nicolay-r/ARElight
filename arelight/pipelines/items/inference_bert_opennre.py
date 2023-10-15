@@ -56,11 +56,12 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         """ This is a main and core method for inference based on OpenNRE framework.
         """
         # Check predefined checkpoints for local downloading.
-        predefined_ckpt_path = try_download_predefined_checkpoint(
+        predefined_pretrain_path, predefined_ckpt_path = try_download_predefined_checkpoint(
             checkpoint=ckpt_path, dir_to_download=dir_to_donwload)
 
-        # Update checkpoint path with the predefined one.
+        # Update checkpoint and pretrain paths with the predefined.
         ckpt_path = predefined_ckpt_path if predefined_ckpt_path is not None else ckpt_path
+        pretrain_path = predefined_pretrain_path if predefined_pretrain_path is not None else pretrain_path
 
         # Load original model.
         bert_encoder = BertOpenNREInferencePipelineItem.load_bert_sentence_encoder(
