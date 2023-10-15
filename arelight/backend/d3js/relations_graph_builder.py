@@ -82,7 +82,6 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
             used_nodes.add(links_meta[s_t]["target"])
             if link_max < links_[s_t]:
                 link_max = links_[s_t]
-    print("USED NODES", used_nodes)
 
     nodes = []
     for id in nodes_.keys():
