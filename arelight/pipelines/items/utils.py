@@ -53,14 +53,14 @@ def try_download_predefined_checkpoint(checkpoint, dir_to_download):
 
     if checkpoint in predefined:
         data = predefined[checkpoint]
-        target_path = join(dir_to_download, checkpoint)
+        target_checkpoint_path = join(dir_to_download, checkpoint)
 
         logger.info("Found predefined checkpoint: {}".format(checkpoint))
         # No need to do anything, file has been already downloaded.
-        if not exists(target_path):
-            logger.info("Downloading checkpoint to: {}".format(target_path))
-            download(dest_file_path=target_path, source_url=data["checkpoint"])
+        if not exists(target_checkpoint_path):
+            logger.info("Downloading checkpoint to: {}".format(target_checkpoint_path))
+            download(dest_file_path=target_checkpoint_path, source_url=data["checkpoint"])
 
-        return data["state"], data["checkpoint"]
+        return data["state"], target_checkpoint_path
 
     return None, None

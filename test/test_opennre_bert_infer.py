@@ -20,18 +20,20 @@ class TestLoadModel(unittest.TestCase):
 
     def test_launch_model(self):
         rel2id = json.loads('{"0":0,"1":1,"2":2}')
-        try_download_predefined_checkpoint(checkpoint="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
-                                           dir_to_download=utils.TEST_OUT_DIR)
-        model = BERTEncoder(pretrain_path="DeepPavlov/rubert-base-cased", mask_entity=True, max_length=512)
+        pretrain_path, ckpt_path = try_download_predefined_checkpoint(
+            checkpoint="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+            dir_to_download=utils.TEST_OUT_DIR)
+        model = BERTEncoder(pretrain_path=pretrain_path, mask_entity=True, max_length=512)
         model = SoftmaxNN(model, len(rel2id), rel2id)
-        model.load_state_dict(torch.load(join(utils.TEST_OUT_DIR, "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar"),
-                                         map_location=torch.device('cpu'))["state_dict"])
+        model.load_state_dict(torch.load(ckpt_path, map_location=torch.device('cpu'))["state_dict"])
 
     def test_infer(self):
-        try_download_predefined_checkpoint(checkpoint="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
-                                           dir_to_download=utils.TEST_OUT_DIR)
-        self.infer_bert(pretrain_path="DeepPavlov/rubert-base-cased",
-                        ckpt_source=join(utils.TEST_OUT_DIR, "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar"),
+        pretrain_path, ckpt_path = try_download_predefined_checkpoint(
+            checkpoint="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+            dir_to_download=utils.TEST_OUT_DIR)
+
+        self.infer_bert(pretrain_path=pretrain_path,
+                        ckpt_source=ckpt_path,
                         rel2id=json.loads('{"0":0,"1":1,"2":2}'),
                         output_file_gzip=join(utils.TEST_OUT_DIR, "opennre-data-test.tsv.gz"))
 
