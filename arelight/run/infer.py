@@ -14,6 +14,7 @@ from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.utils.data.readers.jsonl import JsonlReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.json_opennre import OpenNREJsonWriter
+from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
@@ -28,10 +29,7 @@ from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.translator_googletrans import TextAndEntitiesGoogleTranslator
 from arelight.pipelines.items.utils import input_to_docs
-from arelight.run import cmd_args
-from arelight.run.entities.factory import create_entity_formatter
-from arelight.run.entities.types import EntityFormattersService
-from arelight.run.utils import merge_dictionaries, iter_group_values, read_files
+from arelight.run.utils import merge_dictionaries, iter_group_values, read_files, create_sentence_parser
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.third_party.googletrans import translate_value
@@ -42,12 +40,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    cmd_args.SentenceParserArg.add_argument(parser)
-    cmd_args.TermsPerContextArg.add_argument(parser, default=50)
     parser.add_argument('--text', dest='input_text', type=str, default=None, nargs='?', help='Input text for processing')
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
     parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?')
     parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
+    parser.add_argument('--terms-per-context', dest='terms_per_context', type=int, default=50, nargs='?', help='The max possible length of an input context in terms')
+    parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk_en", choices=['linesplit', 'ru', 'nltk_en'])
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default="ner_ontonotes_bert_mult")
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
@@ -57,7 +55,6 @@ if __name__ == '__main__':
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
-    parser.add_argument('--entity-fmt', dest='entity_fmt', type=str, choices=list(EntityFormattersService.iter_names()), default="hidden-bert-styled")
     parser.add_argument('--text-b-type', dest='text_b_type', type=str, default=None, choices=list(SampleFormattersService.iter_names()))
     parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None)
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
@@ -73,13 +70,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Reading text-related parameters.
-    sentence_parser = cmd_args.SentenceParserArg.read_argument(args)
+    sentence_parser = create_sentence_parser(args.sentence_parser)
     texts_from_files = read_files(paths=args.from_files, delimiter=args.csv_sep)
     text_from_arg = args.input_text
     ner_framework = args.ner_framework
     ner_model_name = args.ner_model_name
     ner_object_types = args.ner_types
-    terms_per_context = cmd_args.TermsPerContextArg.read_argument(args)
+    terms_per_context = args.terms_per_context
     actual_content = [text_from_arg] if text_from_arg is not None else texts_from_files
     docs_limit = args.docs_limit
     output_template = args.output_template
@@ -110,7 +107,7 @@ if __name__ == '__main__':
                 provider_type=SampleFormattersService.name_to_type(args.text_b_type) if args.text_b_type is not None else None,
                 # We annotate everything with NoLabel.
                 label_scaler=SingleLabelScaler(NoLabel()),
-                entity_formatter=create_entity_formatter(EntityFormattersService.name_to_type(args.entity_fmt))),
+                entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
             "samples_io": SamplesIO(target_dir=output_dir,
                                     prefix=collection_name,
                                     reader=JsonlReader(),
