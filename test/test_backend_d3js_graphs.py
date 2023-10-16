@@ -10,7 +10,7 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
-from arelight.backend.d3js.relations_graph_operations import graphs_operations
+from arelight.backend.d3js.relations_graph_operations import graphs_operations_weighted
 from arelight.backend.d3js.utils_graph import save_graph
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.formatter import TrheeLabelsFormatter
@@ -46,26 +46,32 @@ class TestBackendD3JS(unittest.TestCase):
             relations.append([source, target, label])
 
         graph = make_graph_from_relations_array(
-            relations=relations,
+            relations=relations[10:],
             entity_values=[item.split(',') for item in data_single_type["entity_values"]],
             entity_types=[item.split(',') for item in data_single_type["entity_types"]],
             min_links=1,
             weights=True
         )
 
-        graph = graphs_operations(
-            graph_A=graph, graph_B=graph, operation="SAME",
-            min_links=0.01
+        graph2 = make_graph_from_relations_array(
+            relations=relations[:10],
+            entity_values=[item.split(',') for item in data_single_type["entity_values"]],
+            entity_types=[item.split(',') for item in data_single_type["entity_types"]],
+            min_links=1,
+            weights=True
         )
+
+        graph = graphs_operations_weighted(graph_A=graph2, graph_B=graph, operation="DIFFERENCE", weights=False)
+        print(graph)
 
         if not exists(self.TEST_OUT_LOCAL_DIR):
             os.makedirs(self.TEST_OUT_LOCAL_DIR)
 
-        save_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"graph_force_{relation_type}")
-        save_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"graph_radial_{relation_type}")
+        save_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"./force/graph_{relation_type}", convert_to_radial=False)
+        save_graph(graph=graph, out_dir=utils.TEST_OUT_DIR, out_filename=f"./radial/graph_{relation_type}", convert_to_radial=True)
 
         # Launch server to checkout the results.
-        os.system(f"cd {self.TEST_OUT_LOCAL_DIR} && python -m http.server 8000")
+        os.system(f"cd {utils.TEST_OUT_DIR} && python -m http.server 8001")
 
     def test_pipeline(self):
 
