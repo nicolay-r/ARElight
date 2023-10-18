@@ -1,3 +1,4 @@
+import csv
 import importlib
 import logging
 from enum import Enum
@@ -98,7 +99,19 @@ def merge_dictionaries(dict_iter):
     return merged_dict
 
 
-def read_files(paths, delimiter):
+def iter_csv_lines(csv_filepath, column_name, delimiter=","):
+
+    with open(csv_filepath, mode='r', encoding='utf-8-sig') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=delimiter)
+
+        if column_name not in csv_reader.fieldnames:
+            print(f"Error: {column_name} column not found.")
+
+        for row in csv_reader:
+            yield row[column_name]
+
+
+def read_files(paths, delimiter, csv_column):
 
     if paths is None:
         return None
@@ -108,9 +121,7 @@ def read_files(paths, delimiter):
 
         if path.endswith(".csv"):
             # Handle as a column from the csv file.
-            pd = importlib.import_module("pandas")
-            df = pd.read_csv(path, delimiter=delimiter)
-            file_contents.extend(df["text"].astype(str).to_list())
+            file_contents.extend(list(iter_csv_lines(path, column_name=csv_column, delimiter=delimiter)))
         else:
             # Handle as a normal file.
             with open(path) as f:

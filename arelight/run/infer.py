@@ -43,6 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('--text', dest='input_text', type=str, default=None, nargs='?', help='Input text for processing')
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
     parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?')
+    parser.add_argument('--csv-column', dest='csv_column', type=str, default='text', nargs='?')
     parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
     parser.add_argument('--terms-per-context', dest='terms_per_context', type=int, default=50, nargs='?', help='The max possible length of an input context in terms')
     parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk_en", choices=['linesplit', 'ru', 'nltk_en'])
@@ -72,7 +73,7 @@ if __name__ == '__main__':
 
     # Reading text-related parameters.
     sentence_parser = create_sentence_parser(args.sentence_parser)
-    texts_from_files = read_files(paths=args.from_files, delimiter=args.csv_sep)
+    texts_from_files = read_files(paths=args.from_files, delimiter=args.csv_sep, csv_column=args.csv_column)
     text_from_arg = args.input_text
     ner_framework = args.ner_framework
     ner_model_name = args.ner_model_name
