@@ -529,19 +529,23 @@ def save_demo_page(target_dir, collection_name=None):
 
     descriptions_dir = join(target_dir, "descriptions")
 
+    # Add new collection and expand with existed.
+    suffix = '.json'
+    descriptors = [filename[:-len(suffix)] for filename in os.listdir(descriptions_dir)
+                   if filename.endswith(suffix)]
+
     # Save Graph description.
     if collection_name is not None:
-        desc_path = join(descriptions_dir, "{}.json".format(collection_name))
+        desc_path = join(descriptions_dir, f"{collection_name}{suffix}")
         create_dir_if_not_exists(desc_path)
         with open(desc_path, "w") as f:
             f.write(json.dumps({"description": collection_name}))
 
-    # Add new collection and expand with existed.
-    suffix = '.json'
-    all_descriptions = [filename[:-len(suffix)] for filename in os.listdir(descriptions_dir)
-                        if filename.endswith(suffix)]
+        # Place collection name on to of the list.
+        if collection_name not in descriptors:
+            descriptors = [collection_name] + descriptors
 
     # Demo content.
-    html_content = get_web_ui(datasets_list=all_descriptions)
+    html_content = get_web_ui(datasets_list=descriptors)
     with open(join(target_dir, "index.html"), "w") as f_out:
         f_out.write(html_content)
