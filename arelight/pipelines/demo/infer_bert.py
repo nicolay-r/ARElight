@@ -26,11 +26,6 @@ def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, ba
 
     inference_writer = TsvPredictWriter()
 
-    if "deeppavlov" in infer_engines:
-        from arelight.pipelines.items.inference_transformers_dp import TransformersDeepPavlovInferencePipelineItem
-        pipeline += [TransformersDeepPavlovInferencePipelineItem(**infer_engines["deeppavlov"]),
-                     InferenceWriterPipelineItem(inference_writer)]
-
     if "opennre" in infer_engines:
         from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInferencePipelineItem
         pipeline += [BertOpenNREInferencePipelineItem(**infer_engines["opennre"]),

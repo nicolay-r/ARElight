@@ -129,20 +129,6 @@ class TestInfer(unittest.TestCase):
                                   "doc_ids": list(range(len(actual_content))),
                               })
 
-    def test_deeppavlov(self):
-        pipeline = demo_infer_texts_bert_pipeline(
-            sampling_engines={
-                "arekit": self.create_sampling_params()
-            },
-            infer_engines={
-                "deeppavlov": {
-                    "pretrained_bert": "DeepPavlov/rubert-base-cased",
-                    "max_seq_length": 128
-            }
-        })
-        writer = NativeCsvWriter(delimiter=',')
-        self.launch(pipeline)
-
     def test_opennre(self):
 
         pipeline = demo_infer_texts_bert_pipeline(
