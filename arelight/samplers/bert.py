@@ -1,3 +1,5 @@
+from enum import Enum
+
 from arekit.common.data.input.providers.label.multiple import MultipleLabelProvider
 from arekit.common.data.input.providers.rows.samples import BaseSampleRowProvider
 from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
@@ -5,9 +7,25 @@ from arekit.common.entities.str_fmt import StringEntitiesFormatter
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
-from arekit.contrib.utils.bert.text_b_rus import BertTextBRussianPrompts
 
 from arelight.samplers.types import BertSampleProviderTypes
+
+
+class BertTextBRussianPrompts(Enum):
+    """
+    Default, based on COLA, but includes an extra text_b.
+        text_b: Pseudo-sentence w/o S.P (S.P -- sentiment polarity)
+        text_b: Question w/o S.P (S.P -- sentiment polarity)
+
+    Multilabel variant
+
+    Notation were taken from paper:
+    https://www.aclweb.org/anthology/N19-1035.pdf
+    """
+
+    NLI = '{subject} к {object} в контексте : << {context} >>'
+
+    QA = 'Что вы думаете по поводу отношения {subject} к {object} в контексте : << {context} >> ?'
 
 
 def create_bert_sample_provider(provider_type, label_scaler, entity_formatter):
