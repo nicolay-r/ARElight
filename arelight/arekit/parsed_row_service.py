@@ -1,5 +1,5 @@
 from arekit.common.data import const
-from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
+from arekit.common.data.rows_parser import ParsedSampleRow
 
 
 class ParsedSampleRowExtraService(object):

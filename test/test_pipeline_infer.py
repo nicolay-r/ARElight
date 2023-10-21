@@ -14,7 +14,6 @@ import unittest
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem

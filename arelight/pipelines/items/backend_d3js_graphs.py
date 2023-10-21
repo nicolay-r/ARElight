@@ -3,13 +3,14 @@ import os
 from os.path import join
 
 from arekit.common.data import const
+from arekit.common.data.rows_fmt import create_base_column_fmt
+from arekit.common.data.rows_parser import ParsedSampleRow
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
 
 from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
@@ -35,15 +36,18 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         self.__graph_weights = weights
         self.__launch_server = launch_server
 
+        # Parameters for sampler.
+        self.__column_fmts = [create_base_column_fmt(fmt_type="parser")]
+
     @staticmethod
-    def __iter_relations(samples, labels, labels_filter_func=None):
+    def __iter_relations(samples, columns_fmts, labels, labels_filter_func=None):
         assert(isinstance(samples, BaseRowsStorage))
         assert(isinstance(labels, list))
         assert(callable(labels_filter_func) or labels_filter_func is None)
 
         for ind, row_data in enumerate(samples):
             _, sample_row = row_data
-            parsed_row = ParsedSampleRow(sample_row)
+            parsed_row = ParsedSampleRow(sample_row, columns_fmts=columns_fmts, no_value_func=lambda: None)
             label = labels[ind]
 
             if labels_filter_func is not None and not labels_filter_func(label):
@@ -55,7 +59,9 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
     def iter_column_value(self, samples, column_value):
         for _, sample_row in samples:
-            parsed_row = ParsedSampleRow({column_value: sample_row[column_value]})
+            parsed_row = ParsedSampleRow(row={column_value: sample_row[column_value]},
+                                         columns_fmts=self.__column_fmts,
+                                         no_value_func=lambda: None)
             yield parsed_row[column_value]
 
     def apply_core(self, input_data, pipeline_ctx):
@@ -82,7 +88,10 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         labels = list(iter_predicted_labels(predict_data=predict_storage, label_to_str=labels_to_str, keep_ind=False))
 
         graph = make_graph_from_relations_array(
-            relations=self.__iter_relations(samples, labels, labels_filter_func=self.__graph_a_filter),
+            relations=self.__iter_relations(samples=samples,
+                                            labels=labels,
+                                            labels_filter_func=self.__graph_a_filter,
+                                            columns_fmts=self.__column_fmts),
             entity_values=self.iter_column_value(samples=samples, column_value=const.ENTITY_VALUES),
             entity_types=self.iter_column_value(samples=samples, column_value=const.ENTITY_TYPES),
             min_links=self.__graph_min_links,

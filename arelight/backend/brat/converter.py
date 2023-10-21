@@ -1,9 +1,10 @@
+from arekit.common.data.rows_fmt import create_base_column_fmt
+from arekit.common.data.rows_parser import ParsedSampleRow
 from tqdm import tqdm
 
 import collections
 from arekit.common.docs.entity import DocumentEntity
 from arekit.contrib.networks.input.const import FrameVariantIndices
-from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 
 from os.path import dirname, realpath, join
@@ -214,7 +215,9 @@ class BratBackend(object):
 
         for row_ind, row in samples:
 
-            parsed = ParsedSampleRow.parse(row)
+            parsed = ParsedSampleRow(row,
+                                     columns_fmts=[create_base_column_fmt(fmt_type="parser")],
+                                     no_value_func=lambda: None)
             doc_id = parsed[const.DOC_ID]
 
             if curr_doc_id is not None and curr_doc_id != doc_id:

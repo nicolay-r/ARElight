@@ -1,3 +1,6 @@
+from arekit.common.data.rows_fmt import create_base_column_fmt
+from arekit.common.data.rows_parser import ParsedSampleRow
+
 import utils
 import unittest
 from os.path import join
@@ -5,7 +8,6 @@ from os.path import join
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
-from arekit.contrib.networks.input.rows_parser import ParsedSampleRow
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 
@@ -25,8 +27,10 @@ class TestAREkitIterData(unittest.TestCase):
         samples = samples_io.Reader.read(samples_filepath)
         assert(isinstance(samples, BaseRowsStorage))
 
+        column_fmts = [create_base_column_fmt(fmt_type="parser")]
+
         for ind, sample_row in samples:
-            parsed_row = ParsedSampleRow(sample_row)
+            parsed_row = ParsedSampleRow(sample_row, columns_fmts=column_fmts, no_value_func=lambda: None)
             source = ParsedSampleRowExtraService.calc("SourceValue", parsed_row=parsed_row)
             target = ParsedSampleRowExtraService.calc("TargetValue", parsed_row=parsed_row)
             print(source, target)
