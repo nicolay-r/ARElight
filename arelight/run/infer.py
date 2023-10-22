@@ -17,6 +17,7 @@ from arekit.contrib.utils.data.writers.json_opennre import OpenNREJsonWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.contrib.utils.pipelines.items.text.translator import MLTextTranslatorPipelineItem
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
@@ -27,7 +28,6 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.translator_ml import MLTextTranslatorPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.utils import merge_dictionaries, iter_group_values, read_files, create_sentence_parser, \
     create_translate_model
