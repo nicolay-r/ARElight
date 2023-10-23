@@ -43,6 +43,58 @@ python3 -m arelight.run.infer  \
 ```
 
 > **NOTE:** [Applying ARElight for **non-english texts**](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application)
+>
+
+<details>
+<summary>
+
+## Parameters
+</summary>
+
+The complete documentation is avalable via `-h` flag:
+```python
+python3 -m arelight.run.infer -h
+```
+
+Parameters:
+* `sampling-framework` we consider only `arekit` framework by default.
+    * `text` -- textual content of the single document. 
+    * `from-files` -- list of filepaths to the related documents.
+      * for the `.csv` files we consider that each line of the particular `column` as a separated document.
+        * `csv-sep` -- separator between columns.
+        * `csv-column` -- name of the column in CSV file.
+    * `collection-name` -- name of the result files based on sampled documents.
+    * `terms-per-context` -- total amount of words for a single sample.
+    * `sentence-parser` -- parser utilized for document split into sentences [[supported parsers]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L15)
+    * `synonyms-filepath` -- text file with listed synonymous entries, grouped by lines. [[example]](https://github.com/nicolay-r/RuSentRel/blob/master/synonyms.txt).
+    * `stemmer` -- for words lemmatization (optional)
+    * `ner-framework` -- type of the Named Entity Recognition framework.
+      * `ner-model-name` -- model name within utilized NER framework.
+      * `ner-types` -- list of types to be considered for annotation, separated by `|`.
+    * `docs-limit` -- the total limit of documents for sampling.
+  * [Translation specific parameters](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application#any-other-languages).
+      * `translate-framework` -- text translation backend (optional) [[supported]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L31)
+      * `translate-entity` -- (optional) source and target language supported by backend, separated by `:`.
+      * `translate-text` -- (optional) source and target language supported by backend, separated by `:`.
+* `bert-framework` -- samples classification framework (`opennre` by default).
+    * `text-b-type` -- (optional) `NLI` or None [[supported]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/samplers/bert.py#L14).
+    * `pretrained-bert` -- pretrained state name.
+    * `batch-size` -- amount of samples per single inference iteration.
+    * `tokens-per-context` -- size of input.
+    * `bert-torch-checkpoint` -- fine-tuned state.
+    * `device-type` -- `cpu` or `gpu`.
+* `backend` -- type of the backend (`d3js_graphs` by default).
+    * `d3js-host` -- port on which we expect to launch localhost server.
+* `-o` -- output folder for result collections and demo.
+
+Framework parameters mentioned above as well as their related setups might be ommited.
+For example, to Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
+
+```bash
+python3 -m arelight.run.infer --backend "d3js_graphs" -o output --d3js-host 8080 
+```
+
+</details>
  
 Launches server at `http://0.0.0.0:8000/` so you may analyse the results. 
 
@@ -53,10 +105,9 @@ Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 <details>
 <summary>
 
-## Advanced and Partial Usage
+## Operations between Graphs
 </summary>
 
-### Operations between Graphs
 
 For graph analysis you can perform several graph operations by this script:
 
@@ -80,15 +131,8 @@ $G$ contains all the vertices from $G_1$ but only includes edges from $E_1$ that
 
 ![operations](https://github.com/nicolay-r/ARElight/assets/14871187/c0e6e8c9-a037-49b0-9404-86edbebf2a23)
 
-### `D3JS`: Launch Graph Builder and DEMO server
-
-Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
-
-```bash
-python3 -m arelight.run.infer --backend "d3js_graphs" -o output --d3js-host 8080 
-```
-
 </details>
+
 
 ## Powered by
 
