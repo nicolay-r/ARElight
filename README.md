@@ -52,7 +52,7 @@ python3 -m arelight.run.infer  \
 </summary>
 
 The complete documentation is avalable via `-h` flag:
-```python
+```bash
 python3 -m arelight.run.infer -h
 ```
 

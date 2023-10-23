@@ -256,14 +256,14 @@ if __name__ == '__main__':
             "brat_vis_fp": "{}.html".format(output_template) if output_template is not None else None,
         })
 
+    settings.append({
+        # We provide this settings for inference.
+        "predict_filepath": join(output_dir, "{}-predict.tsv.gz".format(collection_name)),
+        "samples_io": sampling_engines_setup["arekit"]["samples_io"],
+        "d3js_graph_output_dir": output_dir,
+        "d3js_graph_launch_server": args.d3js_host,
+        "d3js_host": args.d3js_host,
+    })
+
     # Launch application.
-    pipeline.run(
-        input_data=PipelineResult({
-            # We provide this settings for inference.
-            "predict_filepath": join(output_dir, "{}-predict.tsv.gz".format(collection_name)),
-            "samples_io": sampling_engines_setup["arekit"]["samples_io"],
-            "d3js_graph_output_dir": output_dir,
-            "d3js_graph_launch_server": args.d3js_host,
-            "d3js_host": args.d3js_host,
-        }),
-        params_dict=merge_dictionaries(settings))
+    pipeline.run(input_data=PipelineResult(merge_dictionaries(settings)))

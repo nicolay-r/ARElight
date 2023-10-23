@@ -119,11 +119,10 @@ class BertTestSerialization(unittest.TestCase):
                                                            text_parser=text_parser,
                                                            terms_per_context=50)
 
-        pipeline.run(input_data=PipelineContext(d={}),
-                     params_dict={
+        pipeline.run(input_data=PipelineContext(d={
                          "doc_ids": list(range(len(texts))),
                          "data_type_pipelines": {DataType.Test: test_pipeline}
-                     })
+                     }))
 
 if __name__ == '__main__':
     unittest.main()

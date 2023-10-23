@@ -47,7 +47,7 @@ class TestAREkitIterData(unittest.TestCase):
 
         ppl_result = PipelineResult({
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
-            "d3js_host": 8000,
+            "d3js_host": None,
         })
         ppl_result.update("samples_io", samples_io)
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))

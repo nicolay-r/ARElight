@@ -120,13 +120,11 @@ class TestInfer(unittest.TestCase):
             text_parser=text_parser)
 
         pipeline.run(input_data=PipelineContext(d={
-                         "labels_scaler": create_labels_scaler(3),
-                         "predict_filepath": join(utils.TEST_OUT_DIR, "predict.tsv.gz")
-                     }),
-                     params_dict={
-                                  "data_type_pipelines": {DataType.Test: data_pipeline},
-                                  "doc_ids": list(range(len(actual_content))),
-                              })
+            "labels_scaler": create_labels_scaler(3),
+            "predict_filepath": join(utils.TEST_OUT_DIR, "predict.tsv.gz"),
+            "data_type_pipelines": {DataType.Test: data_pipeline},
+            "doc_ids": list(range(len(actual_content))),
+        }))
 
     def test_opennre(self):
 

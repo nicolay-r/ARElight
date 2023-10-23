@@ -1,3 +1,4 @@
+from arekit.common.pipeline.context import PipelineContext
 from arekit.contrib.utils.pipelines.items.sampling.base import BaseSerializerPipelineItem
 
 import utils
@@ -103,11 +104,10 @@ class TestCombinedPipeline(unittest.TestCase):
                                                            text_parser=text_parser,
                                                            terms_per_context=50)
 
-        pipeline.run(input_data=None,
-                     params_dict={
+        pipeline.run(input_data=PipelineContext({
                          "doc_ids": list(range(len(texts))),
                          "data_type_pipelines": {DataType.Test: test_pipeline}
-                     })
+                     }))
 
 
 if __name__ == '__main__':
