@@ -65,18 +65,18 @@ Parameters:
         * `csv-column` -- name of the column in CSV file.
     * `collection-name` -- name of the result files based on sampled documents.
     * `terms-per-context` -- total amount of words for a single sample.
-    * `sentence-parser` -- parser utilized for document split into sentences [[supported parsers]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L15)
+    * `sentence-parser` -- parser utilized for document split into sentences; list of the [[supported parsers]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L15).
     * `synonyms-filepath` -- text file with listed synonymous entries, grouped by lines. [[example]](https://github.com/nicolay-r/RuSentRel/blob/master/synonyms.txt).
-    * `stemmer` -- for words lemmatization (optional)
-    * `ner-framework` -- type of the Named Entity Recognition framework.
+    * `stemmer` -- for words lemmatization (optional); we support [[PyMystem]](https://pypi.org/project/pymystem3/).
+    * `ner-framework` -- type of the Named Entity Recognition framework; we support [[DeepPavlov]](https://github.com/deeppavlov/DeepPavlov).
       * `ner-model-name` -- model name within utilized NER framework.
       * `ner-types` -- list of types to be considered for annotation, separated by `|`.
     * `docs-limit` -- the total limit of documents for sampling.
-  * [Translation specific parameters](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application#any-other-languages).
-      * `translate-framework` -- text translation backend (optional) [[supported]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L31)
+  * [Translation specific parameters](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application#any-other-languages)
+      * `translate-framework` -- text translation backend (optional); we support [[googletrans]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L31)
       * `translate-entity` -- (optional) source and target language supported by backend, separated by `:`.
       * `translate-text` -- (optional) source and target language supported by backend, separated by `:`.
-* `bert-framework` -- samples classification framework (`opennre` by default).
+* `bert-framework` -- samples classification framework; we support [[OpenNRE]](https://github.com/thunlp/OpenNRE).
     * `text-b-type` -- (optional) `NLI` or None [[supported]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/samplers/bert.py#L14).
     * `pretrained-bert` -- pretrained state name.
     * `batch-size` -- amount of samples per single inference iteration.
