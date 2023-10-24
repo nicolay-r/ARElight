@@ -35,17 +35,6 @@ def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, ba
     # Backend Items (after inference)
     #####################################################################
 
-    if "brat" in backend_engines:
-        from arelight.pipelines.items.backend_brat_json import BratBackendContentsPipelineItem
-        from arelight.pipelines.items.backend_brat_html import BratHtmlEmbeddingPipelineItem
-        pipeline += [
-            BratBackendContentsPipelineItem(
-                obj_color_types={"ORG": '#7fa2ff', "GPE": "#7fa200", "PERSON": "#7f00ff", "Frame": "#00a2ff"},
-                rel_color_types={"POS": "GREEN", "NEG": "RED"}
-            ),
-            BratHtmlEmbeddingPipelineItem()
-        ]
-
     if "d3js_graphs" in backend_engines:
         from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
         pipeline += [

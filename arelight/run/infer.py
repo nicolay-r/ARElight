@@ -64,7 +64,7 @@ if __name__ == '__main__':
     parser.add_argument("--bert-framework", dest="bert_framework", type=str, default=None, choices=[None, "opennre"])
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
-    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "brat", "d3js_graphs"])
+    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
     parser.add_argument("--d3js-host", dest="d3js_host", default=None, type=str)
     parser.add_argument('-o', dest='output_template', type=str, default=None, nargs='?')
 
@@ -247,13 +247,6 @@ if __name__ == '__main__':
         settings.append({
             "data_type_pipelines": {DataType.Test: data_pipeline},
             "doc_ids": list(range(len(doc_provider)))
-        })
-
-    if args.backend == "brat":
-        settings.append({
-            "template_filepath": join(output_dir, "brat_template.html"),
-            "brat_url": "http://localhost:8001/",
-            "brat_vis_fp": "{}.html".format(output_template) if output_template is not None else None,
         })
 
     settings.append({
