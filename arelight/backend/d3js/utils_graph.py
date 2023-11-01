@@ -3,36 +3,32 @@ from os import makedirs
 from os.path import exists, join
 
 
+def save_json(data, file_path):
+    with open(file_path, 'w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False, indent=4)
+
+
+def load_graph(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return json.load(file)
+
+
 def graph_to_radial(graph):
     """ (C) Maxim Kolomeets
     """
-    nodes_ = {}
-
-    for n in graph["nodes"]:
-        nodes_[n["id"]] = {"w": n["c"]}
-
-    for l in graph["links"]:
-
-        if l["target"] not in nodes_:
-            continue
-
-        target = nodes_[l["target"]]
-
-        if "imports" not in target:
-           target["imports"] = []
-
-        target["imports"].append({
-            "name": l["source"],
-            "w": l["c"],
-            "sent": l["sent"]
+    radial_nodes = {}
+    for node in graph["nodes"]:
+        radial_node = {"name": node["id"], "w": node["c"], "imports": []}
+        radial_nodes[node["id"]] = radial_node
+    for link in graph["links"]:
+        source_node = link["source"]
+        target_node = link["target"]
+        radial_nodes[target_node]["imports"].append({
+            "name": source_node,
+            "w": link["c"],
+            "sent": link["sent"]
         })
-
-    nodes = []
-    for n_ in nodes_:
-        n = nodes_[n_]
-        n["name"] = n_
-        nodes.append(n)
-    return nodes
+    return list(radial_nodes.values())
 
 
 def save_graph(graph, out_dir, out_filename, convert_to_radial=True):
@@ -41,10 +37,6 @@ def save_graph(graph, out_dir, out_filename, convert_to_radial=True):
         makedirs(out_dir)
 
     data_filepath = join(out_dir, "{}.json".format(out_filename))
-
-    with open(data_filepath, "w") as f:
-        # Convert to radial graph.
-        radial_graph = graph_to_radial(graph) if convert_to_radial else graph
-        json_content = json.dumps(radial_graph, ensure_ascii=False).encode('utf8').decode()
-        f.write(json_content)
-
+    # Convert to radial graph.
+    radial_graph = graph_to_radial(graph) if convert_to_radial else graph
+    save_json(data=radial_graph, file_path=data_filepath)

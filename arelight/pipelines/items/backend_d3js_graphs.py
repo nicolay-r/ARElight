@@ -15,7 +15,7 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
-from arelight.backend.d3js.ui_web import save_demo_page
+from arelight.backend.d3js.ui_web import save_demo_page, iter_ui_backend_folders, GRAPH_TYPE_RADIAL
 from arelight.backend.d3js.utils_graph import save_graph
 
 
@@ -24,13 +24,11 @@ logger = logging.getLogger(__name__)
 
 class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
-    def __init__(self, graph_min_links=0.01, graph_a_labels=None,
-                 graph_b_labels=None, weights=True, launch_server=False):
+    def __init__(self, graph_min_links=0.01, graph_a_labels=None, weights=True, launch_server=False):
         self.__graph_min_links = graph_min_links
 
         # Setup filters for the A and B graphs for further operations application.
-        self.__graph_a_filter = lambda _: True if graph_a_labels is None else lambda label: label in graph_a_labels
-        self.__graph_b_filter = lambda _: True if graph_b_labels is None else lambda label: label in graph_b_labels
+        self.__graph_label_filter = lambda _: True if graph_a_labels is None else lambda label: label in graph_a_labels
 
         # Considering weights for graphs.
         self.__graph_weights = weights
@@ -90,7 +88,7 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         graph = make_graph_from_relations_array(
             relations=self.__iter_relations(samples=samples,
                                             labels=labels,
-                                            labels_filter_func=self.__graph_a_filter,
+                                            labels_filter_func=self.__graph_label_filter,
                                             columns_fmts=self.__column_fmts),
             entity_values=self.iter_column_value(samples=samples, column_value=const.ENTITY_VALUES),
             entity_types=self.iter_column_value(samples=samples, column_value=const.ENTITY_TYPES),
@@ -99,12 +97,12 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
         # Save Graphs.
         collection_name = samples_io.Prefix
-        for graph_type in ['force', 'radial']:
+        for graph_type in iter_ui_backend_folders(keep_desc=True):
             save_graph(graph=graph,
                        # We consider the layout for files and keep graphs within the related folder type.
                        out_dir=join(target_dir, graph_type),
                        out_filename=f"{collection_name}",
-                       convert_to_radial=True if "radial" in graph_type else False)
+                       convert_to_radial=True if graph_type == GRAPH_TYPE_RADIAL else False)
 
         # Save Graph description.
         save_demo_page(target_dir=target_dir, collection_name=collection_name)

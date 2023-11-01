@@ -1,16 +1,15 @@
-def graphs_operations_weighted(graph_A, graph_B, operation="UNION", weights=True):
+import warnings
+
+
+def graphs_operations(graph_A, graph_B, operation="UNION", weights=True):
     """
     Perform graph operations and return the resulting graph.
-
-    (C) Maxim Kolomeets
 
     Parameters:
         graph_A, graph_B: dict
             The input graphs to operate on.
         operation: str, optional
             The operation to perform, by default "UNION".
-        min_links: float, optional
-            A threshold parameter, by default 0.01.
         weights: bool, optional
             Whether to use weights in the computation, by default True.
 
@@ -20,64 +19,54 @@ def graphs_operations_weighted(graph_A, graph_B, operation="UNION", weights=True
 
     print(f"\nPerforming {operation} on graphs...")
 
-    def assign_weights(graph, weight=1):
-        """Assign weights to nodes and links in a graph."""
-        for element in ["nodes", "links"]:
-            print(graph)
-            for idx, item in enumerate(graph[element]):
-                print(item)
-                graph[element][idx]["c"] = weight
-                #item["c"] = weight
-
     def link_key(link):
         """Generate a key for a link."""
         return f"{link['source']}___{link['target']}***{link['sent']}"
 
-    def normalize_links(links, max_val):
-        """Normalize link weights by dividing by max_val."""
-        return {k: v / max_val for k, v in links.items()}
-
-    print("GRAPH A", graph_A)
-    print("GRAPH B", graph_B)
-
     # If weights are not used, assign default weights to graphs.
     if not weights:
-        assign_weights(graph_A)
-        assign_weights(graph_B)
+        for graph in [graph_A, graph_B]:
+            for element in ["nodes", "links"]:
+                for item in graph[element]:
+                    item["c"] = 1
 
     # Convert links of graph A to a dictionary with link_key as keys.
-    links_A = {}
-    for link_A in graph_A["links"]:
-        l = link_key(link_A)
-        links_A[l] = links_A.get(l, 0) + link_A["c"]
+    links_A = {link_key(link_A): link_A["c"] for link_A in graph_A["links"]}
 
-    links_ = {}
+    # Different operations for UNION, INTERSECTION, and DIFFERENCE
+    if operation == "UNION":
+        links_B = {link_key(link_B): link_B["c"] for link_B in graph_B["links"]}
+        links_ = {k: links_A.get(k, 0) + links_B.get(k, 0) for k in set(links_A) | set(links_B)}
 
-    # Different operations for UNION and DIFFERENCE
-    if operation in ["UNION", "MINUS"]:
-        links_ = links_A.copy()
-        for link_B in graph_B["links"]:
-            l = link_key(link_B)
-            links_[l] = links_.get(l, 0) + (link_B["c"] if operation == "UNION" else -link_B["c"])
+    else:
+        A_max = max(links_A.values())
+        B_max = max(link_B["c"] for link_B in graph_B["links"])
 
-    # Different operations for INTERSECTION and DIFFERENCE
-    elif operation in ["INTERSECTION", "DIFFERENCE"]:
-        A_max, B_max = max(l["c"] for l in graph_A["links"]), max(l["c"] for l in graph_B["links"])
-        print(A_max)
-        print(B_max)
-        links_A = normalize_links(links_A, A_max)
-        print(links_A)
+        links_A = {k: v / A_max for k, v in links_A.items()}
+        links_B = {link_key(link_B): link_B["c"] / B_max for link_B in graph_B["links"]}
 
-        for link_B in graph_B["links"]:
-            l = link_key(link_B)
-            c = link_B["c"] / B_max
-            if l in links_A:
-                print("HERE2")
-                if operation == "INTERSECTION":
+        links_ = {}
+        if operation == "INTERSECTION":
+            for l, c in links_B.items():
+                if l in links_A:
                     links_[l] = min(c, links_A[l])
-                elif links_A[l] - c > 0:
-                    print(links_A[l], c)
-                    links_[l] = links_A[l] - c
+
+        if operation == "DIFFERENCE":
+            for l, c in links_A.items():
+                if l in links_B and c - links_B[l] > 0:
+                    print("     ", l, c, "=>", l, links_B[l])
+                    links_[l] = c - links_B[l]
+                if l not in links_B:
+                    links_[l] = c
+
+    # Normalize link weights after the operation
+    try:
+        max_c = max(links_.values())
+    except ValueError:
+        warnings.warn("The result graph is empty.\nThis may be due to absolute no similarity or absolute "
+                      "no difference between graph A and B\n(in dependecne on which operation you perform)")
+        return {"nodes": [{"id":"GPE.EMPTY_GRAPH(no_similarity_OR_no_difference)", "c":1}], "links": []}
+    links_ = {k: v / max_c for k, v in links_.items()}
 
     # Construct the resulting graph.
     links, used_nodes = [], {}
@@ -93,8 +82,8 @@ def graphs_operations_weighted(graph_A, graph_B, operation="UNION", weights=True
 
     # Assign weights if not used.
     if not weights:
-        assign_weights(result_graph)
-
-    #print("RESULT GRAPH", result_graph)
+        for element in ["nodes", "links"]:
+            for item in result_graph[element]:
+                item["c"] = 1
 
     return result_graph

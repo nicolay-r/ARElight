@@ -525,9 +525,20 @@ def get_web_ui(datasets_list, folder_name=""):
     return html_content
 
 
+GRAPH_TYPE_RADIAL = 'radial'
+
+
+def iter_ui_backend_folders(keep_graph=False, keep_desc=False):
+    if keep_graph:
+       yield GRAPH_TYPE_RADIAL
+       yield 'force'
+    if keep_desc:
+       yield "descriptions"
+
+
 def save_demo_page(target_dir, collection_name=None):
 
-    descriptions_dir = join(target_dir, "descriptions")
+    descriptions_dir = join(target_dir, next(iter_ui_backend_folders(keep_desc=True)))
 
     # Add new collection and expand with existed.
     suffix = '.json'
