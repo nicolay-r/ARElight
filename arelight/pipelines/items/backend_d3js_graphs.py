@@ -1,6 +1,4 @@
 import logging
-import os
-from os.path import join
 
 from arekit.common.data import const
 from arekit.common.data.rows_fmt import create_base_column_fmt

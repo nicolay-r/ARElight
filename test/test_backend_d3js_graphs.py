@@ -10,7 +10,7 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
-from arelight.backend.d3js.relations_graph_operations import graphs_operations_weighted
+from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.utils_graph import save_graph
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.formatter import TrheeLabelsFormatter
@@ -61,7 +61,7 @@ class TestBackendD3JS(unittest.TestCase):
             weights=True
         )
 
-        graph = graphs_operations_weighted(graph_A=graph2, graph_B=graph, operation="DIFFERENCE", weights=False)
+        graph = graphs_operations(graph_A=graph2, graph_B=graph, operation="DIFFERENCE", weights=False)
         print(graph)
 
         if not exists(self.TEST_OUT_LOCAL_DIR):
