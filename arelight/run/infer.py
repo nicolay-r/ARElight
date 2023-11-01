@@ -183,7 +183,6 @@ if __name__ == '__main__':
         "d3js_graphs": {
             "graph_min_links": 1,
             "graph_a_labels": None,
-            "graph_b_labels": None,
             "weights": True,
         }
     }
@@ -254,7 +253,6 @@ if __name__ == '__main__':
         "predict_filepath": join(output_dir, "{}-predict.tsv.gz".format(collection_name)),
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
         "d3js_graph_output_dir": output_dir,
-        "d3js_graph_launch_server": args.d3js_host,
         "d3js_host": args.d3js_host,
     })
 

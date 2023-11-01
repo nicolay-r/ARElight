@@ -128,3 +128,28 @@ def read_files(paths, delimiter, csv_column):
                 file_contents.append(f.read().rstrip())
 
     return file_contents
+
+
+def get_list_choice(op_list):
+    while True:
+        operation = input("Select operation:\n{ops}\n".format(
+            ops="\n".join(["{}: {}".format(i, n) for i, n in enumerate(op_list)])
+        ))
+        try:
+            operation = int(operation)
+            if 0 <= operation < len(op_list):
+                break
+            else:
+                print("Invalid choice.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+    return op_list[operation]
+
+
+def get_binary_choice(prompt):
+    while True:
+        choice = input(prompt).lower()
+        if choice in ['y', 'n']:
+            return choice == 'y'
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")

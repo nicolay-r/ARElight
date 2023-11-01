@@ -539,6 +539,7 @@ def iter_ui_backend_folders(keep_graph=False, keep_desc=False):
 def save_demo_page(target_dir, collection_name=None):
 
     descriptions_dir = join(target_dir, next(iter_ui_backend_folders(keep_desc=True)))
+    create_dir_if_not_exists(filepath=join(descriptions_dir, "__placeholder__"))
 
     # Add new collection and expand with existed.
     suffix = '.json'
@@ -548,13 +549,13 @@ def save_demo_page(target_dir, collection_name=None):
     # Save Graph description.
     if collection_name is not None:
         desc_path = join(descriptions_dir, f"{collection_name}{suffix}")
-        create_dir_if_not_exists(desc_path)
         with open(desc_path, "w") as f:
             f.write(json.dumps({"description": collection_name}))
 
         # Place collection name on to of the list.
-        if collection_name not in descriptors:
-            descriptors = [collection_name] + descriptors
+        if collection_name in descriptors:
+            del descriptors[descriptors.index(collection_name)]
+        descriptors = [collection_name] + descriptors
 
     # Demo content.
     html_content = get_web_ui(datasets_list=descriptors)

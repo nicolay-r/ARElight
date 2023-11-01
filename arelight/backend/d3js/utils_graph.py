@@ -23,6 +23,10 @@ def graph_to_radial(graph):
     for link in graph["links"]:
         source_node = link["source"]
         target_node = link["target"]
+
+        if target_node not in radial_nodes:
+            continue
+
         radial_nodes[target_node]["imports"].append({
             "name": source_node,
             "w": link["c"],

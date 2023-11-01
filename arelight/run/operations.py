@@ -1,37 +1,13 @@
 import argparse
 import os
 from datetime import datetime
-from os.path import join
-from pathlib import Path
 
-from arekit.common.utils import create_dir_if_not_exists
+from arekit.common.pipeline.base import BasePipeline
 
-from arelight.backend.d3js.relations_graph_operations import graphs_operations
-from arelight.backend.d3js.ui_web import iter_ui_backend_folders, GRAPH_TYPE_RADIAL
-from arelight.backend.d3js.utils_graph import graph_to_radial, save_json, load_graph
-
-
-def get_operation():
-    while True:
-        operation = input("Select operation:\n1: UNION\n2: INTERSECTION\n3: DIFFERENCE\n")
-        try:
-            operation = int(operation)
-            if operation in [1, 2, 3]:
-                break
-            else:
-                print("Invalid choice. Please select operation as number 1, 2, or 3")
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-    return {1: "UNION", 2: "INTERSECTION", 3: "DIFFERENCE"}[operation]
-
-
-def get_binary_choice(prompt):
-    while True:
-        choice = input(prompt).lower()
-        if choice in ['y', 'n']:
-            return choice == 'y'
-        else:
-            print("Invalid input. Please enter 'y' or 'n'.")
+from arelight.backend.d3js.utils_graph import load_graph
+from arelight.pipelines.demo.result import PipelineResult
+from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
+from arelight.run.utils import get_binary_choice, get_list_choice
 
 
 def get_input_with_default(prompt, default_value):
@@ -76,17 +52,20 @@ def get_graph_path(text):
 
 if __name__ == '__main__':
 
+    op_list = ["UNION", "INTERSECTION", "DIFFERENCE"]
+
     # Providing arguments.
     parser = argparse.ArgumentParser(description="Graph Operations")
-    parser.add_argument("--operation", required=False, choices=["UNION", "INTERSECTION", "DIFFERENCE"],
-                        help="Select operation: UNION, INTERSECTION, DIFFERENCE")
+    parser.add_argument("--operation", required=False, choices=op_list,
+                        help="Select operation: {ops}".format(ops=",".join(op_list)))
     parser.add_argument("--graph_a_file", required=False,
                         help="Specify path to Graph A (.json file in folder <ARElight_output>/force/)")
     parser.add_argument("--graph_b_file", required=False,
                         help="Specify path to Graph B (.json file in folder <ARElight_output>/force/)")
     parser.add_argument("--weights", required=False, choices=['y', 'n'], help="Use weights? (y/n)")
-    parser.add_argument("--output", required=False, help="Specify output directory (you can use directory "
-                                                         "of existing output, it will add files to it)")
+    parser.add_argument("-o", dest='output_dir', required=False,
+                        help="Specify output directory (you can use directory "
+                             "of existing output, it will add files to it)")
     parser.add_argument("--name", required=False, help="Specify name of new graph")
     parser.add_argument("--description", required=False, help="Specify description of new graph")
     parser.add_argument("--host", required=False, choices=["y", "n"], help="Run visualization server? (y/n)")
@@ -94,14 +73,14 @@ if __name__ == '__main__':
     # Parsing arguments.
     args = parser.parse_args()
 
-    operation = args.operation if args.operation else get_operation()
+    operation = args.operation if args.operation else get_list_choice(op_list)
     graph_A_file_path = args.graph_a_file if args.graph_a_file else get_graph_path(
-        "Enter the path to the folder (ARElight output) for graph_A: ")
+        "Enter the path to the folder for graph_A: ")
     graph_B_file_path = args.graph_b_file if args.graph_b_file else get_graph_path(
-        "Enter the path to the folder (ARElight output) for graph_B: ")
+        "Enter the path to the folder for graph_B: ")
     weights = args.weights.lower() == 'y' if args.weights else get_binary_choice("Use weights? (y/n)\n")
     do_host = args.host.lower() in ['y', 'yes'] if args.host else get_binary_choice("Run visualisation server? (y/n)\n")
-    output = args.output if args.output else input(
+    output_dir = args.output_dir if args.output_dir else input(
         "Specify name of output folder (you can use an existing output folder to store new graphs): ")
 
     default_name = "_".join([
@@ -110,11 +89,11 @@ if __name__ == '__main__':
         os.path.basename(graph_B_file_path)
     ]).replace(".json", "")
 
-    output_name = args.name if args.name \
+    # Setup collection name.
+    collection_name = args.name if args.name \
         else get_input_with_default("Specify name of new graph (enter to skip)\n", default_name)
-
-    if not output_name.endswith(".json"):
-        output_name += ".json"
+    if not collection_name.endswith(".json"):
+        collection_name += ".json"
 
     current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     default_description = (
@@ -128,31 +107,17 @@ if __name__ == '__main__':
     description = args.description if args.description else \
         get_input_with_default("Specify description of new graph (enter to skip)\n", default_description)
 
-    # Perform operation and generate force and radial variants
-    new_G_force = graphs_operations(
-        graph_A=load_graph(graph_A_file_path),
-        graph_B=load_graph(graph_B_file_path),
-        operation=operation,
-        weights=weights
-    )
-    new_G_radial = graph_to_radial(new_G_force)
+    pipeline = BasePipeline([
+        D3jsGraphOperationsBackendPipelineItem()
+    ])
 
-    # Save results
-    output_dir = Path(output)
-    for subfolder in iter_ui_backend_folders(keep_desc=True, keep_graph=True):
-        create_dir_if_not_exists(join(output_dir, subfolder))
-
-    for graph_type in iter_ui_backend_folders(keep_graph=True):
-        g = new_G_radial if graph_type == GRAPH_TYPE_RADIAL else new_G_force
-        save_json(g, os.path.join(output_dir, graph_type, output_name))
-
-    for subfolder in iter_ui_backend_folders(keep_desc=True):
-        save_json({"description": description}, os.path.join(output_dir, subfolder, output_name))
-
-    print(f"\nDataset is completed and saved in the following locations:")
-    for subfolder in iter_ui_backend_folders(keep_desc=True, keep_graph=True):
-        print(f"- {os.path.join(output_dir, subfolder, output_name)}")
-
-    if do_host:
-        pass
-        "run visualization server"
+    # Launch application.
+    pipeline.run(input_data=PipelineResult({
+        # We provide this settings for inference.
+        "d3js_graph_output_dir": output_dir,
+        "d3js_host": str(8000) if do_host else None,
+        "d3js_graph_a": load_graph(graph_A_file_path),
+        "d3js_graph_b": load_graph(graph_B_file_path),
+        "d3js_graph_operations": operation,
+        "d3js_collection_name": collection_name
+    }))

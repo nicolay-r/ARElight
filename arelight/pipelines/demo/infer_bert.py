@@ -1,3 +1,4 @@
+from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
 from arelight.pipelines.items.inference_writer import InferenceWriterPipelineItem
 from arelight.predict_writer_csv import TsvPredictWriter
 
@@ -38,7 +39,8 @@ def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, ba
     if "d3js_graphs" in backend_engines:
         from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
         pipeline += [
-            D3jsGraphsBackendPipelineItem(**backend_engines["d3js_graphs"])
+            D3jsGraphsBackendPipelineItem(**backend_engines["d3js_graphs"]),
+            D3jsGraphOperationsBackendPipelineItem()
         ]
 
     return pipeline

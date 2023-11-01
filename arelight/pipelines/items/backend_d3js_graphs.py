@@ -15,8 +15,6 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
-from arelight.backend.d3js.ui_web import save_demo_page, iter_ui_backend_folders, GRAPH_TYPE_RADIAL
-from arelight.backend.d3js.utils_graph import save_graph
 
 
 logger = logging.getLogger(__name__)
@@ -24,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
-    def __init__(self, graph_min_links=0.01, graph_a_labels=None, weights=True, launch_server=False):
+    def __init__(self, graph_min_links=0.01, graph_a_labels=None, weights=True):
         self.__graph_min_links = graph_min_links
 
         # Setup filters for the A and B graphs for further operations application.
@@ -32,7 +30,6 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
         # Considering weights for graphs.
         self.__graph_weights = weights
-        self.__launch_server = launch_server
 
         # Parameters for sampler.
         self.__column_fmts = [create_base_column_fmt(fmt_type="parser")]
@@ -65,7 +62,6 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(input_data, PipelineContext))
 
-        target_dir = input_data.provide("d3js_graph_output_dir")
         predict_filepath = input_data.provide("predict_filepath")
         result_reader = input_data.provide("predict_reader")
         labels_fmt = input_data.provide("labels_formatter")
@@ -95,22 +91,6 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
             min_links=self.__graph_min_links,
             weights=self.__graph_weights)
 
-        # Save Graphs.
-        collection_name = samples_io.Prefix
-        for graph_type in iter_ui_backend_folders(keep_desc=True):
-            save_graph(graph=graph,
-                       # We consider the layout for files and keep graphs within the related folder type.
-                       out_dir=join(target_dir, graph_type),
-                       out_filename=f"{collection_name}",
-                       convert_to_radial=True if graph_type == GRAPH_TYPE_RADIAL else False)
-
-        # Save Graph description.
-        save_demo_page(target_dir=target_dir, collection_name=collection_name)
-
-        # Launch server to checkout the results (Optionally)
-        host_port = input_data.provide_or_none("d3js_host")
-        if host_port is not None:
-            cmd = f"cd {target_dir} && python -m http.server {host_port}"
-            print("Launching WEB server for watching the results")
-            logger.info(cmd)
-            os.system(cmd)
+        # Saving graph as the collection name for it.
+        input_data.update("d3js_graph_a", value=graph)
+        input_data.update("d3js_collection_name", value=samples_io.Prefix)

@@ -115,7 +115,7 @@ python3 -m arelight.run.operations \
 	--graph_a_file output/force/boris.json \
   	--graph_b_file output/force/rishi.json \
   	--weights y \
-  	--output output \
+  	-o output \
   	--description "Similarity between Boris Johnson and Rishi Sunak on X/Twitter"
 ```
 
@@ -144,13 +144,13 @@ Helps to unite several graphs, e.g. imagine that you used ARElight script for Tw
 ```bash
 python3 -m arelight.run.infer 
 	...other arguments... 
-	--output output \ 
+	-o output \ 
 	--name boris \
 	--from-files "twitter_boris.txt"
 	
 python3 -m arelight.run.infer \
 	...other arguments... 
-	--output output \
+	-o output \
 	--name rishi \
 	--from-files "twitter_rishi.txt"
 ```
@@ -163,7 +163,7 @@ python3 -m arelight.run.operations --operation UNION \
 	--graph_a_file output/force/boris.json \
   	--graph_b_file output/force/rishi.json \
   	--weights y \
-  	--output output
+  	-o output \
   	--name boris_AND_rishi \
   	--description "Twits of Boris Johnson and Rishi Sunak"
 ```
@@ -180,7 +180,7 @@ python3 -m arelight.run.operations --operation INTERSECTION \
 	--graph_a_file output/force/boris.json \
   	--graph_b_file output/force/rishi.json \
   	--weights y \
-  	--output output
+  	-o output \
   	--name boris_SIMILARITY_rishi \
   	--description "Similarity between Twits of Boris Johnson and Rishi Sunak"
 ```
@@ -200,7 +200,7 @@ python3 -m arelight.run.operations --operation DIFFERENCE \
 	--graph_a_file output/force/boris.json \
   	--graph_b_file output/force/rishi.json \
   	--weights y \
-  	--output output
+  	-o output \
   	--name boris_DIFFERENCE_rishi \
   	--description "Difference between Twits of Boris Johnson and Rishi Sunak"
   	--vis y
@@ -234,7 +234,7 @@ Note that using or not using the ```--weights``` option may yield different topo
 
 
 * `--graph_a_file` and `--graph_b_file` are used to specify the paths to the `.json` files for graphs A and B, which are used in the operations. These files should be located in the `<your_output/radial>` folder.
-* `--output` option allows you to specify the path to the folder where you want to store the output. You can either create a new output folder or use an existing one that has been created by ARElight.
+* `-o` option allows you to specify the path to the folder where you want to store the output. You can either create a new output folder or use an existing one that has been created by ARElight.
 * `--name` and `--description` options, you can provide a name for the resulting `.json` file and a description for it.
 * `--host` -- determines whether to run the visualization server after the calculations. You can choose ```y``` for yes or ```n``` for no.
 
