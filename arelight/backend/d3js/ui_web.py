@@ -526,17 +526,18 @@ def get_web_ui(datasets_list, folder_name=""):
 
 
 GRAPH_TYPE_RADIAL = 'radial'
+GRAPH_TYPE_FORCE = 'force'
 
 
 def iter_ui_backend_folders(keep_graph=False, keep_desc=False):
     if keep_graph:
        yield GRAPH_TYPE_RADIAL
-       yield 'force'
+       yield GRAPH_TYPE_FORCE
     if keep_desc:
        yield "descriptions"
 
 
-def save_demo_page(target_dir, collection_name=None):
+def save_demo_page(target_dir, collection_name=None, description=None):
 
     descriptions_dir = join(target_dir, next(iter_ui_backend_folders(keep_desc=True)))
     create_dir_if_not_exists(filepath=join(descriptions_dir, "__placeholder__"))
@@ -550,7 +551,7 @@ def save_demo_page(target_dir, collection_name=None):
     if collection_name is not None:
         desc_path = join(descriptions_dir, f"{collection_name}{suffix}")
         with open(desc_path, "w") as f:
-            f.write(json.dumps({"description": collection_name}))
+            f.write(json.dumps({"description": description if descriptors is not None else collection_name}))
 
         # Place collection name on to of the list.
         if collection_name in descriptors:

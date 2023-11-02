@@ -30,7 +30,7 @@ from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.utils import input_to_docs
 from arelight.run.utils import merge_dictionaries, iter_group_values, read_files, create_sentence_parser, \
-    create_translate_model
+    create_translate_model, is_port_number
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
@@ -65,8 +65,8 @@ if __name__ == '__main__':
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
-    parser.add_argument("--d3js-host", dest="d3js_host", default=None, type=str)
-    parser.add_argument('-o', dest='output_template', type=str, default=None, nargs='?')
+    parser.add_argument("--host", dest="d3js_host", default=None, type=str)
+    parser.add_argument('-o', dest='output_template', type=str, default="output", nargs='?')
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -83,6 +83,8 @@ if __name__ == '__main__':
     docs_limit = args.docs_limit
     output_template = args.output_template
     output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
+
+    assert(is_port_number(number=args.d3js_host, is_optional=True))
 
     labels_scaler = SingleLabelScaler(NoLabel())
 

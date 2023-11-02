@@ -1,7 +1,12 @@
 import warnings
 
 
-def graphs_operations(graph_A, graph_B, operation="UNION", weights=True):
+OP_UNION = "UNION"
+OP_INTERSECTION = "INTERSECTION"
+OP_DIFFERENCE = "DIFFERENCE"
+
+
+def graphs_operations(graph_A, graph_B, operation=OP_UNION, weights=True):
     """
     Perform graph operations and return the resulting graph.
 
@@ -34,7 +39,7 @@ def graphs_operations(graph_A, graph_B, operation="UNION", weights=True):
     links_A = {link_key(link_A): link_A["c"] for link_A in graph_A["links"]}
 
     # Different operations for UNION, INTERSECTION, and DIFFERENCE
-    if operation == "UNION":
+    if operation == OP_UNION:
         links_B = {link_key(link_B): link_B["c"] for link_B in graph_B["links"]}
         links_ = {k: links_A.get(k, 0) + links_B.get(k, 0) for k in set(links_A) | set(links_B)}
 
@@ -46,12 +51,12 @@ def graphs_operations(graph_A, graph_B, operation="UNION", weights=True):
         links_B = {link_key(link_B): link_B["c"] / B_max for link_B in graph_B["links"]}
 
         links_ = {}
-        if operation == "INTERSECTION":
+        if operation == OP_INTERSECTION:
             for l, c in links_B.items():
                 if l in links_A:
                     links_[l] = min(c, links_A[l])
 
-        if operation == "DIFFERENCE":
+        if operation == OP_DIFFERENCE:
             for l, c in links_A.items():
                 if l in links_B and c - links_B[l] > 0:
                     print("     ", l, c, "=>", l, links_B[l])
@@ -64,8 +69,10 @@ def graphs_operations(graph_A, graph_B, operation="UNION", weights=True):
         max_c = max(links_.values())
     except ValueError:
         warnings.warn("The result graph is empty.\nThis may be due to absolute no similarity or absolute "
-                      "no difference between graph A and B\n(in dependecne on which operation you perform)")
-        return {"nodes": [{"id":"GPE.EMPTY_GRAPH(no_similarity_OR_no_difference)", "c":1}], "links": []}
+                      "no difference between graph A and B\n(in dependent on which operation you perform)")
+        return {"nodes": [{"id": "GPE.EMPTY_GRAPH(no_similarity_OR_no_difference)", "c": 1}],
+                "links": []}
+
     links_ = {k: v / max_c for k, v in links_.items()}
 
     # Construct the resulting graph.

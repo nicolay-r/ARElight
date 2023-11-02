@@ -132,24 +132,39 @@ def read_files(paths, delimiter, csv_column):
 
 def get_list_choice(op_list):
     while True:
-        operation = input("Select operation:\n{ops}\n".format(
+        choice = input("Select:\n{ops}\n".format(
             ops="\n".join(["{}: {}".format(i, n) for i, n in enumerate(op_list)])
         ))
         try:
-            operation = int(operation)
-            if 0 <= operation < len(op_list):
+            choice = int(choice)
+            if 0 <= choice < len(op_list):
                 break
             else:
                 print("Invalid choice.")
         except ValueError:
             print("Invalid input. Please enter a number.")
-    return op_list[operation]
+    return op_list[choice]
 
 
 def get_binary_choice(prompt):
     while True:
         choice = input(prompt).lower()
-        if choice in ['y', 'n']:
+        if isinstance(choice, int) and choice > 0:
             return choice == 'y'
         else:
             print("Invalid input. Please enter 'y' or 'n'.")
+
+
+def get_int_choice(prompt, filter_func, is_optional=False):
+    while True:
+        choice = input(prompt).lower()
+        if (is_optional and choice is None) or (isinstance(choice, int) and filter_func(choice)):
+            return choice
+        else:
+            print("Invalid input. Please enter number.")
+
+
+def is_port_number(number, is_optional=True):
+    if is_optional and not number:
+        return True
+    return 1 < int(number) < 65535

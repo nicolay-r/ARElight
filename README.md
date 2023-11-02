@@ -36,7 +36,7 @@ python3 -m arelight.run.infer  \
     --pretrained-bert "bert-base-cased" \
     --bert-torch-checkpoint "ra4-rsr1_bert-base-cased_cls.pth.tar" \
     --backend "d3js_graphs" \
-    --d3js-host 8000 \
+    --host 8000 \
     --docs-limit 500 \
     -o "output" \
     --from-files "<PATH-TO-TEXT-FILE>"
@@ -91,7 +91,7 @@ Framework parameters mentioned above as well as their related setups might be om
 For example, to Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
 
 ```bash
-python3 -m arelight.run.infer --backend "d3js_graphs" -o output --d3js-host 8080 
+python3 -m arelight.run.infer --backend "d3js_graphs" -o output --host 8080 
 ```
 
 </details>
@@ -126,6 +126,24 @@ python3 -m arelight.run.operations
 ```
 
 `arelight.run.operations` allows you to operate ARElight's outputs using graphs: you can merge graphs, find their similarities or differences.
+
+
+<details>
+<summary>
+
+### Parameters
+
+</summary>
+
+* `--graph_a_file` and `--graph_b_file` are used to specify the paths to the `.json` files for graphs A and B, which are used in the operations.
+  These files should be located in the `<your_output/force>` folder.
+* `--name` -- name of the new graph.
+* `--description` -- description of the new graph.
+* `--host` -- determines the server port to host after the calculations.
+* `-o` -- option allows you to specify the path to the folder where you want to store the output.
+  You can either create a new output folder or use an existing one that has been created by ARElight.
+
+</details>
 
 <details>
 <summary>
@@ -239,22 +257,6 @@ These weights represent the frequencies of discovered edges, indicating how ofte
   ![weights](https://github.com/nicolay-r/ARElight/assets/14871187/43ad2054-d413-47ee-ac8b-d06af6921214)
 
 </details>
-
-<details>
-<summary>
-
-### Parameters (Others)
-
-</summary>
-
-* `--graph_a_file` and `--graph_b_file` are used to specify the paths to the `.json` files for graphs A and B, which are used in the operations. These files should be located in the `<your_output/force>` folder.
-* `-o` option allows you to specify the path to the folder where you want to store the output. You can either create a new output folder or use an existing one that has been created by ARElight.
-* `--name` and `--description` options, you can provide a name for the resulting `.json` file and a description for it.
-* `--host` -- determines whether to run the visualization server after the calculations. You can choose ```y``` for yes or ```n``` for no.
-
-</details>
-
-
 
 ## Powered by
 

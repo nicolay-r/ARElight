@@ -42,7 +42,9 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
                        convert_to_radial=True if graph_type == GRAPH_TYPE_RADIAL else False)
 
         # Save Graph description.
-        save_demo_page(target_dir=target_dir, collection_name=collection_name)
+        save_demo_page(target_dir=target_dir,
+                       collection_name=collection_name,
+                       description=input_data.provide_or_none("d3js_collection_description"))
 
         print(f"\nDataset is completed and saved in the following locations:")
         for subfolder in iter_ui_backend_folders(keep_desc=True, keep_graph=True):

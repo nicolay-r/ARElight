@@ -4,10 +4,12 @@ from datetime import datetime
 
 from arekit.common.pipeline.base import BasePipeline
 
+from arelight.backend.d3js.relations_graph_operations import OP_UNION, OP_DIFFERENCE, OP_INTERSECTION
+from arelight.backend.d3js.ui_web import GRAPH_TYPE_FORCE
 from arelight.backend.d3js.utils_graph import load_graph
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
-from arelight.run.utils import get_binary_choice, get_list_choice
+from arelight.run.utils import get_binary_choice, get_list_choice, get_int_choice, is_port_number
 
 
 def get_input_with_default(prompt, default_value):
@@ -21,38 +23,42 @@ def get_graph_path(text):
 
         if not os.path.exists(folder_path):
             print("The specified folder does not exist. Please try again.")
-        else:
-            force_folder_path = os.path.join(folder_path, "force")
-            if not os.path.exists(force_folder_path):
-                print("Looks like it is wrong folder. Please specify folder that is output of ARElight. "
-                      "It should have subfolders 'radial' and 'force'")
-            else:
-                json_files = [f for f in os.listdir(force_folder_path) if f.endswith(".json")]
-                if not json_files:
-                    print("No JSON files found in the 'force' folder. "
-                          "Looks like it is wrong folder. "
-                          "Please specify folder that is output of ARElight.")
-                else:
-                    print("Found graphs:")
-                    for i, json_file in enumerate(json_files, start=1):
-                        print(f"{i}: {json_file}")
+            continue
 
-                    while True:
-                        try:
-                            file_number = int(input("Enter the number of the JSON file you want: "))
-                            if 1 <= file_number <= len(json_files):
-                                selected_file = json_files[file_number - 1]
-                                selected_file_path = os.path.join(force_folder_path, selected_file)
-                                return selected_file_path
-                            else:
-                                print("Invalid number. Please enter a valid number.")
-                        except ValueError:
-                            print("Invalid input. Please enter a number.")
+        force_folder_path = os.path.join(folder_path, GRAPH_TYPE_FORCE)
+        if not os.path.exists(force_folder_path):
+            print("Looks like it is wrong folder. " 
+                  "Please specify folder that is output of ARElight. "
+                  f"It should have '{GRAPH_TYPE_FORCE}' subfolder.")
+            continue
+
+        json_files = [f for f in os.listdir(force_folder_path) if f.endswith(".json")]
+        if not json_files:
+            print(f"No JSON files found in the '{GRAPH_TYPE_FORCE}' folder. "
+                  "Looks like it is wrong folder. "
+                  "Please specify folder that is output of ARElight.")
+            continue
+
+        print("Found graphs:")
+        for i, json_file in enumerate(json_files, start=1):
+            print(f"{i}: {json_file}")
+
+        while True:
+            try:
+                file_number = int(input("Enter the number of the JSON file you want: "))
+                if 1 <= file_number <= len(json_files):
+                    selected_file = json_files[file_number - 1]
+                    selected_file_path = os.path.join(force_folder_path, selected_file)
+                    return selected_file_path
+
+                print("Invalid number. Please enter a valid number.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
 
 
 if __name__ == '__main__':
 
-    op_list = ["UNION", "INTERSECTION", "DIFFERENCE"]
+    op_list = [OP_UNION, OP_INTERSECTION, OP_DIFFERENCE]
 
     # Providing arguments.
     parser = argparse.ArgumentParser(description="Graph Operations")
@@ -63,12 +69,12 @@ if __name__ == '__main__':
     parser.add_argument("--graph_b_file", required=False,
                         help="Specify path to Graph B (.json file in folder <ARElight_output>/force/)")
     parser.add_argument("--weights", required=False, choices=['y', 'n'], help="Use weights? (y/n)")
-    parser.add_argument("-o", dest='output_dir', required=False,
+    parser.add_argument("-o", dest='output_dir', required=False, default="output",
                         help="Specify output directory (you can use directory "
                              "of existing output, it will add files to it)")
     parser.add_argument("--name", required=False, help="Specify name of new graph")
     parser.add_argument("--description", required=False, help="Specify description of new graph")
-    parser.add_argument("--host", required=False, choices=["y", "n"], help="Run visualization server? (y/n)")
+    parser.add_argument("--host", required=False, default=None, help="Server port for launching hosting (optional)")
 
     # Parsing arguments.
     args = parser.parse_args()
@@ -79,7 +85,9 @@ if __name__ == '__main__':
     graph_B_file_path = args.graph_b_file if args.graph_b_file else get_graph_path(
         "Enter the path to the folder for graph_B: ")
     weights = args.weights.lower() == 'y' if args.weights else get_binary_choice("Use weights? (y/n)\n")
-    do_host = args.host.lower() in ['y', 'yes'] if args.host else get_binary_choice("Run visualisation server? (y/n)\n")
+    do_host = args.host if is_port_number(args.host) \
+        else get_int_choice(prompt="Server port for launching hosting (optional)\n",
+                            filter_func=is_port_number)
     output_dir = args.output_dir if args.output_dir else input(
         "Specify name of output folder (you can use an existing output folder to store new graphs): ")
 
@@ -115,6 +123,7 @@ if __name__ == '__main__':
     pipeline.run(input_data=PipelineResult({
         # We provide this settings for inference.
         "d3js_graph_output_dir": output_dir,
+        "d3js_collection_description": description,
         "d3js_host": str(8000) if do_host else None,
         "d3js_graph_a": load_graph(graph_A_file_path),
         "d3js_graph_b": load_graph(graph_B_file_path),
