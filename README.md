@@ -194,8 +194,8 @@ The edge weight is given by $W_e = W_{e1} + W_{e2}$, and the vertex weight is it
   python3 -m arelight.run.operations --operation UNION \
       --graph_a_file output/force/boris.json \
       --graph_b_file output/force/rishi.json \
-      --weights y -o output --name boris_INTERSECTION_rishi \
-      --description "INTERSECTION between Twits of Boris Johnson and Rishi Sunak"
+      --weights y -o output --name boris_UNION_rishi \
+      --description "UNION of Boris Johnson and Rishi Sunak Twits"
   ```
   ![union](https://github.com/nicolay-r/ARElight/assets/14871187/eaac6758-69f7-4cc1-a631-7ce132757b29)
 
@@ -214,7 +214,7 @@ The edge weight is given by $W_e = \min(W_{e1},W_{e2})$, and the vertex weight i
 
 **DIFFERENCE** $(G_1 - G_2)$ - what is unique in one graph, that another graph doesn't have? 
 
-* > **NOTE:** this operation is not commutative $(G_1 - G_2) ≠ G_2 - G_1)$)_
+* **NOTE:** this operation is not commutative $(G_1 - G_2) ≠ G_2 - G_1)$)_
 * The results graph contains all the vertices from $G_1$ but only includes edges from $E_1$ that either don't appear in $E_2$ or have larger weights in $G_1$ compared to $G_2$. 
 The edge weight is given by $W_e = W_{e1} - W_{e2}$ if $e \in E_1$, $e \in E_1 \cap E_2$ and $W_{e1}(e) > W_{e2}(e)$.
   ```bash
