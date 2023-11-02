@@ -103,7 +103,7 @@ Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 ![image](https://github.com/nicolay-r/ARElight/assets/14871187/341f3b51-d639-46b6-83fe-99b542b1751b)
 
 ## Layout of the files in output
-```lua
+```
 output/
 ├── description/
     └── ...         // graph descriptions in JSON.
