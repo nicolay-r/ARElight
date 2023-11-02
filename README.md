@@ -102,6 +102,17 @@ Launches server at `http://0.0.0.0:8000/` so you may analyse the results.
 
 ![image](https://github.com/nicolay-r/ARElight/assets/14871187/341f3b51-d639-46b6-83fe-99b542b1751b)
 
+## Layout of the files in output
+```lua
+output/
+├── description/
+    └── ...         // graph descriptions in JSON.
+├── force/
+    └── ...         // force graphs in JSON.
+├── radial/
+    └── ...         // radial graphs in JSON.
+└── index.html      // main HTML demo page. 
+```
 
 ## Usage: Graph Operations
 
@@ -151,93 +162,69 @@ python3 -m arelight.run.operations
 ### Parameter `operation`
 </summary>
 
+#### Preparation
+
+Consider that you used ARElight script for X/Twitter 
+to [infer relations](#usage-inference) from
+messages of UK politicians `Boris Johnson` and `Rishi Sunak`:
+
+```bash
+python3 -m arelight.run.infer ...other arguments... \
+	-o output --collection-name "boris" --from-files "twitter_boris.txt"
+	
+python3 -m arelight.run.infer  ...other arguments... \
+	-o output --collection-name "rishi" --from-files "twitter_rishi.txt"
+```
+According to the [results section](#layout-of-the-files-in-output), you will have `output` directory with 2 files `force` layout graphs:
+```lua
+output/
+├── force/
+    ├──  rishi.json
+    └──  boris.json
+```
+
+#### List of Operations
+
 You can do the following operations to combine several outputs, ot better understand similarities, and differences between them:
 
 **UNION** $(G_1 \cup G_2)$ - combine multiple graphs together.
-
-Here, $G$ contains all the vertices and edges that are in $G_1$ and $G_2$. 
+* The result graph contains all the vertices and edges that are in $G_1$ and $G_2$. 
 The edge weight is given by $W_e = W_{e1} + W_{e2}$, and the vertex weight is its weighted degree centrality: $W_v = \sum_{e \in E_v} W_e(e)$.
-
-Helps to unite several graphs, e.g. imagine that you used ARElight script for Twits messages of UK politicians Boris Johnson and Rishi Sunak:
-
-```bash
-python3 -m arelight.run.infer 
-	...other arguments... 
-	-o output \ 
-	--name boris \
-	--from-files "twitter_boris.txt"
-	
-python3 -m arelight.run.infer \
-	...other arguments... 
-	-o output \
-	--name rishi \
-	--from-files "twitter_rishi.txt"
-```
-so now you have folder `output` with 2 files: 
-1. `output/force/rishi.json`
-2. `output/force/boris.json`
-
-You can run operation UNION to create a single graph:
-
-```bash
-python3 -m arelight.run.operations --operation UNION \
-	--graph_a_file output/force/boris.json \
-  	--graph_b_file output/force/rishi.json \
-  	--weights y \
-  	-o output \
-  	--name boris_AND_rishi \
-  	--description "Twits of Boris Johnson and Rishi Sunak"
-```
-
-![union](https://github.com/nicolay-r/ARElight/assets/14871187/eaac6758-69f7-4cc1-a631-7ce132757b29)
+  ```bash
+  python3 -m arelight.run.operations --operation UNION \
+      --graph_a_file output/force/boris.json \
+      --graph_b_file output/force/rishi.json \
+      --weights y -o output --name boris_INTERSECTION_rishi \
+      --description "INTERSECTION between Twits of Boris Johnson and Rishi Sunak"
+  ```
+  ![union](https://github.com/nicolay-r/ARElight/assets/14871187/eaac6758-69f7-4cc1-a631-7ce132757b29)
 
 **INTERSECTION** $(G_1 \cap G_2)$ - what is similar between 2 graphs?
-
-In this operation, $G$ contains only the vertices and edges common to $G_1$ and $G_2$. 
+* The result graph contains only the vertices and edges common to $G_1$ and $G_2$. 
 The edge weight is given by $W_e = \min(W_{e1},W_{e2})$, and the vertex weight is its weighted degree centrality: $W_v = \sum_{e \in E_v} W_e(e)$.
+  ```bash
+  python3 -m arelight.run.operations --operation INTERSECTION \
+      --graph_a_file output/force/boris.json \
+      --graph_b_file output/force/rishi.json \
+      --weights y -o output --name boris_INTERSECTION_rishi \
+      --description "INTERSECTION between Twits of Boris Johnson and Rishi Sunak"
+  ```
+  ![intersection](https://github.com/nicolay-r/ARElight/assets/14871187/286bd1ce-dbb0-4370-bfbe-245330ae6204)
 
-Helps to extract what is similar, e.g. you have the same folder `output` with 2 files: 
-1. `output/force/rishi.json`
-2. `output/force/boris.json`
-
-You can run operation INTERSECTION to create graph that describe what is similar between Twits of Rishi Sunak and Boris Johnson:
-
-```bash
-python3 -m arelight.run.operations --operation INTERSECTION \
-	--graph_a_file output/force/boris.json \
-  	--graph_b_file output/force/rishi.json \
-  	--weights y \
-  	-o output \
-  	--name boris_INTERSECTION_rishi \
-  	--description "INTERSECTION between Twits of Boris Johnson and Rishi Sunak"
-```
-
-![intersection](https://github.com/nicolay-r/ARElight/assets/14871187/286bd1ce-dbb0-4370-bfbe-245330ae6204)
 
 **DIFFERENCE** $(G_1 - G_2)$ - what is unique in one graph, that another graph doesn't have? 
 
-_(note: this operation is not commutative $(G_1 - G_2) ≠ G_2 - G_1)$)_
-
-$G$ contains all the vertices from $G_1$ but only includes edges from $E_1$ that either don't appear in $E_2$ or have larger weights in $G_1$ compared to $G_2$. 
+* > **NOTE:** this operation is not commutative $(G_1 - G_2) ≠ G_2 - G_1)$)_
+* The results graph contains all the vertices from $G_1$ but only includes edges from $E_1$ that either don't appear in $E_2$ or have larger weights in $G_1$ compared to $G_2$. 
 The edge weight is given by $W_e = W_{e1} - W_{e2}$ if $e \in E_1$, $e \in E_1 \cap E_2$ and $W_{e1}(e) > W_{e2}(e)$.
-
-Helps to extract what is unique, e.g.: you have the same folder `output` with 2 files: 
-1. `output/force/rishi.json`
-2. `output/force/boris.json`
-
-You can run operation DIFFERENCE to create graph that describe what is unique in Twits of Boris Johnson in comparison to Rishi Sunak:
-
-```bash
-python3 -m arelight.run.operations --operation DIFFERENCE \
-	--graph_a_file output/force/boris.json \
-  	--graph_b_file output/force/rishi.json \
-  	--weights y \
-  	-o output \
-  	--name boris_DIFFERENCE_rishi \
-  	--description "Difference between Twits of Boris Johnson and Rishi Sunak"
-```
-
-![difference](https://github.com/nicolay-r/ARElight/assets/14871187/8b036ce6-6607-4588-b0cf-4704647f55ff)
+  ```bash
+  python3 -m arelight.run.operations --operation DIFFERENCE \
+      --graph_a_file output/force/boris.json \
+      --graph_b_file output/force/rishi.json \
+      --weights y -o output --name boris_DIFFERENCE_rishi \
+      --description "Difference between Twits of Boris Johnson and Rishi Sunak"
+  ```
+  ![difference](https://github.com/nicolay-r/ARElight/assets/14871187/8b036ce6-6607-4588-b0cf-4704647f55ff)
 
 </details>
 
