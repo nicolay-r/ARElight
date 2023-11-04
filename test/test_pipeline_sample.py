@@ -25,7 +25,6 @@ from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
-from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
@@ -95,7 +94,7 @@ class BertTestSerialization(unittest.TestCase):
         ])
 
         # Composing labels formatter and experiment preparation.
-        doc_provider = InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
+        doc_provider = utils.InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
         pipeline = BasePipeline([AREkitSerializerPipelineItem(
             rows_provider=create_bert_sample_provider(
             label_scaler=SingleLabelScaler(NoLabel()),

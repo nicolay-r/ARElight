@@ -22,7 +22,6 @@ from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
-from arelight.doc_provider import InMemoryDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 
@@ -81,7 +80,7 @@ class TestCombinedPipeline(unittest.TestCase):
         single_label_scaler = SingleLabelScaler(NoLabel())
 
         # Composing labels formatter and experiment preparation.
-        doc_provider = InMemoryDocProvider(docs=self.input_to_docs(texts))
+        doc_provider = utils.InMemoryDocProvider(docs=self.input_to_docs(texts))
 
         rows_provider = create_bert_sample_provider(
             label_scaler=single_label_scaler,

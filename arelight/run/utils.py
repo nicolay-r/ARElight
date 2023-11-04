@@ -1,8 +1,9 @@
-import csv
 import importlib
 import logging
 from enum import Enum
 
+from arekit.common.docs.base import Document
+from arekit.common.docs.sentence import BaseDocumentSentence
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
@@ -99,35 +100,31 @@ def merge_dictionaries(dict_iter):
     return merged_dict
 
 
-def iter_csv_lines(csv_filepath, column_name, delimiter=","):
+def input_to_docs(input_data, sentence_parser, docs_limit=None):
+    """ input_data: list
+        sentence_splitter: object
+            how data is suppose to be separated onto sentences.
+            str -> list(str)
+    """
+    assert(input_data is not None)
+    assert(isinstance(docs_limit, int) or docs_limit is None)
 
-    with open(csv_filepath, mode='r', encoding='utf-8-sig') as csv_file:
-        csv_reader = csv.DictReader(csv_file, delimiter=delimiter)
+    docs = []
 
-        if column_name not in csv_reader.fieldnames:
-            print(f"Error: {column_name} column not found.")
+    for doc_ind, contents in enumerate(input_data):
 
-        for row in csv_reader:
-            yield row[column_name]
+        # setup input data.
+        sentences = sentence_parser(contents)
+        sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
 
+        # Documents.
+        docs.append(Document(doc_id=doc_ind, sentences=sentences))
 
-def read_files(paths, delimiter, csv_column):
+        # Optionally checking for the limit.
+        if docs_limit is not None and doc_ind >= docs_limit:
+            break
 
-    if paths is None:
-        return None
-
-    file_contents = []
-    for path in paths:
-
-        if path.endswith(".csv"):
-            # Handle as a column from the csv file.
-            file_contents.extend(list(iter_csv_lines(path, column_name=csv_column, delimiter=delimiter)))
-        else:
-            # Handle as a normal file.
-            with open(path) as f:
-                file_contents.append(f.read().rstrip())
-
-    return file_contents
+    return docs
 
 
 def get_list_choice(op_list):

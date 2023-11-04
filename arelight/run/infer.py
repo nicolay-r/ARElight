@@ -22,14 +22,13 @@ from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
-from arelight.doc_provider import InMemoryDocProvider
+from arelight.doc_provider import CachedFilesDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.utils import input_to_docs
-from arelight.run.utils import merge_dictionaries, iter_group_values, read_files, create_sentence_parser, \
+from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
     create_translate_model, is_port_number
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
@@ -40,7 +39,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Text inference example")
 
     # Providing arguments.
-    parser.add_argument('--text', dest='input_text', type=str, default=None, nargs='?', help='Input text for processing')
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
     parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?')
     parser.add_argument('--csv-column', dest='csv_column', type=str, default='text', nargs='?')
@@ -73,13 +71,10 @@ if __name__ == '__main__':
 
     # Reading text-related parameters.
     sentence_parser = create_sentence_parser(args.sentence_parser)
-    texts_from_files = read_files(paths=args.from_files, delimiter=args.csv_sep, csv_column=args.csv_column)
-    text_from_arg = args.input_text
     ner_framework = args.ner_framework
     ner_model_name = args.ner_model_name
     ner_object_types = args.ner_types
     terms_per_context = args.terms_per_context
-    actual_content = [text_from_arg] if text_from_arg is not None else texts_from_files
     docs_limit = args.docs_limit
     output_template = args.output_template
     output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
@@ -97,8 +92,6 @@ if __name__ == '__main__':
             return basename(args.from_files[0]) if len(args.from_files) == 1 else "from-many-files"
         if args.from_dataframe is not None:
             return basename(args.from_dataframe[0])
-        if text_from_arg is not None:
-            return "text"
 
         return "samples"
 
@@ -235,9 +228,13 @@ if __name__ == '__main__':
                     synonyms=synonyms, value=value))
         ])
 
-        # Setup data annotation pipeline.
-        docs = input_to_docs(actual_content, sentence_parser=sentence_parser, docs_limit=docs_limit)
-        doc_provider = InMemoryDocProvider(docs)
+        # Reading from the optionally large list of files.
+        doc_provider = CachedFilesDocProvider(
+            filepaths=args.from_files,
+            csv_delimiter=args.csv_sep,
+            csv_column=args.csv_column,
+            content_to_sentences=sentence_parser)
+
         data_pipeline = create_neutral_annotation_pipeline(
             synonyms=synonyms,
             dist_in_terms_bound=terms_per_context,
@@ -247,7 +244,7 @@ if __name__ == '__main__':
 
         settings.append({
             "data_type_pipelines": {DataType.Test: data_pipeline},
-            "doc_ids": list(range(len(doc_provider)))
+            "doc_ids": list(doc_provider.iter_doc_ids())
         })
 
     settings.append({

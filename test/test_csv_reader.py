@@ -2,7 +2,7 @@ import unittest
 from os.path import join
 
 import utils
-from arelight.run.utils import iter_csv_lines
+from arelight.utils import iter_csv_lines
 
 
 class CsvReadingTest(unittest.TestCase):

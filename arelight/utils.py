@@ -1,3 +1,4 @@
+import csv
 import importlib
 import os
 import sys
@@ -40,3 +41,15 @@ class IdAssigner(object):
         curr_id = self.__id
         self.__id += 1
         return curr_id
+
+
+def iter_csv_lines(csv_filepath, column_name, delimiter=","):
+
+    with open(csv_filepath, mode='r', encoding='utf-8-sig') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=delimiter)
+
+        if column_name not in csv_reader.fieldnames:
+            print(f"Error: {column_name} column not found.")
+
+        for row in csv_reader:
+            yield row[column_name]
