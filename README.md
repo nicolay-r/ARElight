@@ -58,7 +58,6 @@ python3 -m arelight.run.infer -h
 
 Parameters:
 * `sampling-framework` we consider only `arekit` framework by default.
-    * `text` -- textual content of the single document. 
     * `from-files` -- list of filepaths to the related documents.
       * for the `.csv` files we consider that each line of the particular `column` as a separated document.
         * `csv-sep` -- separator between columns.
