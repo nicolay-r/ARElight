@@ -2,7 +2,7 @@ import unittest
 
 from tqdm import tqdm
 from arelight.doc_provider import CachedFilesDocProvider
-from arelight.run.utils import create_sentence_parser
+from arelight.run.utils import create_sentence_parser, iter_content
 
 
 class TestCachedFiles(unittest.TestCase):
@@ -15,8 +15,7 @@ class TestCachedFiles(unittest.TestCase):
                 "data/responses-d3js-backend-sample-data.csv",
                 "data/rus_input_text_example.txt"
             ],
-            csv_delimiter=",",
-            csv_column="text_a",
+            content_provider=lambda filepath: iter_content(filepath=filepath, csv_column="text_a", csv_delimiter=","),
             content_to_sentences=sentence_parser)
 
         doc_ids = list(doc_provider.iter_doc_ids())

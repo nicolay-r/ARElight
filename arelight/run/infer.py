@@ -29,7 +29,7 @@ from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
-    create_translate_model, is_port_number
+    create_translate_model, is_port_number, iter_content
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
@@ -231,8 +231,8 @@ if __name__ == '__main__':
         # Reading from the optionally large list of files.
         doc_provider = CachedFilesDocProvider(
             filepaths=args.from_files,
-            csv_delimiter=args.csv_sep,
-            csv_column=args.csv_column,
+            content_provider=lambda filepath: iter_content(
+                filepath=filepath, csv_delimiter=args.csv_sep, csv_column=args.csv_column),
             content_to_sentences=sentence_parser)
 
         data_pipeline = create_neutral_annotation_pipeline(

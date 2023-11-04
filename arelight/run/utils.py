@@ -7,7 +7,7 @@ from arekit.common.docs.sentence import BaseDocumentSentence
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
-from arelight.utils import auto_import
+from arelight.utils import auto_import, iter_csv_lines
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +27,15 @@ def create_sentence_parser(arg):
         return tokenizer.tokenize
     else:
         raise Exception("Arg `{}` was not found".format(arg))
+
+
+def iter_content(filepath, csv_column, csv_delimiter):
+    if filepath.endswith(".csv"):
+        for line in iter_csv_lines(filepath, column_name=csv_column, delimiter=csv_delimiter):
+            yield line
+    else:
+        with open(filepath) as f:
+            yield f.read().rstrip()
 
 
 def create_translate_model(arg):
