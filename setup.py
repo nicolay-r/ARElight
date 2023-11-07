@@ -33,4 +33,5 @@ setup(
     packages=find_packages(),
     package_dir={'src': 'src'},
     install_requires=get_requirements(['dependencies.txt']),
+    data_files=["logo.png"],
 )
