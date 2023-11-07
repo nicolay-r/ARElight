@@ -18,12 +18,14 @@ setup(
     description='About Mass-media text processing application for your '
                 'Relation Extraction task, powered by AREkit.',
     url='https://github.com/nicolay-r/ARElight',
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     author='Nicolay Rusnachenko',
-    author_email='???',
+    author_email='rusnicolay@gmail.com',
     license='MIT License',
     classifiers=[
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Text Processing :: Linguistic',
     ],
