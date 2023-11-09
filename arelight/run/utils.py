@@ -6,7 +6,6 @@ from arekit.common.docs.base import Document
 from arekit.common.docs.sentence import BaseDocumentSentence
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
-from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
 from arelight.utils import auto_import, iter_csv_lines
 
 logger = logging.getLogger(__name__)
@@ -46,15 +45,6 @@ def create_translate_model(arg):
         # Translation of the list of data.
         # Returns the list of strings.
         return lambda str_list, src, dest: [translate_value(s, dest=dest, src=src) for s in str_list]
-
-
-def create_labels_scaler(labels_count):
-    assert (isinstance(labels_count, int))
-
-    if labels_count == 3:
-        return ThreeLabelScaler()
-
-    raise NotImplementedError("Not supported")
 
 
 def iter_group_values(filepath):
@@ -155,7 +145,7 @@ def get_list_choice(op_list):
 def get_binary_choice(prompt):
     while True:
         choice = input(prompt).lower()
-        if isinstance(choice, int) and choice > 0:
+        if isinstance(choice, str) and len(choice) == 1:
             return choice == 'y'
         else:
             print("Invalid input. Please enter 'y' or 'n'.")

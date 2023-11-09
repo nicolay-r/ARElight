@@ -12,6 +12,8 @@ from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
+from arelight.pipelines.demo.labels.formatter import ThreeLabelsFormatter
+from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
 
@@ -46,6 +48,8 @@ class TestAREkitIterData(unittest.TestCase):
         ])
 
         ppl_result = PipelineResult({
+            "labels_scaler": CustomLabelScaler(),
+            "labels_formatter": ThreeLabelsFormatter(),
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
             "d3js_host": None,
         })

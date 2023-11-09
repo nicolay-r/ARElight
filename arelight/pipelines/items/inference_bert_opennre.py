@@ -51,22 +51,32 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             raise NotImplementedError
 
     @staticmethod
-    def init_bert_model(pretrain_path, rel2id, ckpt_path, device_type, dir_to_donwload=None,
+    def scaler_to_rel2id(labels_scaler):
+        rel2id = {}
+        for label in labels_scaler.ordered_suppoted_labels():
+            uint_label = labels_scaler.label_to_uint(label)
+            rel2id[str(uint_label)] = uint_label
+        return rel2id
+
+    @staticmethod
+    def init_bert_model(pretrain_path, labels_scaler, ckpt_path, device_type, dir_to_donwload=None,
                         pooler='cls', max_length=128, mask_entity=True):
         """ This is a main and core method for inference based on OpenNRE framework.
         """
         # Check predefined checkpoints for local downloading.
-        predefined_pretrain_path, predefined_ckpt_path = try_download_predefined_checkpoint(
+        predefined_pretrain_path, predefined_ckpt_path, ckpt_label_scaler = try_download_predefined_checkpoint(
             checkpoint=ckpt_path, dir_to_download=dir_to_donwload)
 
         # Update checkpoint and pretrain paths with the predefined.
         ckpt_path = predefined_ckpt_path if predefined_ckpt_path is not None else ckpt_path
         pretrain_path = predefined_pretrain_path if predefined_pretrain_path is not None else pretrain_path
+        labels_scaler = ckpt_label_scaler if ckpt_label_scaler is not None else labels_scaler
 
         # Load original model.
         bert_encoder = BertOpenNREInferencePipelineItem.load_bert_sentence_encoder(
             pooler=pooler, mask_entity=mask_entity, max_length=max_length, pretrain_path=pretrain_path)
         # Load checkpoint.
+        rel2id = BertOpenNREInferencePipelineItem.scaler_to_rel2id(labels_scaler)
         model = SoftmaxNN(bert_encoder, len(rel2id), rel2id)
         model.load_state_dict(torch.load(ckpt_path, map_location=torch.device(device_type))['state_dict'])
         return model
@@ -129,12 +139,6 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             samples_io = input_data.provide("samples_io")
             samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
-        # We compose specific mapping required by opennre to perform labels mapping.
-        rel2id = {}
-        for label in labels_scaler.ordered_suppoted_labels():
-            uint_label = labels_scaler.label_to_uint(label)
-            rel2id[str(uint_label)] = uint_label
-
         # Initialize model if the latter has not been yet.
         if self.__model is None:
 
@@ -146,7 +150,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                 device_type=self.__device_type,
                 max_length=self.__max_seq_length,
                 pooler=self.__pooler,
-                rel2id=rel2id,
+                labels_scaler=labels_scaler,
                 mask_entity=True,
                 dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 

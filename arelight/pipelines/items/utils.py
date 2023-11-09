@@ -2,6 +2,7 @@ from os.path import join, exists
 
 from arekit.common.utils import download
 
+from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.run.utils import logger
 
 
@@ -15,10 +16,12 @@ def try_download_predefined_checkpoint(checkpoint, dir_to_download):
         "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar": {
             "state": "DeepPavlov/rubert-base-cased",
             "checkpoint": "https://www.dropbox.com/scl/fi/rwjf7ag3w3z90pifeywrd/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar?rlkey=p0mmu81o6c2u6iboe9m20uzqk&dl=1",
+            "label_scaler": CustomLabelScaler(p=1, n=2, u=0)
         },
         "ra4-rsr1_bert-base-cased_cls.pth.tar": {
             "state": "bert-base-cased",
-            "checkpoint": "https://www.dropbox.com/scl/fi/k5arragv1g4wwftgw5xxd/ra-rsr_bert-base-cased_cls.pth.tar?rlkey=8hzavrxunekf0woesxrr0zqys&dl=1"
+            "checkpoint": "https://www.dropbox.com/scl/fi/k5arragv1g4wwftgw5xxd/ra-rsr_bert-base-cased_cls.pth.tar?rlkey=8hzavrxunekf0woesxrr0zqys&dl=1",
+            "label_scaler": CustomLabelScaler(p=1, n=2, u=0)
         }
     }
 
@@ -32,6 +35,6 @@ def try_download_predefined_checkpoint(checkpoint, dir_to_download):
             logger.info("Downloading checkpoint to: {}".format(target_checkpoint_path))
             download(dest_file_path=target_checkpoint_path, source_url=data["checkpoint"])
 
-        return data["state"], target_checkpoint_path
+        return data["state"], target_checkpoint_path, data["label_scaler"]
 
-    return None, None
+    return None, None, None

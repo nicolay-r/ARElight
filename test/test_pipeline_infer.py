@@ -29,8 +29,8 @@ from ru_sent_tokenize import ru_sent_tokenize
 
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.run.utils import create_labels_scaler
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.utils import IdAssigner
@@ -119,7 +119,7 @@ class TestInfer(unittest.TestCase):
             text_parser=text_parser)
 
         pipeline.run(input_data=PipelineContext(d={
-            "labels_scaler": create_labels_scaler(3),
+            "labels_scaler": CustomLabelScaler(),
             "predict_filepath": join(utils.TEST_OUT_DIR, "predict.tsv.gz"),
             "data_type_pipelines": {DataType.Test: data_pipeline},
             "doc_ids": list(range(len(actual_content))),

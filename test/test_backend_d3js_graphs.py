@@ -13,8 +13,8 @@ from arelight.backend.d3js.relations_graph_builder import make_graph_from_relati
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.utils_graph import save_graph
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.demo.labels.formatter import TrheeLabelsFormatter
-from arelight.pipelines.demo.labels.scalers import ThreeLabelScaler
+from arelight.pipelines.demo.labels.formatter import ThreeLabelsFormatter
+from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
 
 
@@ -80,10 +80,8 @@ class TestBackendD3JS(unittest.TestCase):
             sampling_engines=None,
             backend_engines={
                 "d3js_graphs": {
-                    "operation_type": "SAME",
                     "graph_min_links": 0.1,
                     "graph_a_labels": None,
-                    "graph_b_labels": None,
                     "weights": True,
                 }
             })
@@ -95,10 +93,10 @@ class TestBackendD3JS(unittest.TestCase):
         pipeline = BasePipeline(ppl)
         ppl_result = PipelineResult(extra_params={
             "samples_io": samples_io,
+            "labels_scaler": CustomLabelScaler(),
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
         })
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
-        ppl_result.update("labels_formatter", value=TrheeLabelsFormatter())
-        ppl_result.update("labels_scaler", value=ThreeLabelScaler())
+        ppl_result.update("labels_formatter", value=ThreeLabelsFormatter())
 
         pipeline.run(input_data=ppl_result)

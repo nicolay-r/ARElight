@@ -4,10 +4,10 @@ from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 
 
-class TrheeLabelsFormatter(StringLabelsFormatter):
+class ThreeLabelsFormatter(StringLabelsFormatter):
 
     def __init__(self):
-        super(TrheeLabelsFormatter, self).__init__(
+        super(ThreeLabelsFormatter, self).__init__(
             stol={
                 "pos": PositiveLabel,
                 "neg": NegativeLabel,

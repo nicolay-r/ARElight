@@ -6,20 +6,23 @@ from arekit.common.labels.scaler.base import BaseLabelScaler
 from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 
 
-class ThreeLabelScaler(BaseLabelScaler):
+class CustomLabelScaler(BaseLabelScaler):
 
-    def __init__(self):
+    def __init__(self, p=1, n=2, u=0):
+        assert((isinstance(p, int) and p >= 0) or p is None)
+        assert((isinstance(n, int) and n >= 0) or n is None)
+        assert((isinstance(u, int) and u >= 0) or u is None)
 
-        uint_labels = [(NoLabel(), 0),
-                       (PositiveLabel(), 1),
-                       (NegativeLabel(), 2)]
+        uint_labels = []
+        if p is not None:
+            uint_labels.append((PositiveLabel(), p))
+        if n is not None:
+            uint_labels.append((NegativeLabel(), n))
+        if u is not None:
+            uint_labels.append((NoLabel(), u))
 
-        int_labels = [(NoLabel(), 0),
-                      (PositiveLabel(), 1),
-                      (NegativeLabel(), -1)]
-
-        super(ThreeLabelScaler, self).__init__(uint_dict=OrderedDict(uint_labels),
-                                               int_dict=OrderedDict(int_labels))
+        super(CustomLabelScaler, self).__init__(uint_dict=OrderedDict(uint_labels),
+                                                int_dict=OrderedDict(uint_labels))
 
     def invert_label(self, label):
         int_label = self.label_to_int(label)
