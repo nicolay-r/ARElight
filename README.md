@@ -88,6 +88,7 @@ Parameters:
         * `u` -- undefined label (optional), which is mapped to `0`.
 * `backend` -- type of the backend (`d3js_graphs` by default).
     * `d3js-host` -- port on which we expect to launch localhost server.
+    * `label-names` -- default mapping is `p:pos,n:neg,u:neu`.
 * `-o` -- output folder for result collections and demo.
 
 Framework parameters mentioned above as well as their related setups might be ommited.
