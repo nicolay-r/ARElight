@@ -1,23 +1,30 @@
 import json
+import logging
 import os
+from os.path import exists, join
+
 import torch
 
 from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.common.utils import download
 
 from opennre.encoder import BERTEntityEncoder, BERTEncoder
 from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
 
-from arelight.pipelines.items.utils import try_download_predefined_checkpoint
 from arelight.utils import get_default_download_dir
+
+
+logger = logging.getLogger(__name__)
 
 
 class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
-                 max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True):
+                 max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True,
+                 predefined_list=None):
         assert(isinstance(tokenizers_parallelism, bool))
 
         self.__model = None
@@ -27,6 +34,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__max_seq_length = max_seq_length
         self.__pooler = pooler
         self.__batch_size = batch_size
+        self.__predefined_list = {} if predefined_list is None else predefined_list
 
         # Huggingface/Tokenizers compatibility.
         os.environ['TOKENIZERS_PARALLELISM'] = str(tokenizers_parallelism).lower()
@@ -59,13 +67,35 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         return rel2id
 
     @staticmethod
-    def init_bert_model(pretrain_path, labels_scaler, ckpt_path, device_type, dir_to_donwload=None,
+    def try_download_predefined_checkpoint(checkpoint, predefined, dir_to_download):
+        """ This is for the simplicity of using the framework straightaway.
+        """
+        assert (isinstance(checkpoint, str))
+        assert (isinstance(dir_to_download, str))
+
+        if checkpoint in predefined:
+            data = predefined[checkpoint]
+            target_checkpoint_path = join(dir_to_download, checkpoint)
+
+            logger.info("Found predefined checkpoint: {}".format(checkpoint))
+            # No need to do anything, file has been already downloaded.
+            if not exists(target_checkpoint_path):
+                logger.info("Downloading checkpoint to: {}".format(target_checkpoint_path))
+                download(dest_file_path=target_checkpoint_path, source_url=data["checkpoint"])
+
+            return data["state"], target_checkpoint_path, data["label_scaler"]
+
+        return None, None, None
+
+    @staticmethod
+    def init_bert_model(pretrain_path, labels_scaler, ckpt_path, device_type, predefined, dir_to_donwload=None,
                         pooler='cls', max_length=128, mask_entity=True):
         """ This is a main and core method for inference based on OpenNRE framework.
         """
         # Check predefined checkpoints for local downloading.
-        predefined_pretrain_path, predefined_ckpt_path, ckpt_label_scaler = try_download_predefined_checkpoint(
-            checkpoint=ckpt_path, dir_to_download=dir_to_donwload)
+        predefined_pretrain_path, predefined_ckpt_path, ckpt_label_scaler = \
+            BertOpenNREInferencePipelineItem.try_download_predefined_checkpoint(
+                checkpoint=ckpt_path, dir_to_download=dir_to_donwload, predefined=predefined)
 
         # Update checkpoint and pretrain paths with the predefined.
         ckpt_path = predefined_ckpt_path if predefined_ckpt_path is not None else ckpt_path
@@ -152,6 +182,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                 pooler=self.__pooler,
                 labels_scaler=labels_scaler,
                 mask_entity=True,
+                predefined=self.__predefined_list,
                 dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 
         iter_infer, total = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
