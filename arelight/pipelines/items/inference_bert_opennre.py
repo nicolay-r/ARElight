@@ -24,7 +24,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
                  max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True,
-                 predefined_list=None):
+                 predefined_ckpts=None):
         assert(isinstance(tokenizers_parallelism, bool))
 
         self.__model = None
@@ -34,7 +34,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__max_seq_length = max_seq_length
         self.__pooler = pooler
         self.__batch_size = batch_size
-        self.__predefined_list = {} if predefined_list is None else predefined_list
+        self.__predefined_ckpts = {} if predefined_ckpts is None else predefined_ckpts
 
         # Huggingface/Tokenizers compatibility.
         os.environ['TOKENIZERS_PARALLELISM'] = str(tokenizers_parallelism).lower()
@@ -76,6 +76,10 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         if checkpoint in predefined:
             data = predefined[checkpoint]
             target_checkpoint_path = join(dir_to_download, checkpoint)
+
+            print("TCP: {}".format(target_checkpoint_path))
+            print("DD: {}".format(dir_to_download))
+            print("CP: {}".format(checkpoint))
 
             logger.info("Found predefined checkpoint: {}".format(checkpoint))
             # No need to do anything, file has been already downloaded.
@@ -182,7 +186,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                 pooler=self.__pooler,
                 labels_scaler=labels_scaler,
                 mask_entity=True,
-                predefined=self.__predefined_list,
+                predefined=self.__predefined_ckpts,
                 dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 
         iter_infer, total = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
