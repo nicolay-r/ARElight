@@ -13,7 +13,7 @@ from arelight.backend.d3js.relations_graph_builder import make_graph_from_relati
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.utils_graph import save_graph
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.demo.labels.formatter import ThreeLabelsFormatter
+from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
 
@@ -97,6 +97,6 @@ class TestBackendD3JS(unittest.TestCase):
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
         })
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
-        ppl_result.update("labels_formatter", value=ThreeLabelsFormatter())
+        ppl_result.update("labels_formatter", value=CustomLabelsFormatter())
 
         pipeline.run(input_data=ppl_result)

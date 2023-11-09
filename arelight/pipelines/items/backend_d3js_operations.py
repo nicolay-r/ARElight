@@ -3,6 +3,7 @@ import os
 from os.path import join
 
 from arekit.common.data.rows_fmt import create_base_column_fmt
+from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 
@@ -29,6 +30,8 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
         weights = input_data.provide_or_none("d3js_graph_weights")
         target_dir = input_data.provide("d3js_graph_output_dir")
         collection_name = input_data.provide("d3js_collection_name")
+        labels_fmt = input_data.provide("labels_formatter")
+        assert(isinstance(labels_fmt, StringLabelsFormatter))
 
         graph = graphs_operations(graph_A=graph_a, graph_B=graph_b, operation=op, weights=weights) \
             if op else graph_a
@@ -44,7 +47,9 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
         # Save Graph description.
         save_demo_page(target_dir=target_dir,
                        collection_name=collection_name,
-                       description=input_data.provide_or_none("d3js_collection_description"))
+                       desc_name=input_data.provide_or_none("d3js_collection_description"),
+                       desc_labels={label_type.__name__: labels_fmt.label_to_str(label_type())
+                                    for label_type in labels_fmt._stol.values()})
 
         print(f"\nDataset is completed and saved in the following locations:")
         for subfolder in iter_ui_backend_folders(keep_desc=True, keep_graph=True):

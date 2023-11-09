@@ -537,7 +537,7 @@ def iter_ui_backend_folders(keep_graph=False, keep_desc=False):
        yield "descriptions"
 
 
-def save_demo_page(target_dir, collection_name=None, description=None):
+def save_demo_page(target_dir, collection_name=None, desc_name=None, desc_labels=None):
 
     descriptions_dir = join(target_dir, next(iter_ui_backend_folders(keep_desc=True)))
     create_dir_if_not_exists(filepath=join(descriptions_dir, "__placeholder__"))
@@ -551,7 +551,10 @@ def save_demo_page(target_dir, collection_name=None, description=None):
     if collection_name is not None:
         desc_path = join(descriptions_dir, f"{collection_name}{suffix}")
         with open(desc_path, "w") as f:
-            f.write(json.dumps({"description": description if descriptors is not None else collection_name}))
+            f.write(json.dumps({
+                "description": desc_name if descriptors is not None else collection_name,
+                "labels": desc_labels
+            }))
 
         # Place collection name on to of the list.
         if collection_name in descriptors:

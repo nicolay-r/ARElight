@@ -25,7 +25,7 @@ from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymColle
 from arelight.doc_provider import CachedFilesDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
-from arelight.pipelines.demo.labels.formatter import ThreeLabelsFormatter
+from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
@@ -66,6 +66,7 @@ if __name__ == '__main__':
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
+    parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument("--host", dest="d3js_host", default=None, type=str)
     parser.add_argument('-o', dest='output_template', type=str, default="output", nargs='?')
 
@@ -252,19 +253,22 @@ if __name__ == '__main__':
         })
 
     if args.backend == "d3js_graphs":
+        labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
         settings.append({
-            "labels_formatter": ThreeLabelsFormatter()
+            "labels_formatter": CustomLabelsFormatter(**labels_fmt),
+            "d3js_collection_name": collection_name,
+            "d3js_collection_description": collection_name,
+            "d3js_graph_output_dir": output_dir,
+            "d3js_host": args.d3js_host,
         })
 
-    labels_fmt = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
+    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
 
     settings.append({
-        "labels_scaler": CustomLabelScaler(**labels_fmt),
+        "labels_scaler": CustomLabelScaler(**labels_scl),
         # We provide this settings for inference.
         "predict_filepath": join(output_dir, "{}-predict.tsv.gz".format(collection_name)),
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
-        "d3js_graph_output_dir": output_dir,
-        "d3js_host": args.d3js_host,
     })
 
     # Launch application.

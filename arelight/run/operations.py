@@ -7,6 +7,7 @@ from arekit.common.pipeline.base import BasePipeline
 from arelight.backend.d3js.relations_graph_operations import OP_UNION, OP_DIFFERENCE, OP_INTERSECTION
 from arelight.backend.d3js.ui_web import GRAPH_TYPE_FORCE
 from arelight.backend.d3js.utils_graph import load_graph
+from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
 from arelight.run.utils import get_binary_choice, get_list_choice, get_int_choice, is_port_number
@@ -73,6 +74,7 @@ if __name__ == '__main__':
                         help="Specify output directory (you can use directory "
                              "of existing output, it will add files to it)")
     parser.add_argument("--name", required=False, help="Specify name of new graph")
+    parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument("--description", required=False, help="Specify description of new graph")
     parser.add_argument("--host", required=False, default=None, help="Server port for launching hosting (optional)")
 
@@ -119,9 +121,12 @@ if __name__ == '__main__':
         D3jsGraphOperationsBackendPipelineItem()
     ])
 
+    labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
+
     # Launch application.
     pipeline.run(input_data=PipelineResult({
         # We provide this settings for inference.
+        "labels_formatter": CustomLabelsFormatter(**labels_fmt),
         "d3js_graph_output_dir": output_dir,
         "d3js_collection_description": description,
         "d3js_host": str(8000) if do_host else None,
