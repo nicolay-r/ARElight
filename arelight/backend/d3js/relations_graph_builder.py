@@ -52,8 +52,8 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
         nodes_[source] += 1
         nodes_[target] += 1
 
-        complete_source = ''.join([__get_type(source), META_DOT,  __clean(source)])
-        complete_target = ''.join([__get_type(target), META_DOT,  __clean(target)])
+        complete_source = ''.join([__get_type(source), META_DOT, __clean(source)])
+        complete_target = ''.join([__get_type(target), META_DOT, __clean(target)])
 
         # Replacing patterns affect on the syntax of the result string.
         s_t = "".join([complete_source, complete_target, label])
@@ -66,11 +66,12 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
                 "sent": label
             }
 
-    node_max = 0
+
     link_max = 0
 
     links = []
-    used_nodes = set()
+    # record nodes that we used in links and count their degree centrality
+    used_nodes = {}
     for s_t in links_.keys():
         if links_[s_t] >= min_links:
             links.append({
@@ -78,17 +79,13 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
                 "target": links_meta[s_t]["target"],
                 "c": links_[s_t] if weights else 1,
                 "sent": links_meta[s_t]["sent"]})
-            used_nodes.add(links_meta[s_t]["source"])
-            used_nodes.add(links_meta[s_t]["target"])
+            used_nodes[links_meta[s_t]["source"]] = used_nodes.get(links_meta[s_t]["source"], 0) + 1
+            used_nodes[links_meta[s_t]["target"]] = used_nodes.get(links_meta[s_t]["target"], 0) + 1
             if link_max < links_[s_t]:
                 link_max = links_[s_t]
 
-    nodes = []
-    for id in nodes_.keys():
-        complete_id = __get_type(id) + "." + id
-        if complete_id in used_nodes:
-            nodes.append({"id": complete_id, "c": nodes_[id] if weights else 1})
-            if node_max < nodes_[id]:
-                node_max = nodes_[id]
+    # form node list with [0:1] normalisation
+    node_max = max(used_nodes.values()) if used_nodes else 0
+    nodes = [{"id": id, "c": used_nodes[id]/node_max if weights else 1} for id in used_nodes]
 
     return {"nodes": nodes, "links": links}
