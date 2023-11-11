@@ -1,10 +1,7 @@
-import unittest
-
-from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
-from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
-
 import utils
 from os.path import join
+
+import unittest
 
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.entities.base import Entity
@@ -12,6 +9,8 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.text.enums import TermFormat
 from arekit.common.text.parsed import BaseParsedText
 from arekit.common.text.parser import BaseTextParser
+from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
+from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem

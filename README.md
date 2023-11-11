@@ -67,7 +67,10 @@ Parameters:
     * `sentence-parser` -- parser utilized for document split into sentences; list of the [[supported parsers]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L15).
     * `synonyms-filepath` -- text file with listed synonymous entries, grouped by lines. [[example]](https://github.com/nicolay-r/RuSentRel/blob/master/synonyms.txt).
     * `stemmer` -- for words lemmatization (optional); we support [[PyMystem]](https://pypi.org/project/pymystem3/).
-    * `ner-framework` -- type of the Named Entity Recognition framework; we support [[DeepPavlov]](https://github.com/deeppavlov/DeepPavlov).
+    * NER parameters:  
+      * `ner-framework` -- type of the framework:
+        * `deeppavlov` -- [[DeepPavlov]](https://docs.deeppavlov.ai/en/master/features/models/NER.html#6.-Models-list) list of models.
+        * `transformers` -- [[Transformers]](https://huggingface.co/models?library=transformers&other=named-entity-recognition&sort=downloads) list of models.
       * `ner-model-name` -- model name within utilized NER framework.
       * `ner-types` -- list of types to be considered for annotation, separated by `|`.
     * `docs-limit` -- the total limit of documents for sampling.

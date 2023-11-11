@@ -1,11 +1,11 @@
-import json
 import os
 
 import utils
+import torch
 import unittest
+
 from os.path import join
 
-import torch
 from opennre.encoder import BERTEncoder
 from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
@@ -18,11 +18,11 @@ from arelight.run.utils import OPENNRE_CHECKPOINTS
 
 class TestLoadModel(unittest.TestCase):
 
+    CKPT = "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar"
+
     def test_launch_model(self):
         pretrain_path, ckpt_path, label_scaler = BertOpenNREInferencePipelineItem.try_download_predefined_checkpoint(
-            checkpoint="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
-            predefined=OPENNRE_CHECKPOINTS,
-            dir_to_download=utils.TEST_OUT_DIR)
+            checkpoint=self.CKPT, predefined=OPENNRE_CHECKPOINTS, dir_to_download=utils.TEST_OUT_DIR)
         model = BERTEncoder(pretrain_path=pretrain_path, mask_entity=True, max_length=512)
         rel2id = BertOpenNREInferencePipelineItem.scaler_to_rel2id(label_scaler)
         model = SoftmaxNN(model, len(rel2id), rel2id)
@@ -30,7 +30,7 @@ class TestLoadModel(unittest.TestCase):
 
     def test_infer(self):
         self.infer_bert(pretrain_path=None,
-                        ckpt_path="ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+                        ckpt_path=self.CKPT,
                         labels_scaler=None,
                         predefined=OPENNRE_CHECKPOINTS,
                         output_file_gzip=join(utils.TEST_OUT_DIR, "opennre-data-test.tsv.gz"))

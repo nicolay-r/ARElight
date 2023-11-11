@@ -30,6 +30,8 @@ from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
+from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
+from arelight.pipelines.items.terms_splitter import CustomTermsSplitterPipelineItem
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
     create_translate_model, is_port_number, iter_content, OPENNRE_CHECKPOINTS
 from arelight.samplers.bert import create_bert_sample_provider
@@ -47,12 +49,12 @@ if __name__ == '__main__':
     parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
     parser.add_argument('--terms-per-context', dest='terms_per_context', type=int, default=50, nargs='?', help='The max possible length of an input context in terms')
     parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk_en", choices=['linesplit', 'ru', 'nltk_en'])
-    parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default="ner_ontonotes_bert_mult")
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
+    parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov", "transformers"], default="deeppavlov")
+    parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
-    parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov"], default="deeppavlov")
     parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=["googletrans"])
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
@@ -162,7 +164,13 @@ if __name__ == '__main__':
             obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
             ner_model_name=ner_model_name,
             id_assigner=IdAssigner(),
-            display_value_func=__entity_display_value)
+            display_value_func=__entity_display_value),
+        # Parser based on Transformers backend.
+        "transformers": lambda: TransformersNERPipelineItem(
+            obj_filter=None if ner_object_types is None else lambda entity_group: entity_group in ner_object_types,
+            ner_model_name=ner_model_name,
+            id_assigner=IdAssigner(),
+            display_value_func=__entity_display_value),
     }
 
     infer_engines_setup = {
@@ -225,8 +233,9 @@ if __name__ == '__main__':
 
         # Setup text parser.
         text_parser = BaseTextParser(pipeline=[
-            TermsSplitterParser(),
+            TermsSplitterParser() if ner_framework == "deeppavlov" else None,
             entity_parsers[ner_framework](),
+            CustomTermsSplitterPipelineItem() if ner_framework == "transformers" else None,
             text_translator_setup["ml-based" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
