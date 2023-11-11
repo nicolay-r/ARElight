@@ -26,6 +26,7 @@ Infer sentiment attitudes from text file **in English**:
 ```bash
 python3 -m arelight.run.infer  \
     --sampling-framework "arekit" \
+    --ner-framework "deeppavlov" \
     --ner-model-name "ner_ontonotes_bert" \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --terms-per-context 50 \
