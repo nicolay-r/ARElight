@@ -20,7 +20,9 @@ class TestLoadModel(unittest.TestCase):
     def test_pipeline(self):
         text = "My name is Sylvain, and I work at Hugging Face in Brooklyn."
         model, tokenizer = init_token_classification_model(self.model_names[0])
-        results = annotate_ner_ppl(model=model, tokenizer=tokenizer, text=text)
+        content = [text, text]
+        ppl = annotate_ner_ppl(model=model, tokenizer=tokenizer, batch_size=len(content))
+        results = ppl(content)
         print(results)
 
 

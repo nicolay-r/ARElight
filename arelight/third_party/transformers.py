@@ -11,10 +11,9 @@ def init_token_classification_model(model_path):
     return model, tokenizer
 
 
-def annotate_ner_ppl(model, tokenizer, text):
-    ppl = pipeline("ner", model=model, aggregation_strategy='simple', tokenizer=tokenizer,
-                   grouped_entities=True, batch_size=4)
-    return ppl(text)
+def annotate_ner_ppl(model, tokenizer, batch_size=4):
+    return pipeline("ner", model=model, aggregation_strategy='simple', tokenizer=tokenizer,
+                    grouped_entities=True, batch_size=batch_size)
 
 
 def annotate_ner(model, tokenizer, text):
