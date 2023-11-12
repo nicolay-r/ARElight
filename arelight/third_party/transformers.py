@@ -1,12 +1,20 @@
 import numpy as np
 import torch
-from transformers import BertTokenizerFast, BertForTokenClassification
+from transformers import BertTokenizerFast, BertForTokenClassification, pipeline
+
+from arelight.ner.base import BaseNER
 
 
 def init_token_classification_model(model_path):
     model = BertForTokenClassification.from_pretrained(model_path)
     tokenizer = BertTokenizerFast.from_pretrained(model_path)
     return model, tokenizer
+
+
+def annotate_ner_ppl(model, tokenizer, text):
+    ppl = pipeline("ner", model=model, aggregation_strategy='simple', tokenizer=tokenizer,
+                   grouped_entities=True, batch_size=4)
+    return ppl(text)
 
 
 def annotate_ner(model, tokenizer, text):
@@ -40,9 +48,9 @@ def annotate_ner(model, tokenizer, text):
 
             # Grab all the tokens labeled with I-label
             all_scores = []
-            while (
-                    idx < len(predictions)
-                    and model.config.id2label[predictions[idx]] in [f"I-{label}", f"B-{label}"]
+            while (idx < len(predictions) and model.config.id2label[predictions[idx]] in [
+                f"{BaseNER.begin_tag}{BaseNER.separator}{label}",
+                f"{BaseNER.inner_tag}{BaseNER.separator}{label}"]
             ):
                 all_scores.append(probabilities[idx][pred])
                 _, end = offsets[idx]

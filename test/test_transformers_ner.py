@@ -1,6 +1,6 @@
 import unittest
 
-from arelight.third_party.transformers import init_token_classification_model, annotate_ner
+from arelight.third_party.transformers import init_token_classification_model, annotate_ner, annotate_ner_ppl
 
 
 class TestLoadModel(unittest.TestCase):
@@ -15,6 +15,12 @@ class TestLoadModel(unittest.TestCase):
         text = "My name is Sylvain, and I work at Hugging Face in Brooklyn."
         model, tokenizer = init_token_classification_model(self.model_names[0])
         results = annotate_ner(model=model, tokenizer=tokenizer, text=text)
+        print(results)
+
+    def test_pipeline(self):
+        text = "My name is Sylvain, and I work at Hugging Face in Brooklyn."
+        model, tokenizer = init_token_classification_model(self.model_names[0])
+        results = annotate_ner_ppl(model=model, tokenizer=tokenizer, text=text)
         print(results)
 
 
