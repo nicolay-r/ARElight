@@ -5,9 +5,13 @@ from transformers import BertTokenizerFast, BertForTokenClassification, pipeline
 from arelight.ner.base import BaseNER
 
 
-def init_token_classification_model(model_path):
+def init_token_classification_model(model_path, device):
     model = BertForTokenClassification.from_pretrained(model_path)
     tokenizer = BertTokenizerFast.from_pretrained(model_path)
+
+    if device is not None:
+        model.to(device)
+
     return model, tokenizer
 
 

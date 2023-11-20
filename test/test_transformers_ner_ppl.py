@@ -21,7 +21,7 @@ class TestTransformersNERPipeline(unittest.TestCase):
 
     def test_transformers_batch(self):
         sentences = self.get_texts()[0].split("\n")
-        model, tokenizer = init_token_classification_model(model_path="dslim/bert-base-NER")
+        model, tokenizer = init_token_classification_model(model_path="dslim/bert-base-NER", device="cpu")
 
         print("Sentences: {}".format(len(sentences)))
 
@@ -48,7 +48,7 @@ class TestTransformersNERPipeline(unittest.TestCase):
         # Declare input texts.
 
         ppl_items = [
-            TransformersNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="dslim/bert-base-NER"),
+            TransformersNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="dslim/bert-base-NER", device="cpu"),
             CustomTermsSplitterPipelineItem(),
         ]
 

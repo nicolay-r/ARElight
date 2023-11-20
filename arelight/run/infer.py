@@ -66,7 +66,7 @@ if __name__ == '__main__':
     parser.add_argument("--bert-framework", dest="bert_framework", type=str, default=None, choices=[None, "opennre"])
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
-    parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", choices=["cpu", "gpu"])
+    parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models")
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument("--host", dest="d3js_host", default=None, type=str)
@@ -170,7 +170,8 @@ if __name__ == '__main__':
             obj_filter=None if ner_object_types is None else lambda entity_group: entity_group in ner_object_types,
             ner_model_name=ner_model_name,
             id_assigner=IdAssigner(),
-            display_value_func=__entity_display_value),
+            display_value_func=__entity_display_value,
+            device=args.device_type),
     }
 
     infer_engines_setup = {
