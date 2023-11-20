@@ -22,8 +22,8 @@ def create_sentence_parser(arg):
         return lambda text: ru_sent_tokenize.ru_sent_tokenize(text)
     elif arg == "nltk_en":
         # Using nltk library.
-        nltk = importlib.import_module("nltk")
-        tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+        tokenizer_func = auto_import("arelight.third_party.nltk.import_tokenizer")
+        tokenizer = tokenizer_func(name='tokenizers/punkt/english.pickle', resource_name="punkt")
         return tokenizer.tokenize
     else:
         raise Exception("Arg `{}` was not found".format(arg))
