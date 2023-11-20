@@ -1,4 +1,4 @@
-import collections
+from collections.abc import Iterable
 
 from arekit.common.data import const
 
@@ -28,7 +28,7 @@ class BasePredictProvider(object):
             yield contents
 
     def provide(self, sample_id_with_uint_labels_iter, labels_count, column_extra_funcs=None):
-        assert(isinstance(sample_id_with_uint_labels_iter, collections.Iterable))
+        assert(isinstance(sample_id_with_uint_labels_iter, Iterable))
         assert(isinstance(column_extra_funcs, list) or column_extra_funcs is None)
         assert(isinstance(labels_count, int))
 
