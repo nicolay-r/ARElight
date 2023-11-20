@@ -247,7 +247,8 @@ if __name__ == '__main__':
             filepaths=args.from_files,
             content_provider=lambda filepath: iter_content(
                 filepath=filepath, csv_delimiter=args.csv_sep, csv_column=args.csv_column),
-            content_to_sentences=sentence_parser)
+            content_to_sentences=sentence_parser,
+            docs_limit=docs_limit)
 
         data_pipeline = create_neutral_annotation_pipeline(
             synonyms=synonyms,
