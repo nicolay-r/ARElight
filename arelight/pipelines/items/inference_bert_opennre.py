@@ -77,10 +77,6 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             data = predefined[checkpoint]
             target_checkpoint_path = join(dir_to_download, checkpoint)
 
-            print("TCP: {}".format(target_checkpoint_path))
-            print("DD: {}".format(dir_to_download))
-            print("CP: {}".format(checkpoint))
-
             logger.info("Found predefined checkpoint: {}".format(checkpoint))
             # No need to do anything, file has been already downloaded.
             if not exists(target_checkpoint_path):
