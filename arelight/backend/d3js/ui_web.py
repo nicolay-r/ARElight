@@ -126,7 +126,7 @@ ui_template = """
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script>
 
-        folder_with_datasets_path = "./"
+        folder_with_datasets_path = "HOST_ROOT_PATH"
 
         height = window.innerHeight*0.8;
         width = window.innerWidth*0.5;
@@ -507,7 +507,7 @@ ui_template = """
 """
 
 
-def get_web_ui(datasets_list, folder_name=""):
+def get_web_ui(datasets_list, host_root_path, folder_name=""):
     """ datasets_list: list
             list of processed datasets that stored in output folder
         folder_name: str
@@ -520,7 +520,8 @@ def get_web_ui(datasets_list, folder_name=""):
 
     html_content = ui_template\
         .replace("<!--INSERT_DATASETS_NAMES-->", "\n".join(dataset_options))\
-        .replace("<!--INSERT_FOLDER_NAME-->", folder_name)
+        .replace("<!--INSERT_FOLDER_NAME-->", folder_name)\
+        .replace("HOST_ROOT_PATH", host_root_path)
 
     return html_content
 
@@ -537,7 +538,7 @@ def iter_ui_backend_folders(keep_graph=False, keep_desc=False):
        yield "descriptions"
 
 
-def save_demo_page(target_dir, collection_name=None, desc_name=None, desc_labels=None):
+def save_demo_page(target_dir, host_root_path, collection_name=None, desc_name=None, desc_labels=None):
 
     descriptions_dir = join(target_dir, next(iter_ui_backend_folders(keep_desc=True)))
     create_dir_if_not_exists(filepath=join(descriptions_dir, "__placeholder__"))
@@ -562,6 +563,6 @@ def save_demo_page(target_dir, collection_name=None, desc_name=None, desc_labels
         descriptors = [collection_name] + descriptors
 
     # Demo content.
-    html_content = get_web_ui(datasets_list=descriptors)
+    html_content = get_web_ui(datasets_list=descriptors, host_root_path=host_root_path)
     with open(join(target_dir, "index.html"), "w") as f_out:
         f_out.write(html_content)

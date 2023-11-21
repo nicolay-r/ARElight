@@ -91,7 +91,7 @@ Parameters:
         * `n` -- negative label, which is mapped to `2`.
         * `u` -- undefined label (optional), which is mapped to `0`.
 * `backend` -- type of the backend (`d3js_graphs` by default).
-    * `d3js-host` -- port on which we expect to launch localhost server.
+    * `host` -- port on which we expect to launch localhost server.
     * `label-names` -- default mapping is `p:pos,n:neg,u:neu`.
 * `-o` -- output folder for result collections and demo.
 
@@ -99,7 +99,7 @@ Framework parameters mentioned above as well as their related setups might be om
 For example, to Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
 
 ```bash
-python3 -m arelight.run.infer --backend "d3js_graphs" -o output --host 8080 
+cd output && python -m http.server 8000
 ```
 
 </details>

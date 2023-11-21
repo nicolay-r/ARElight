@@ -31,6 +31,7 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
         target_dir = input_data.provide("d3js_graph_output_dir")
         collection_name = input_data.provide("d3js_collection_name")
         labels_fmt = input_data.provide("labels_formatter")
+        host_port = input_data.provide_or_none("d3js_host")
         assert(isinstance(labels_fmt, StringLabelsFormatter))
 
         graph = graphs_operations(graph_A=graph_a, graph_B=graph_b, operation=op, weights=weights) \
@@ -47,6 +48,7 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
         # Save Graph description.
         save_demo_page(target_dir=target_dir,
                        collection_name=collection_name,
+                       host_root_path=f"http://localhost:{host_port}" if host_port is not None else "./",
                        desc_name=input_data.provide_or_none("d3js_collection_description"),
                        desc_labels={label_type.__name__: labels_fmt.label_to_str(label_type())
                                     for label_type in labels_fmt._stol.values()})
@@ -55,10 +57,7 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
         for subfolder in iter_ui_backend_folders(keep_desc=True, keep_graph=True):
             print(f"- {os.path.join(target_dir, subfolder, collection_name)}")
 
-        # Launch server to checkout the results (Optionally)
-        host_port = input_data.provide_or_none("d3js_host")
+        # Print system info.
         if host_port is not None:
             cmd = f"cd {target_dir} && python -m http.server {host_port}"
-            print(f"Launching WEB server for `{target_dir}` dir.")
-            logger.info(cmd)
-            os.system(cmd)
+            print(f"To host, launch manually: {cmd}")
