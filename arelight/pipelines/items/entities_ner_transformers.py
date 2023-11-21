@@ -8,7 +8,7 @@ from arelight.utils import IdAssigner, auto_import
 
 class TransformersNERPipelineItem(SentenceObjectsParserPipelineItem):
 
-    def __init__(self, id_assigner, ner_model_name, obj_filter=None, display_value_func=None, device=None):
+    def __init__(self, id_assigner, ner_model_name, device, obj_filter=None, display_value_func=None):
         """ chunk_limit: int
                 length of text part in words that is going to be provided in input.
         """
@@ -22,7 +22,8 @@ class TransformersNERPipelineItem(SentenceObjectsParserPipelineItem):
 
         # Transformers-related parameters.
 
-        self.__model, self.__tokenizer = model_init(model_path=ner_model_name, device=device)
+        self.__device = device
+        self.__model, self.__tokenizer = model_init(model_path=ner_model_name, device=self.__device)
 
         # Initialize bert-based model instance.
         self.__obj_filter = obj_filter
@@ -33,7 +34,8 @@ class TransformersNERPipelineItem(SentenceObjectsParserPipelineItem):
 
     def _get_parts_provider_func(self, input_data, pipeline_ctx):
         assert(isinstance(input_data, str))
-        parts = self.annotate_ner(model=self.__model, tokenizer=self.__tokenizer, text=input_data)
+        parts = self.annotate_ner(model=self.__model, tokenizer=self.__tokenizer, text=input_data,
+                                  device=self.__device)
         for entity, bound in self.__iter_parsed_entities(parts):
             yield entity, bound
 

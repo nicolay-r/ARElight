@@ -7,27 +7,24 @@ from arelight.ner.base import BaseNER
 
 def init_token_classification_model(model_path, device):
     model = BertForTokenClassification.from_pretrained(model_path)
+    model = model.to(device)
     tokenizer = BertTokenizerFast.from_pretrained(model_path)
-
-    if device is not None:
-        model.to(device)
-
     return model, tokenizer
 
 
-def annotate_ner_ppl(model, tokenizer, batch_size=4):
+def annotate_ner_ppl(model, tokenizer, device, batch_size=4):
     return pipeline("ner", model=model, aggregation_strategy='simple', tokenizer=tokenizer,
-                    grouped_entities=True, batch_size=batch_size)
+                    grouped_entities=True, batch_size=batch_size, device=device)
 
 
-def annotate_ner(model, tokenizer, text):
+def annotate_ner(model, tokenizer, text, device):
     """ This code is related to collection of the annotated objects from texts.
 
         return: list of dict
             every dict object contains entity, entity_group, location of the object
     """
     # Tokenize the text and get the offset mappings (start and end character positions for each token)
-    inputs = tokenizer(text, return_tensors="pt", truncation=True)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True).to(device)
     inputs_with_offsets = tokenizer(text, return_offsets_mapping=True)
     offsets = inputs_with_offsets["offset_mapping"]
 
