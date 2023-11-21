@@ -48,7 +48,7 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
         # Save Graph description.
         save_demo_page(target_dir=target_dir,
                        collection_name=collection_name,
-                       host_root_path=f"http://localhost:{host_port}" if host_port is not None else "./",
+                       host_root_path=f"http://localhost:{host_port}/" if host_port is not None else "./",
                        desc_name=input_data.provide_or_none("d3js_collection_description"),
                        desc_labels={label_type.__name__: labels_fmt.label_to_str(label_type())
                                     for label_type in labels_fmt._stol.values()})
