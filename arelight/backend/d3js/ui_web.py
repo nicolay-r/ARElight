@@ -130,6 +130,9 @@ ui_template = """
 
         height = window.innerHeight*0.8;
         width = window.innerWidth*0.5;
+        if (height < 100){
+            height = width;
+        }
 
         selected_vis = "force"
 
