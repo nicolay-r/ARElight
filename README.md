@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.24.0-orange.svg)
 [![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/AREnets/blob/master/arenets_colab_tutorial.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
 
 ### :point_right: [DEMO](https://guardeec.github.io/arelight_demo/template.html) :point_left:
 
