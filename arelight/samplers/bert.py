@@ -1,11 +1,8 @@
 from enum import Enum
 
-from arekit.common.data.input.providers.label.multiple import MultipleLabelProvider
-from arekit.common.data.input.providers.rows.samples import BaseSampleRowProvider
-from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.entities.str_fmt import StringEntitiesFormatter
 from arekit.common.labels.scaler.base import BaseLabelScaler
-from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
+from arekit.contrib.bert.input.providers.cropped_sample import CroppedBertSampleRowProvider
 from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
 
 from arelight.samplers.types import BertSampleProviderTypes
@@ -28,7 +25,7 @@ class BertTextBRussianPrompts(Enum):
     QA = 'Что вы думаете по поводу отношения {subject} к {object} в контексте : << {context} >> ?'
 
 
-def create_bert_sample_provider(provider_type, label_scaler, entity_formatter):
+def create_bert_sample_provider(provider_type, label_scaler, entity_formatter, crop_window):
     """ This is a factory method, which allows to instantiate any of the
         supported bert_sample_encoders
     """
@@ -44,8 +41,7 @@ def create_bert_sample_provider(provider_type, label_scaler, entity_formatter):
     if provider_type == BertSampleProviderTypes.QA_M:
         text_b_prompt = BertTextBRussianPrompts.QA.value
 
-    text_provider = PairTextProvider(text_b_prompt=text_b_prompt, text_terms_mapper=text_terms_mapper)\
-        if text_b_prompt is not None else BaseSingleTextProvider(text_terms_mapper)
-
-    return BaseSampleRowProvider(label_provider=MultipleLabelProvider(label_scaler),
-                                 text_provider=text_provider)
+    return CroppedBertSampleRowProvider(crop_window_size=crop_window,
+                                        text_b_template=text_b_prompt,
+                                        text_terms_mapper=text_terms_mapper,
+                                        label_scaler=label_scaler)

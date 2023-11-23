@@ -78,7 +78,8 @@ class TestInfer(unittest.TestCase):
             "rows_provider": create_bert_sample_provider(
                 label_scaler=SingleLabelScaler(NoLabel()),
                 provider_type=BertSampleProviderTypes.NLI_M,
-                entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
+                entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                crop_window=50),
             "save_labels_func": lambda _: False,
             "samples_io": SamplesIO(target_dir=utils.TEST_OUT_DIR,
                                     reader=JsonlReader(),

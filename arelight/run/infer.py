@@ -111,7 +111,8 @@ if __name__ == '__main__':
                 provider_type=SampleFormattersService.name_to_type(args.text_b_type) if args.text_b_type is not None else None,
                 # We annotate everything with NoLabel.
                 label_scaler=SingleLabelScaler(NoLabel()),
-                entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
+                entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                crop_window=terms_per_context),
             "samples_io": SamplesIO(target_dir=output_dir,
                                     prefix=collection_name,
                                     reader=JsonlReader(),

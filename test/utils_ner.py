@@ -41,7 +41,8 @@ def test_ner(texts, ner_ppl_items, prefix):
     rows_provider = create_bert_sample_provider(
         label_scaler=single_label_scaler,
         provider_type=BertSampleProviderTypes.NLI_M,
-        entity_formatter=SharpPrefixedEntitiesSimpleFormatter())
+        entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+        crop_window=50)
 
     pipeline = BasePipeline([
         BaseSerializerPipelineItem(

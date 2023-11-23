@@ -97,9 +97,11 @@ class BertTestSerialization(unittest.TestCase):
         doc_provider = utils.InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
         pipeline = BasePipeline([AREkitSerializerPipelineItem(
             rows_provider=create_bert_sample_provider(
-            label_scaler=SingleLabelScaler(NoLabel()),
-            provider_type=BertSampleProviderTypes.NLI_M,
-            entity_formatter=SharpPrefixedEntitiesSimpleFormatter()),
+                label_scaler=SingleLabelScaler(NoLabel()),
+                provider_type=BertSampleProviderTypes.NLI_M,
+                entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                crop_window=50,
+            ),
             save_labels_func=lambda _: False,
             samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
             storage=RowCacheStorage(force_collect_columns=[
