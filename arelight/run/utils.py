@@ -1,4 +1,3 @@
-import importlib
 import logging
 from enum import Enum
 
@@ -13,20 +12,16 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def create_sentence_parser(arg):
-    if arg == "linesplit":
+def create_sentence_parser(framework, language):
+    if framework == "linesplit":
         return lambda text: [t.strip() for t in text.split('\n')]
-    elif arg == "ru":
-        # Using ru_sent_tokenize library.
-        ru_sent_tokenize = importlib.import_module("ru_sent_tokenize")
-        return lambda text: ru_sent_tokenize.ru_sent_tokenize(text)
-    elif arg == "nltk_en":
+    elif framework == "nltk":
         # Using nltk library.
         tokenizer_func = auto_import("arelight.third_party.nltk.import_tokenizer")
-        tokenizer = tokenizer_func(name='tokenizers/punkt/english.pickle', resource_name="punkt")
+        tokenizer = tokenizer_func(name=f'tokenizers/punkt/{language}.pickle', resource_name="punkt")
         return tokenizer.tokenize
     else:
-        raise Exception("Arg `{}` was not found".format(arg))
+        raise Exception("Framework `{}` is not supported".format(framework))
 
 
 def iter_content(filepath, csv_column, csv_delimiter):

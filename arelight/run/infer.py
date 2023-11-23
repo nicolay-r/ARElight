@@ -48,7 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('--csv-column', dest='csv_column', type=str, default='text', nargs='?')
     parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
     parser.add_argument('--terms-per-context', dest='terms_per_context', type=int, default=50, nargs='?', help='The max possible length of an input context in terms')
-    parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk_en", choices=['linesplit', 'ru', 'nltk_en'])
+    parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk:english")
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
@@ -76,7 +76,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Reading text-related parameters.
-    sentence_parser = create_sentence_parser(args.sentence_parser)
+    sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
+                                             language=args.sentence_parser.split(":")[1])
     ner_framework = args.ner_framework
     ner_model_name = args.ner_model_name
     ner_object_types = args.ner_types

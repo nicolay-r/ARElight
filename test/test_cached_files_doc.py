@@ -9,7 +9,7 @@ class TestCachedFiles(unittest.TestCase):
 
     def test(self):
 
-        sentence_parser = create_sentence_parser("nltk_en")
+        sentence_parser = create_sentence_parser(framework="nltk", language="english")
         doc_provider = CachedFilesDocProvider(
             filepaths=[
                 "data/responses-d3js-backend-sample-data.csv",

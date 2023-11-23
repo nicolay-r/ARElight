@@ -32,7 +32,7 @@ python3 -m arelight.run.infer  \
     --ner-model-name "ner_ontonotes_bert" \
     --ner-types "ORG|PERSON|LOC|GPE" \
     --terms-per-context 50 \
-    --sentence-parser "nltk_en" \
+    --sentence-parser "nltk:english" \
     --tokens-per-context 128 \
     --bert-framework "opennre" \
     --batch-size 10 \
