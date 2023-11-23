@@ -39,7 +39,6 @@ python3 -m arelight.run.infer  \
     --pretrained-bert "bert-base-cased" \
     --bert-torch-checkpoint "ra4-rsr1_bert-base-cased_cls.pth.tar" \
     --backend "d3js_graphs" \
-    --host 8000 \
     --docs-limit 500 \
     -o "output" \
     --from-files "<PATH-TO-TEXT-FILE>"
@@ -98,15 +97,16 @@ Parameters:
 * `-o` -- output folder for result collections and demo.
 
 Framework parameters mentioned above as well as their related setups might be ommited.
-For example, to Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
+
+</details>
+
+To Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
 
 ```bash
 cd output && python -m http.server 8000
 ```
-
-</details>
  
-Launches server at `http://0.0.0.0:8000/` so you may analyse the results. 
+Finally, you may follow the demo page at `http://0.0.0.0:8000/`
 
 [![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 
