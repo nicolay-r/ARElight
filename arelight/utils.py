@@ -43,9 +43,9 @@ class IdAssigner(object):
         return curr_id
 
 
-def iter_csv_lines(csv_filepath, column_name, delimiter=","):
+def iter_csv_lines(csv_file, column_name, delimiter=","):
 
-    with open(csv_filepath, mode='r', encoding='utf-8-sig') as csv_file:
+    with csv_file:
         csv_reader = csv.DictReader(csv_file, delimiter=delimiter)
 
         if column_name not in csv_reader.fieldnames:
