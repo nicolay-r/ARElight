@@ -262,3 +262,18 @@ These weights represent the frequencies of discovered edges, indicating how ofte
 <p float="left">
 <a href="https://github.com/nicolay-r/AREkit"><img src="https://github.com/nicolay-r/ARElight/assets/14871187/01232f7a-970f-416c-b7a4-1cda48506afe"/></a>
 </p>
+
+## How to cite
+Our one and my personal interest is to help you better explore and analyze attitude and relation extraction related tasks with ARElight. 
+A great research is also accompanied with the faithful reference. 
+if you use or extend our work, please cite as follows:
+
+```bibtex
+@inproceedings{rusnachenko2024arelight,
+  title={ARElight: Context Sampling of Large Texts for Deep Learning Relation Extraction},
+  author={Rusnachenko, Nicolay and Liang, Huizhi and Kolomeets, Maxim and Shi, Lei},
+  booktitle={European Conference on Information Retrieval},
+  year={2024},
+  organization={Springer}
+}
+```
