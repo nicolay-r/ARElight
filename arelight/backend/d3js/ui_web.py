@@ -41,7 +41,7 @@ ui_template = """
 
     <body>
         <head>
-          <title>ARElight-0.24.0 Demo</title>
+          <title>ARElight-0.24.1 Demo</title>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -50,7 +50,7 @@ ui_template = """
         </head>
 
         <div class="container">
-          <h1>ARElight-0.24.0 Demo</h1>
+          <h1>ARElight-0.24.1 Demo</h1>
         </div>
 
         <div class="container">

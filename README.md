@@ -1,4 +1,4 @@
-# ARElight 0.24.0
+# ARElight 0.24.1
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.24.0-orange.svg)
@@ -18,7 +18,7 @@ in texts.
 # Installation
 
 ```bash
-pip install git+https://github.com/nicolay-r/arelight@v0.24.0
+pip install git+https://github.com/nicolay-r/arelight@v0.24.1
 ```
 
 ## Usage: Inference
