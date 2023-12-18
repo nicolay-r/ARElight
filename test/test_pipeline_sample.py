@@ -1,28 +1,28 @@
-from arekit.common.data import const
-from arekit.common.pipeline.context import PipelineContext
-
 import utils
 import unittest
 import ru_sent_tokenize
-from arekit.common.docs.base import Document
-from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.docs.sentence import BaseDocumentSentence
+
 from ru_sent_tokenize import ru_sent_tokenize
 from os.path import join
 
+from arekit.common.docs.base import Document
+from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
+from arekit.common.docs.sentence import BaseDocumentSentence
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
+from arekit.common.data import const
+from arekit.common.pipeline.context import PipelineContext
+from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
@@ -103,7 +103,7 @@ class BertTestSerialization(unittest.TestCase):
                 crop_window=50,
             ),
             save_labels_func=lambda _: False,
-            samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
+            samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=SQliteWriter()),
             storage=RowCacheStorage(force_collect_columns=[
                 const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
             ]))
@@ -124,6 +124,7 @@ class BertTestSerialization(unittest.TestCase):
                          "doc_ids": list(range(len(texts))),
                          "data_type_pipelines": {DataType.Test: test_pipeline}
                      }))
+
 
 if __name__ == '__main__':
     unittest.main()

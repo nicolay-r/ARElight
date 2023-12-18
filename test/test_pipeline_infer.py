@@ -3,12 +3,10 @@ from os.path import join, realpath, dirname
 
 import unittest
 
-from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
-from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
+from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.data.readers.jsonl import JsonlReader
-from arekit.contrib.utils.data.writers.json_opennre import OpenNREJsonWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
@@ -69,10 +67,7 @@ class TestInfer(unittest.TestCase):
         return docs
 
     def create_sampling_params(self):
-        writer = OpenNREJsonWriter(
-            text_columns=[BaseSingleTextProvider.TEXT_A, PairTextProvider.TEXT_B],
-            keep_extra_columns=False,
-            na_value="0")
+        writer = SQliteWriter()
 
         return {
             "rows_provider": create_bert_sample_provider(

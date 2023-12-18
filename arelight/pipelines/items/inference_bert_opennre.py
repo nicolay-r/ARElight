@@ -11,9 +11,9 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.utils import download
 
 from opennre.encoder import BERTEntityEncoder, BERTEncoder
-from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
 
+from arelight.third_party.torch import sentence_re_loader
 from arelight.utils import get_default_download_dir
 
 
@@ -112,48 +112,48 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         return model
 
     @staticmethod
-    def extract_ids(data_file):
-        with open(data_file) as input_file:
-            for line_str in input_file.readlines():
-                data = json.loads(line_str)
-                yield data["id_orig"]
-
-    @staticmethod
     def iter_results(parallel_model, eval_loader, data_ids):
-        l_ind = 0
-        with torch.no_grad():
-            for iter, data in enumerate(eval_loader):
-                if torch.cuda.is_available():
-                    for i in range(len(data)):
-                        try:
-                            data[i] = data[i].cuda()
-                        except:
-                            pass
 
-                args = data[1:]
-                logits = parallel_model(*args)
-                score, pred = logits.max(-1)  # (B)
+        # It is important we should open database.
+        with eval_loader.dataset:
 
-                # Save result
-                batch_size = pred.size(0)
-                for i in range(batch_size):
-                    yield data_ids[l_ind], pred[i].item()
-                    l_ind += 1
+            l_ind = 0
+            with torch.no_grad():
+                for iter, data in enumerate(eval_loader):
+                    if torch.cuda.is_available():
+                        for i in range(len(data)):
+                            try:
+                                data[i] = data[i].cuda()
+                            except:
+                                pass
+
+                    args = data[1:]
+                    logits = parallel_model(*args)
+                    score, pred = logits.max(-1)  # (B)
+
+                    # Save result
+                    batch_size = pred.size(0)
+                    for i in range(batch_size):
+                        yield data_ids[l_ind], pred[i].item()
+                        l_ind += 1
 
     def __iter_predict_result(self, samples_filepath, batch_size):
         # Compose evaluator.
-        sentence_eval = SentenceRELoader(path=samples_filepath,
-                                         rel2id=self.__model.rel2id,
-                                         tokenizer=self.__model.sentence_encoder.tokenize,
-                                         batch_size=batch_size,
-                                         shuffle=False)
+        sentence_eval = sentence_re_loader(path=samples_filepath,
+                                           rel2id=self.__model.rel2id,
+                                           tokenizer=self.__model.sentence_encoder.tokenize,
+                                           batch_size=batch_size,
+                                           table_name="contents",
+                                           shuffle=False)
 
-        # Iter output results.
-        results_it = self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
-                                       data_ids=list(self.extract_ids(samples_filepath)),
-                                       eval_loader=sentence_eval)
+        with sentence_eval.dataset as dataset:
 
-        total = len(sentence_eval.dataset)
+            # Iter output results.
+            results_it = self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
+                                           data_ids=list(dataset.iter_ids()),
+                                           eval_loader=sentence_eval)
+
+            total = len(sentence_eval.dataset)
 
         return results_it, total
 
