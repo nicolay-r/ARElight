@@ -9,7 +9,7 @@ from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.utils.data.readers.jsonl import JsonlReader
+from arekit.contrib.utils.data.readers.sqlite import SQliteReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                 crop_window=terms_per_context),
             "samples_io": SamplesIO(target_dir=output_dir,
                                     prefix=collection_name,
-                                    reader=JsonlReader(),
+                                    reader=SQliteReader(table_name="contents"),
                                     writer=SQliteWriter()),
             "storage": RowCacheStorage(
                 force_collect_columns=[const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND]),
