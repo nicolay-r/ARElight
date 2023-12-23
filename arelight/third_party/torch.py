@@ -1,8 +1,9 @@
 import logging
-import sqlite3
 
 import torch
 from torch.utils import data
+
+from arelight.third_party.sqlite3 import SQLite3Service
 
 
 class SQLiteSentenceREDataset(data.Dataset):
@@ -23,7 +24,9 @@ class SQLiteSentenceREDataset(data.Dataset):
         self.rel2id = rel2id
         self.kwargs = kwargs
         self.table_name = table_name
+        self.sqlite_service = SQLite3Service()
         # Task-related parameters.
+        # OpenNRE-related task provider.
         self.no_label = "0"
         self.default_id_column = "id"
         self.index_columns = ["s_ind", "t_ind"]
@@ -31,26 +34,28 @@ class SQLiteSentenceREDataset(data.Dataset):
 
     def iter_ids(self, id_column=None):
         col_name = self.default_id_column if id_column is None else id_column
-        for row in self.conn.execute(f"select {col_name} from {self.table_name}").fetchall():
+        for row in self.sqlite_service.iter_rows(select_columns=col_name, table_name=self.table_name):
             yield row[0]
 
     def __len__(self):
-        count_response = self.conn.execute(f"select count(*) from {self.table_name}").fetchone()
-        return count_response[0]
+        return self.sqlite_service.table_rows_count(self.table_name)
 
     def __getitem__(self, index):
 
         # Automatically assign column names.
         # This is expected to be refactored as a task-specific approach of text columns assignation.
         if self.text_columns is None:
-            cursor = self.conn.execute(f'select * from {self.table_name}')
-            column_names = list(map(lambda x: x[0], cursor.description))
-            self.text_columns = [col_name for col_name in column_names if col_name.startswith("text")]
+            self.text_columns = self.sqlite_service.get_column_names(
+                table_name=self.table_name,
+                filter_name=lambda col_name: col_name.startswith("text"))
 
-        cols = ",".join(self.index_columns + self.text_columns)
+        iter_rows = self.sqlite_service.iter_rows(
+            select_columns=",".join(self.index_columns + self.text_columns),
+            value=index,
+            column_value=self.default_id_column,
+            table_name=self.table_name)
 
-        fetched_row = self.conn.execute(
-            f"select {cols} from {self.table_name} where ({self.default_id_column} = ?)", (index,)).fetchone()
+        fetched_row = next(iter_rows)
 
         opennre_item = {
             "text": " ".join(fetched_row[-len(self.text_columns):]),
@@ -76,13 +81,13 @@ class SQLiteSentenceREDataset(data.Dataset):
         raise NotImplementedError()
 
     def __enter__(self):
-        self.conn = sqlite3.connect(self.path)
+        self.sqlite_service.connect(self.path)
         logging.info("Loaded sentence RE dataset {} with {} lines and {} relations.".format(
             self.path, len(self), len(self.rel2id)))
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.conn.close()
+        self.sqlite_service.disconnect()
 
 
 def sentence_re_loader(path, table_name, rel2id, tokenizer, batch_size,
