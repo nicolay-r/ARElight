@@ -67,8 +67,6 @@ class TestInfer(unittest.TestCase):
         return docs
 
     def create_sampling_params(self):
-        writer = SQliteWriter()
-
         return {
             "rows_provider": create_bert_sample_provider(
                 label_scaler=SingleLabelScaler(NoLabel()),
@@ -78,7 +76,7 @@ class TestInfer(unittest.TestCase):
             "save_labels_func": lambda _: False,
             "samples_io": SamplesIO(target_dir=utils.TEST_OUT_DIR,
                                     reader=JsonlReader(),
-                                    writer=writer),
+                                    writer=SQliteWriter()),
             "storage": RowCacheStorage(force_collect_columns=[
                 const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
             ])

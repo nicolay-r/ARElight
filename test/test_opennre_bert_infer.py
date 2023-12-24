@@ -51,6 +51,12 @@ class TestLoadModel(unittest.TestCase):
                                          rel2id=model.rel2id,
                                          tokenizer=model.sentence_encoder.tokenize,
                                          batch_size=batch_size,
+                                         task_kwargs={
+                                            "no_label": "0",
+                                            "default_id_column": "id",
+                                            "index_columns": ["s_ind", "t_ind"],
+                                            "text_columns": ["text_a", "text_b"]
+                                         },
                                          shuffle=False)
 
         # Open database.

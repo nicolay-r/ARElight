@@ -24,7 +24,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
                  max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True,
-                 predefined_ckpts=None):
+                 table_name="contents", task_kwargs=None, predefined_ckpts=None):
         assert(isinstance(tokenizers_parallelism, bool))
 
         self.__model = None
@@ -35,6 +35,8 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__pooler = pooler
         self.__batch_size = batch_size
         self.__predefined_ckpts = {} if predefined_ckpts is None else predefined_ckpts
+        self.__task_kwargs = task_kwargs
+        self.__table_name = table_name
 
         # Huggingface/Tokenizers compatibility.
         os.environ['TOKENIZERS_PARALLELISM'] = str(tokenizers_parallelism).lower()
@@ -143,7 +145,8 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                                            rel2id=self.__model.rel2id,
                                            tokenizer=self.__model.sentence_encoder.tokenize,
                                            batch_size=batch_size,
-                                           table_name="contents",
+                                           table_name=self.__table_name,
+                                           task_kwargs=self.__task_kwargs,
                                            shuffle=False)
 
         with sentence_eval.dataset as dataset:

@@ -2,6 +2,7 @@ import argparse
 from os.path import join, dirname, basename
 
 from arekit.common.data import const
+from arekit.common.data.const import S_IND, T_IND, ID
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
@@ -9,6 +10,7 @@ from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.pipeline.base import BasePipeline
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.parser import BaseTextParser
+from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.utils.data.readers.sqlite import SQliteReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
@@ -86,7 +88,9 @@ if __name__ == '__main__':
 
     assert(is_port_number(number=args.d3js_host, is_optional=True))
 
-    labels_scaler = SingleLabelScaler(NoLabel())
+    # Classification task label scaler setup.
+    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
+    labels_scaler = CustomLabelScaler(**labels_scl)
 
     def setup_collection_name(value):
         # Considering Predefined name if the latter has been declared.
@@ -114,7 +118,7 @@ if __name__ == '__main__':
             "samples_io": SamplesIO(target_dir=output_dir,
                                     prefix=collection_name,
                                     reader=SQliteReader(table_name="contents"),
-                                    writer=SQliteWriter()),
+                                    writer=SQliteWriter(table_name="contents")),
             "storage": RowCacheStorage(
                 force_collect_columns=[const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND]),
             "save_labels_func": lambda data_type: data_type != DataType.Test
@@ -180,7 +184,14 @@ if __name__ == '__main__':
             "batch_size": args.batch_size,
             "pooler": "cls",
             "predefined_ckpts": OPENNRE_CHECKPOINTS,
-        },
+            "table_name": "contents",
+            "task_kwargs": {
+                "no_label": str(labels_scaler.label_to_int(NoLabel())),
+                "default_id_column": ID,
+                "index_columns": [S_IND, T_IND],
+                "text_columns": [PairTextProvider.TEXT_A, PairTextProvider.TEXT_B]
+            },
+    },
     }
 
     backend_setups = {
@@ -269,10 +280,8 @@ if __name__ == '__main__':
             "d3js_host": args.d3js_host,
         })
 
-    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
-
     settings.append({
-        "labels_scaler": CustomLabelScaler(**labels_scl),
+        "labels_scaler": labels_scaler,
         # We provide this settings for inference.
         "predict_filepath": join(output_dir, "{}-predict.tsv.gz".format(collection_name)),
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
