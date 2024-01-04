@@ -1,21 +1,17 @@
-import json
-import logging
 import os
 from os.path import exists, join
 
+import logging
 import torch
 
 from arekit.common.experiment.data_type import DataType
-from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.utils import download
 
 from opennre.encoder import BERTEntityEncoder, BERTEncoder
 from opennre.model import SoftmaxNN
 
 from arelight.third_party.torch import sentence_re_loader
-from arelight.utils import get_default_download_dir
-
+from arelight.utils import get_default_download_dir, download
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +20,9 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
                  max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True,
-                 table_name="contents", task_kwargs=None, predefined_ckpts=None):
+                 table_name="contents", task_kwargs=None, predefined_ckpts=None, **kwargs):
         assert(isinstance(tokenizers_parallelism, bool))
+        super(BertOpenNREInferencePipelineItem, self).__init__(**kwargs)
 
         self.__model = None
         self.__pretrained_bert = pretrained_bert
@@ -161,21 +158,20 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         return results_it, total
 
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, PipelineContext))
 
         # Fetching the input data.
-        labels_scaler = input_data.provide("labels_scaler")
+        labels_scaler = pipeline_ctx.provide("labels_scaler")
 
         # Try to obrain from the specific input variable.
-        samples_filepath = input_data.provide_or_none("opennre_samples_filepath")
+        samples_filepath = pipeline_ctx.provide_or_none("opennre_samples_filepath")
         if samples_filepath is None:
-            samples_io = input_data.provide("samples_io")
+            samples_io = pipeline_ctx.provide("samples_io")
             samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
         # Initialize model if the latter has not been yet.
         if self.__model is None:
 
-            ckpt_dir = input_data.provide_or_none("opennre_ckpt_cache_dir")
+            ckpt_dir = pipeline_ctx.provide_or_none("opennre_ckpt_cache_dir")
 
             self.__model = self.init_bert_model(
                 pretrain_path=self.__pretrained_bert,
@@ -189,5 +185,5 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                 dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 
         iter_infer, total = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
-        input_data.update("iter_infer", iter_infer)
-        input_data.update("iter_total", total)
+        pipeline_ctx.update("iter_infer", iter_infer)
+        pipeline_ctx.update("iter_total", total)

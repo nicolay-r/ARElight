@@ -1,11 +1,11 @@
 from arekit.common.data.rows_fmt import create_base_column_fmt
 from arekit.common.data.rows_parser import ParsedSampleRow
+from arekit.common.pipeline.base import BasePipelineLauncher
 
 import utils
 import unittest
 from os.path import join
 
-from arekit.common.pipeline.base import BasePipeline
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
@@ -43,9 +43,9 @@ class TestAREkitIterData(unittest.TestCase):
                                prefix="arekit-iter-data",
                                writer=None)
 
-        pipeline = BasePipeline(pipeline=[
+        pipeline = [
             D3jsGraphsBackendPipelineItem()
-        ])
+        ]
 
         ppl_result = PipelineResult({
             "labels_scaler": CustomLabelScaler(),
@@ -55,5 +55,6 @@ class TestAREkitIterData(unittest.TestCase):
         })
         ppl_result.update("samples_io", samples_io)
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
-        pipeline.run(input_data=ppl_result)
+
+        BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=ppl_result, src_key="labels_scaler")
 

@@ -7,16 +7,16 @@ from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
-from arekit.common.pipeline.base import BasePipeline
+from arekit.common.pipeline.base import BasePipelineLauncher
+from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
-from arekit.common.text.parser import BaseTextParser
+from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.utils.data.readers.sqlite import SQliteReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.io_utils.samples import SamplesIO
-from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.pipelines.items.text.translator import MLTextTranslatorPipelineItem
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
@@ -161,6 +161,7 @@ if __name__ == '__main__':
                                          display_value_func=__entity_display_value),
         # Parser based on DeepPavlov backend.
         "deeppavlov": lambda: DeepPavlovNERPipelineItem(
+            src_func=lambda text: split_by_whitespaces(text),
             obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
             ner_model_name=ner_model_name,
             id_assigner=IdAssigner(),
@@ -209,8 +210,6 @@ if __name__ == '__main__':
         infer_engines={key: infer_engines_setup[key] for key in [args.bert_framework]},
         backend_engines={key: backend_setups[key] for key in [args.backend]})
 
-    pipeline = BasePipeline(pipeline)
-
     # Settings.
     settings = []
 
@@ -240,15 +239,15 @@ if __name__ == '__main__':
         synonyms = synonyms_setup["lemmatized" if args.stemmer is not None else None]()
 
         # Setup text parser.
-        text_parser = BaseTextParser(pipeline=[
-            TermsSplitterParser() if ner_framework == "deeppavlov" else None,
+        text_parser_pipeline = [
+            BasePipelineItem(src_func=lambda s: s.Text),
             entity_parsers[ner_framework](),
             CustomTermsSplitterPipelineItem() if ner_framework == "transformers" else None,
             text_translator_setup["ml-based" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
-        ])
+        ]
 
         # Reading from the optionally large list of files.
         doc_provider = CachedFilesDocProvider(
@@ -263,7 +262,7 @@ if __name__ == '__main__':
             dist_in_terms_bound=terms_per_context,
             doc_provider=doc_provider,
             terms_per_context=terms_per_context,
-            text_parser=text_parser)
+            text_pipeline=text_parser_pipeline)
 
         settings.append({
             "data_type_pipelines": {DataType.Test: data_pipeline},
@@ -288,4 +287,5 @@ if __name__ == '__main__':
     })
 
     # Launch application.
-    pipeline.run(input_data=PipelineResult(merge_dictionaries(settings)))
+    BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=PipelineResult(merge_dictionaries(settings)),
+                             src_key="doc_ids")

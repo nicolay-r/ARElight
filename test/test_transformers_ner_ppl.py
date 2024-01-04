@@ -1,8 +1,10 @@
 import unittest
 import time
-
-from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from tqdm import tqdm
+
+from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.common.text.partitioning.str import StringPartitioning
+from arekit.common.utils import split_by_whitespaces
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
@@ -48,7 +50,8 @@ class TestTransformersNERPipeline(unittest.TestCase):
         # Declare input texts.
 
         ppl_items = [
-            TransformersNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="dslim/bert-base-NER", device="cpu"),
+            TransformersNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="dslim/bert-base-NER", device="cpu",
+                                        src_func=lambda s: s.Text, partitioning=StringPartitioning()),
             CustomTermsSplitterPipelineItem(),
         ]
 
@@ -57,8 +60,10 @@ class TestTransformersNERPipeline(unittest.TestCase):
     def test_benchmark(self):
 
         ppl_items = [
-            TermsSplitterParser(),
-            DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="ner_ontonotes_bert")
+            BasePipelineItem(src_func=lambda s: s.Text),
+            DeepPavlovNERPipelineItem(id_assigner=IdAssigner(),
+                                      src_func=lambda text: split_by_whitespaces(text),
+                                      ner_model_name="ner_ontonotes_bert")
         ]
 
         test_ner(texts=self.get_texts(),

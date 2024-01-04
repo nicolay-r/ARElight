@@ -5,9 +5,9 @@ from zipfile import ZipFile
 
 from arekit.common.docs.base import Document
 from arekit.common.docs.sentence import BaseDocumentSentence
-from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
+from arelight.synonyms import iter_synonym_groups
 from arelight.utils import auto_import, iter_csv_lines
 
 logger = logging.getLogger(__name__)

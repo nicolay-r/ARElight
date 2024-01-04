@@ -1,3 +1,6 @@
+from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.common.utils import split_by_whitespaces
+
 import utils
 from os.path import join, realpath, dirname
 
@@ -16,11 +19,8 @@ from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.docs.sentence import BaseDocumentSentence
 from arekit.common.experiment.data_type import DataType
-from arekit.common.pipeline.base import BasePipeline
+from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
-from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.source.synonyms.utils import iter_synonym_groups
-from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
@@ -29,6 +29,7 @@ from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
+from arelight.synonyms import iter_synonym_groups
 from arelight.utils import IdAssigner
 
 from ru_sent_tokenize import ru_sent_tokenize
@@ -87,22 +88,22 @@ class TestInfer(unittest.TestCase):
         # We consider a texts[0] from the constant list.
         actual_content = self.texts
 
-        pipeline = BasePipeline(pipeline)
         synonyms = SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
 
         id_assigner = IdAssigner()
 
         # Setup text parsing.
-        text_parser = BaseTextParser(pipeline=[
-            TermsSplitterParser(),
+        text_parser = [
+            BasePipelineItem(src_func=lambda s: s.Text),
             DeepPavlovNERPipelineItem(ner_model_name="ner_ontonotes_bert_mult",
+                                      src_func=lambda text: split_by_whitespaces(text),
                                       id_assigner=id_assigner,
                                       obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
                                       chunk_limit=128),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
-        ])
+        ]
 
         data_pipeline = create_neutral_annotation_pipeline(
             synonyms=synonyms,
@@ -110,14 +111,16 @@ class TestInfer(unittest.TestCase):
             dist_in_sentences=0,
             doc_provider=utils.InMemoryDocProvider(docs=self.input_to_docs(actual_content)),
             terms_per_context=50,
-            text_parser=text_parser)
+            text_pipeline=text_parser)
 
-        pipeline.run(input_data=PipelineContext(d={
-            "labels_scaler": CustomLabelScaler(),
-            "predict_filepath": join(utils.TEST_OUT_DIR, "predict.tsv.gz"),
-            "data_type_pipelines": {DataType.Test: data_pipeline},
-            "doc_ids": list(range(len(actual_content))),
-        }))
+        BasePipelineLauncher.run(pipeline=pipeline,
+                                 pipeline_ctx=PipelineContext(d={
+                                     "labels_scaler": CustomLabelScaler(),
+                                     "predict_filepath": join(utils.TEST_OUT_DIR, "predict.tsv.gz"),
+                                     "data_type_pipelines": {DataType.Test: data_pipeline},
+                                     "doc_ids": list(range(len(actual_content))),
+                                 }),
+                                 src_key="labels_scaler")
 
     def test_opennre(self):
 
@@ -130,8 +133,14 @@ class TestInfer(unittest.TestCase):
                     "pretrained_bert": "DeepPavlov/rubert-base-cased",
                     "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
                     "device_type": "cpu",
-                    "max_seq_length": 128
-                }
-            })
+                    "max_seq_length": 128,
+                    "task_kwargs": {
+                        "no_label": "0",
+                        "default_id_column": "id",
+                        "index_columns": ["s_ind", "t_ind"],
+                        "text_columns": ["text_a", "text_b"]
+                    },
+        }
+        })
 
         self.launch(pipeline)

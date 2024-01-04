@@ -4,7 +4,7 @@ import utils
 from os.path import join, exists
 import pandas as pd
 
-from arekit.common.pipeline.base import BasePipeline
+from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.contrib.utils.data.readers.jsonl import JsonlReader
 from arekit.contrib.utils.io_utils.samples import SamplesIO
 
@@ -90,7 +90,6 @@ class TestBackendD3JS(unittest.TestCase):
                                reader=JsonlReader(),
                                writer=None)
 
-        pipeline = BasePipeline(ppl)
         ppl_result = PipelineResult(extra_params={
             "samples_io": samples_io,
             "labels_scaler": CustomLabelScaler(),
@@ -99,4 +98,4 @@ class TestBackendD3JS(unittest.TestCase):
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
         ppl_result.update("labels_formatter", value=CustomLabelsFormatter())
 
-        pipeline.run(input_data=ppl_result)
+        BasePipelineLauncher.run(pipeline=ppl, pipeline_ctx=ppl_result, src_key="samples_io")

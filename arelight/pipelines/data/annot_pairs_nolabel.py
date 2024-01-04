@@ -9,7 +9,7 @@ from arekit.contrib.utils.pipelines.text_opinion.filters.distance_based import D
 
 
 def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_context,
-                                       doc_provider, text_parser, dist_in_sentences=0):
+                                       doc_provider, text_pipeline, dist_in_sentences=0):
 
     nolabel_annotator = AlgorithmBasedTextOpinionAnnotator(
         value_to_group_id_func=lambda value:
@@ -28,7 +28,7 @@ def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_
 
     annotation_pipeline = text_opinion_extraction_pipeline(
         entity_index_func=lambda indexed_entity: indexed_entity.ID,
-        text_parser=text_parser,
+        pipeline_items=text_pipeline,
         get_doc_by_id_func=doc_provider.by_id,
         annotators=[
             nolabel_annotator

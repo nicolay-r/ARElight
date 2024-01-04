@@ -2,7 +2,7 @@ import argparse
 import os
 from datetime import datetime
 
-from arekit.common.pipeline.base import BasePipeline
+from arekit.common.pipeline.base import BasePipelineLauncher
 
 from arelight.backend.d3js.relations_graph_operations import OP_UNION, OP_DIFFERENCE, OP_INTERSECTION
 from arelight.backend.d3js.ui_web import GRAPH_TYPE_FORCE
@@ -117,21 +117,19 @@ if __name__ == '__main__':
     description = args.description if args.description else \
         get_input_with_default("Specify description of new graph (enter to skip)\n", default_description)
 
-    pipeline = BasePipeline([
-        D3jsGraphOperationsBackendPipelineItem()
-    ])
-
     labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
 
     # Launch application.
-    pipeline.run(input_data=PipelineResult({
-        # We provide this settings for inference.
-        "labels_formatter": CustomLabelsFormatter(**labels_fmt),
-        "d3js_graph_output_dir": output_dir,
-        "d3js_collection_description": description,
-        "d3js_host": str(8000) if do_host else None,
-        "d3js_graph_a": load_graph(graph_A_file_path),
-        "d3js_graph_b": load_graph(graph_B_file_path),
-        "d3js_graph_operations": operation,
-        "d3js_collection_name": collection_name
+    BasePipelineLauncher.run(
+        pipeline=[D3jsGraphOperationsBackendPipelineItem()],
+        pipeline_ctx=PipelineResult({
+            # We provide this settings for inference.
+            "labels_formatter": CustomLabelsFormatter(**labels_fmt),
+            "d3js_graph_output_dir": output_dir,
+            "d3js_collection_description": description,
+            "d3js_host": str(8000) if do_host else None,
+            "d3js_graph_a": load_graph(graph_A_file_path),
+            "d3js_graph_b": load_graph(graph_B_file_path),
+            "d3js_graph_operations": operation,
+            "d3js_collection_name": collection_name
     }))

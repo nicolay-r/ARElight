@@ -7,7 +7,6 @@ from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
-from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 
 from arelight.arekit.parse_predict import iter_predicted_labels
@@ -20,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
-    def __init__(self, graph_min_links=0.01, graph_a_labels=None, weights=True):
+    def __init__(self, graph_min_links=0.01, graph_a_labels=None, weights=True, **kwargs):
+        super(D3jsGraphsBackendPipelineItem, self).__init__(**kwargs)
         self.__graph_min_links = graph_min_links
 
         # Setup filters for the A and B graphs for further operations application.
@@ -58,19 +58,18 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
             yield parsed_row[column_value]
 
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, PipelineContext))
 
-        predict_filepath = input_data.provide("predict_filepath")
-        result_reader = input_data.provide("predict_reader")
-        labels_fmt = input_data.provide("labels_formatter")
+        predict_filepath = pipeline_ctx.provide("predict_filepath")
+        result_reader = pipeline_ctx.provide("predict_reader")
+        labels_fmt = pipeline_ctx.provide("labels_formatter")
         assert(isinstance(labels_fmt, StringLabelsFormatter))
-        labels_scaler = input_data.provide("labels_scaler")
+        labels_scaler = pipeline_ctx.provide("labels_scaler")
         assert(isinstance(labels_scaler, BaseLabelScaler))
         predict_storage = result_reader.read(predict_filepath)
         assert(isinstance(predict_storage, BaseRowsStorage))
 
         # Reading samples.
-        samples_io = input_data.provide("samples_io")
+        samples_io = pipeline_ctx.provide("samples_io")
         samples_filepath = samples_io.create_target(data_type=DataType.Test)
         samples = samples_io.Reader.read(samples_filepath)
 
@@ -90,5 +89,5 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
             weights=self.__graph_weights)
 
         # Saving graph as the collection name for it.
-        input_data.update("d3js_graph_a", value=graph)
-        input_data.update("d3js_collection_name", value=samples_io.Prefix)
+        pipeline_ctx.update("d3js_graph_a", value=graph)
+        pipeline_ctx.update("d3js_collection_name", value=samples_io.Prefix)
