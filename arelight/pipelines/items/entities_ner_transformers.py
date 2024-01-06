@@ -1,11 +1,13 @@
 from arekit.common.bound import Bound
-from arekit.common.docs.objects_parser import SentenceObjectsParserPipelineItem
+from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.common.text.partitioning.str import StringPartitioning
+from arekit.common.utils import split_by_whitespaces
 
 from arelight.pipelines.items.entity import IndexedEntity
 from arelight.utils import IdAssigner, auto_import
 
 
-class TransformersNERPipelineItem(SentenceObjectsParserPipelineItem):
+class TransformersNERPipelineItem(BasePipelineItem):
 
     def __init__(self, id_assigner, ner_model_name, device, obj_filter=None, display_value_func=None, **kwargs):
         """ chunk_limit: int
@@ -28,8 +30,11 @@ class TransformersNERPipelineItem(SentenceObjectsParserPipelineItem):
         self.__obj_filter = obj_filter
         self.__id_assigner = id_assigner
         self.__disp_value_func = display_value_func
+        self.__partitioning = StringPartitioning()
 
-    def _get_parts_provider_func(self, input_data):
+    # region Private methods
+
+    def __get_parts_provider_func(self, input_data):
         assert(isinstance(input_data, str))
         parts = self.annotate_ner(model=self.__model, tokenizer=self.__tokenizer, text=input_data,
                                   device=self.__device)
@@ -52,3 +57,19 @@ class TransformersNERPipelineItem(SentenceObjectsParserPipelineItem):
                 display_value=self.__disp_value_func(value) if self.__disp_value_func is not None else None)
 
             yield entity, Bound(pos=p["start"], length=p["end"] - p["start"])
+
+    @staticmethod
+    def __iter_fixed_terms(terms):
+        for e in terms:
+            if isinstance(e, str):
+                for term in split_by_whitespaces(e):
+                    yield term
+            else:
+                yield e
+
+    # endregion
+
+    def apply_core(self, input_data, pipeline_ctx):
+        parts_it = self.__get_parts_provider_func(input_data)
+        handled = self.__partitioning.provide(text=input_data, parts_it=parts_it)
+        return list(self.__iter_fixed_terms(handled))

@@ -31,7 +31,6 @@ from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
-from arelight.pipelines.items.terms_splitter import CustomTermsSplitterPipelineItem
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
     create_translate_model, is_port_number, iter_content, OPENNRE_CHECKPOINTS
 from arelight.samplers.bert import create_bert_sample_provider
@@ -242,7 +241,6 @@ if __name__ == '__main__':
         text_parser_pipeline = [
             BasePipelineItem(src_func=lambda s: s.Text),
             entity_parsers[ner_framework](),
-            CustomTermsSplitterPipelineItem() if ner_framework == "transformers" else None,
             text_translator_setup["ml-based" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(

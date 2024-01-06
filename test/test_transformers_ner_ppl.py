@@ -3,12 +3,10 @@ import time
 from tqdm import tqdm
 
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.text.partitioning.str import StringPartitioning
 from arekit.common.utils import split_by_whitespaces
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
-from arelight.pipelines.items.terms_splitter import CustomTermsSplitterPipelineItem
 from arelight.third_party.transformers import annotate_ner_ppl, init_token_classification_model, annotate_ner
 from arelight.utils import IdAssigner
 from utils_ner import test_ner
@@ -50,9 +48,9 @@ class TestTransformersNERPipeline(unittest.TestCase):
         # Declare input texts.
 
         ppl_items = [
-            TransformersNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="dslim/bert-base-NER", device="cpu",
-                                        src_func=lambda s: s.Text, partitioning=StringPartitioning()),
-            CustomTermsSplitterPipelineItem(),
+            TransformersNERPipelineItem(id_assigner=IdAssigner(),
+                                        ner_model_name="dslim/bert-base-NER", device="cpu",
+                                        src_func=lambda s: s.Text)
         ]
 
         test_ner(texts=self.get_texts(), ner_ppl_items=ppl_items, prefix="transformers-ner")
