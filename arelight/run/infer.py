@@ -12,6 +12,7 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
+from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from arekit.contrib.utils.data.readers.sqlite import SQliteReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
@@ -31,6 +32,8 @@ from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
+from arelight.predict.writer_csv import TsvPredictWriter
+from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
     create_translate_model, is_port_number, iter_content, OPENNRE_CHECKPOINTS
 from arelight.samplers.bert import create_bert_sample_provider
@@ -54,6 +57,7 @@ if __name__ == '__main__':
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov", "transformers"], default="deeppavlov")
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
+    parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
     parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=["googletrans"])
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
@@ -203,11 +207,27 @@ if __name__ == '__main__':
         }
     }
 
+    predict_writers = {
+        "tsv": TsvPredictWriter(),
+        "sqlite3": SQLite3PredictWriter(table_name="open_nre_bert")
+    }
+
+    predict_readers = {
+        "tsv": PandasCsvReader(compression='infer'),
+        "sqlite3": SQliteReader(table_name="open_nre_bert")
+    }
+
+    predict_extension = {
+        "tsv": ".tsv.gz",
+        "sqlite3": ".sqlite"
+    }
+
     # Setup main pipeline.
     pipeline = demo_infer_texts_bert_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in [args.sampling_framework]},
         infer_engines={key: infer_engines_setup[key] for key in [args.bert_framework]},
-        backend_engines={key: backend_setups[key] for key in [args.backend]})
+        backend_engines={key: backend_setups[key] for key in [args.backend]},
+        inference_writer=predict_writers[args.inference_writer])
 
     # Settings.
     settings = []
@@ -280,10 +300,11 @@ if __name__ == '__main__':
     settings.append({
         "labels_scaler": labels_scaler,
         # We provide this settings for inference.
-        "predict_filepath": join(output_dir, "{}-predict.tsv.gz".format(collection_name)),
+        "predict_filepath": join(output_dir, f"{collection_name}-test{predict_extension[args.inference_writer]}"),
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
+        "predict_reader": predict_readers[args.inference_writer]
     })
 
     # Launch application.
     BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=PipelineResult(merge_dictionaries(settings)),
-                             src_key="doc_ids")
+                             src_key="labels_scaler")

@@ -3,7 +3,7 @@ import logging
 
 from arekit.common.utils import progress_bar_defined, create_dir_if_not_exists
 
-from arelight.predict_writer import BasePredictWriter
+from arelight.predict.writer import BasePredictWriter
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -20,10 +20,10 @@ class TsvPredictWriter(BasePredictWriter):
         line = "{}\n".format(self.__col_separator.join([str(p) for p in params]))
         self.__f.write(line.encode())
 
-    def write(self, title, contents_it, total=None):
-        self.__write(title)
+    def write(self, header, contents_it, total=None):
+        self.__write(header)
 
-        wrapped_it = progress_bar_defined(iterable=contents_it, desc='Writing output', unit='rows', total=total)
+        wrapped_it = progress_bar_defined(iterable=contents_it, desc='Writing output (tsv)', unit='rows', total=total)
 
         for contents in wrapped_it:
             self.__write(contents)

@@ -9,6 +9,7 @@ def iter_predicted_labels(predict_data, label_to_str, keep_ind=True):
 
         rel_type = None
         for col_label, rel_name in label_to_str.items():
+            print(row)
             if row[col_label] > 0:
                 rel_type = rel_name
                 break

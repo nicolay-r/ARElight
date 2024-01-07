@@ -9,10 +9,9 @@ from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.items.base import BasePipelineItem
 
-from arelight.arekit.parse_predict import iter_predicted_labels
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
-
+from arelight.predict.provider import BasePredictProvider
 
 logger = logging.getLogger(__name__)
 
@@ -74,9 +73,12 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         samples = samples_io.Reader.read(samples_filepath)
 
         # Reading labels.
-        labels_to_str = {str(labels_scaler.label_to_uint(label)): labels_fmt.label_to_str(label)
-                         for label in labels_scaler.ordered_suppoted_labels()}
-        labels = list(iter_predicted_labels(predict_data=predict_storage, label_to_str=labels_to_str, keep_ind=False))
+        uint_labels = BasePredictProvider.iter_from_storage(
+            predict_data=predict_storage,
+            uint_labels=[labels_scaler.label_to_uint(label) for label in labels_scaler.ordered_suppoted_labels()],
+            keep_ind=False)
+
+        labels = list(map(lambda item: labels_fmt.label_to_str(labels_scaler.uint_to_label(item)), uint_labels))
 
         graph = make_graph_from_relations_array(
             relations=self.__iter_relations(samples=samples,

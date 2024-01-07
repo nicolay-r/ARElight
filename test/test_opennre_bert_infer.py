@@ -10,8 +10,8 @@ from opennre.encoder import BERTEncoder
 from opennre.model import SoftmaxNN
 
 from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInferencePipelineItem
-from arelight.predict_provider import BasePredictProvider
-from arelight.predict_writer_csv import TsvPredictWriter
+from arelight.predict.provider import BasePredictProvider
+from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.run.utils import OPENNRE_CHECKPOINTS
 from arelight.third_party.torch import sentence_re_loader
 
@@ -68,11 +68,11 @@ class TestLoadModel(unittest.TestCase):
                 eval_loader=eval_loader)
 
             # Gathering the content
-            title, contents_it = BasePredictProvider().provide(
+            header, contents_it = BasePredictProvider.provide_to_storage(
                 sample_id_with_uint_labels_iter=it_results,
-                labels_count=3)
+                uint_labels=list(range(3)))
 
             w = TsvPredictWriter()
             w.set_target(output_file_gzip)
             with w:
-                w.write(title=title, contents_it=contents_it)
+                w.write(header=header, contents_it=contents_it)
