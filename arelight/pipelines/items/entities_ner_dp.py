@@ -1,6 +1,6 @@
 from arekit.common.bound import Bound
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.text.partitioning.terms import TermsPartitioning
+from arekit.common.text.partitioning import Partitioning
 
 from arelight.ner.deep_pavlov import DeepPavlovNER
 from arelight.ner.obj_desc import NerObjectDescriptor
@@ -27,7 +27,7 @@ class DeepPavlovNERPipelineItem(BasePipelineItem):
         self.__chunk_limit = chunk_limit
         self.__id_assigner = id_assigner
         self.__disp_value_func = display_value_func
-        self.__partitioning = TermsPartitioning()
+        self.__partitioning = Partitioning(text_fmt="list")
 
     def __iter_subs_values_with_bounds(self, terms_list):
         assert(isinstance(terms_list, list))

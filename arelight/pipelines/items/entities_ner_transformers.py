@@ -1,6 +1,6 @@
 from arekit.common.bound import Bound
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.text.partitioning.str import StringPartitioning
+from arekit.common.text.partitioning import Partitioning
 from arekit.common.utils import split_by_whitespaces
 
 from arelight.pipelines.items.entity import IndexedEntity
@@ -30,7 +30,7 @@ class TransformersNERPipelineItem(BasePipelineItem):
         self.__obj_filter = obj_filter
         self.__id_assigner = id_assigner
         self.__disp_value_func = display_value_func
-        self.__partitioning = StringPartitioning()
+        self.__partitioning = Partitioning(text_fmt="str")
 
     # region Private methods
 
