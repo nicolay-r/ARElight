@@ -19,7 +19,7 @@ class SQLite3PredictWriter(BasePredictWriter):
 
         content_header = header[1:]
         SQLiteProvider.write(
-            columns=[f"col_{col_name}" for col_name in content_header],
+            columns=content_header,
             target=self._target,
             table_name=self.__table_name,
             data2col_func=lambda data: data,
