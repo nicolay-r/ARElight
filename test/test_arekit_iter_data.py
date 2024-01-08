@@ -52,9 +52,10 @@ class TestAREkitIterData(unittest.TestCase):
             "labels_formatter": CustomLabelsFormatter(),
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
             "d3js_host": None,
+            "predict_reader": PandasCsvReader(compression='infer')
         })
         ppl_result.update("samples_io", samples_io)
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
 
-        BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=ppl_result, src_key="labels_scaler")
+        BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=ppl_result, has_input=False)
 

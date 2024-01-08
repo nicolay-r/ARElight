@@ -7,6 +7,7 @@ import pandas as pd
 from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.contrib.utils.data.readers.jsonl import JsonlReader
 from arekit.contrib.utils.io_utils.samples import SamplesIO
+from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 
 
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
@@ -94,6 +95,7 @@ class TestBackendD3JS(unittest.TestCase):
             "samples_io": samples_io,
             "labels_scaler": CustomLabelScaler(),
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
+            "predict_reader": PandasCsvReader(compression='infer'),
         })
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
         ppl_result.update("labels_formatter", value=CustomLabelsFormatter())

@@ -66,4 +66,4 @@ def test_ner(texts, ner_ppl_items, prefix):
         "data_type_pipelines": {DataType.Test: test_pipeline}
     })
 
-    BasePipelineLauncher.run(pipeline=pipeline_items, pipeline_ctx=ctx, src_key="doc_ids")
+    BasePipelineLauncher.run(pipeline=pipeline_items, pipeline_ctx=ctx, has_input=False)

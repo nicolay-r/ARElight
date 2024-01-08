@@ -73,12 +73,12 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         samples = samples_io.Reader.read(samples_filepath)
 
         # Reading labels.
-        uint_labels = BasePredictProvider.iter_from_storage(
+        uint_labels_iter = BasePredictProvider.iter_from_storage(
             predict_data=predict_storage,
             uint_labels=[labels_scaler.label_to_uint(label) for label in labels_scaler.ordered_suppoted_labels()],
             keep_ind=False)
 
-        labels = list(map(lambda item: labels_fmt.label_to_str(labels_scaler.uint_to_label(item)), uint_labels))
+        labels = list(map(lambda item: labels_fmt.label_to_str(labels_scaler.uint_to_label(item)), uint_labels_iter))
 
         graph = make_graph_from_relations_array(
             relations=self.__iter_relations(samples=samples,

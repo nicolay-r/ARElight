@@ -307,4 +307,4 @@ if __name__ == '__main__':
 
     # Launch application.
     BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=PipelineResult(merge_dictionaries(settings)),
-                             src_key="labels_scaler")
+                             has_input=False)

@@ -27,6 +27,7 @@ from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotatio
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
+from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.synonyms import iter_synonym_groups
@@ -120,11 +121,12 @@ class TestInfer(unittest.TestCase):
                                      "data_type_pipelines": {DataType.Test: data_pipeline},
                                      "doc_ids": list(range(len(actual_content))),
                                  }),
-                                 src_key="labels_scaler")
+                                 has_input=False)
 
     def test_opennre(self):
 
         pipeline = demo_infer_texts_bert_pipeline(
+            inference_writer=TsvPredictWriter(),
             sampling_engines={
                 "arekit": self.create_sampling_params()
             },
