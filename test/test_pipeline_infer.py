@@ -14,7 +14,6 @@ from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt impo
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.docs.sentence import BaseDocumentSentence
@@ -23,6 +22,7 @@ from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
+from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
@@ -31,7 +31,7 @@ from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.synonyms import iter_synonym_groups
-from arelight.utils import IdAssigner
+from arelight.utils import IdAssigner, get_default_download_dir
 
 from ru_sent_tokenize import ru_sent_tokenize
 
@@ -69,6 +69,9 @@ class TestInfer(unittest.TestCase):
         return docs
 
     def create_sampling_params(self):
+
+        target_func = lambda data_type: join(utils.TEST_OUT_DIR, "-".join(["samples", data_type.name.lower()]))
+
         return {
             "rows_provider": create_bert_sample_provider(
                 label_scaler=SingleLabelScaler(NoLabel()),
@@ -76,9 +79,7 @@ class TestInfer(unittest.TestCase):
                 entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
                 crop_window=50),
             "save_labels_func": lambda _: False,
-            "samples_io": SamplesIO(target_dir=utils.TEST_OUT_DIR,
-                                    reader=JsonlReader(),
-                                    writer=SQliteWriter()),
+            "samples_io": CustomSamplesIO(create_target_func=target_func, reader=JsonlReader(), writer=SQliteWriter()),
             "storage": RowCacheStorage(force_collect_columns=[
                 const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
             ])
@@ -133,7 +134,7 @@ class TestInfer(unittest.TestCase):
             infer_engines={
                 "opennre": {
                     "pretrained_bert": "DeepPavlov/rubert-base-cased",
-                    "checkpoint_path": "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar",
+                    "checkpoint_path": join(get_default_download_dir(), "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar"),
                     "device_type": "cpu",
                     "max_seq_length": 128,
                     "task_kwargs": {

@@ -39,7 +39,7 @@ class TestDeepPavlovNERPipeline(unittest.TestCase):
                                       ner_model_name="ner_ontonotes_bert_mult")
         ]
 
-        test_ner(texts=texts, ner_ppl_items=ner_ppl_items, prefix="dp_ner")
+        test_ner(texts=texts, ner_ppl_items=ner_ppl_items, collection_name="dp_ner")
 
 
 if __name__ == '__main__':

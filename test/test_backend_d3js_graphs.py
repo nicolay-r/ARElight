@@ -6,10 +6,9 @@ import pandas as pd
 
 from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.contrib.utils.data.readers.jsonl import JsonlReader
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 
-
+from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.utils_graph import save_graph
@@ -87,9 +86,8 @@ class TestBackendD3JS(unittest.TestCase):
                 }
             })
 
-        samples_io = SamplesIO(target_dir=utils.TEST_OUT_DIR,
-                               reader=JsonlReader(),
-                               writer=None)
+        target_func = lambda data_type: join(utils.TEST_OUT_DIR, "-".join(["sample", data_type.name.lower()]))
+        samples_io = CustomSamplesIO(create_target_func=target_func, reader=JsonlReader())
 
         ppl_result = PipelineResult(extra_params={
             "samples_io": samples_io,

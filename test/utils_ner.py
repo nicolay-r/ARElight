@@ -1,3 +1,5 @@
+from os.path import join
+
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
@@ -8,10 +10,10 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.sampling.base import BaseSerializerPipelineItem
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
+from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
@@ -19,7 +21,7 @@ from arelight.samplers.types import BertSampleProviderTypes
 import utils
 
 
-def test_ner(texts, ner_ppl_items, prefix):
+def test_ner(texts, ner_ppl_items, collection_name):
     assert(isinstance(texts, list))
 
     synonyms = SimpleSynonymCollection(iter_group_values_lists=[], is_read_only=False)
@@ -43,13 +45,15 @@ def test_ner(texts, ner_ppl_items, prefix):
         entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
         crop_window=50)
 
+    # Target function.
+    create_target_func = lambda data_type: join(
+        utils.TEST_OUT_DIR, "-".join([collection_name, data_type.name.lower()]))
+
     pipeline_items = [
         BaseSerializerPipelineItem(
             rows_provider=rows_provider,
             storage=RowCacheStorage(),
-            samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR,
-                                 writer=NativeCsvWriter(delimiter=','),
-                                 prefix=prefix),
+            samples_io=CustomSamplesIO(create_target_func=create_target_func, writer=NativeCsvWriter(delimiter=',')),
             save_labels_func=lambda data_type: data_type != DataType.Test)
     ]
 

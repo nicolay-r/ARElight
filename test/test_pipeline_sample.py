@@ -19,12 +19,12 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 
+from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
@@ -104,7 +104,9 @@ class BertTestSerialization(unittest.TestCase):
                     entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
                     crop_window=50),
                 save_labels_func=lambda _: False,
-                samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=SQliteWriter()),
+                samples_io=CustomSamplesIO(
+                    create_target_func=lambda data_type: join(utils.TEST_OUT_DIR, "samples", data_type.name.lower()),
+                    writer=SQliteWriter()),
                 storage=RowCacheStorage(force_collect_columns=[
                     const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
             ]))

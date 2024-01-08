@@ -53,7 +53,7 @@ class TestTransformersNERPipeline(unittest.TestCase):
                                         src_func=lambda s: s.Text)
         ]
 
-        test_ner(texts=self.get_texts(), ner_ppl_items=ppl_items, prefix="transformers-ner")
+        test_ner(texts=self.get_texts(), ner_ppl_items=ppl_items, collection_name="transformers-ner")
 
     def test_benchmark(self):
 
@@ -66,4 +66,4 @@ class TestTransformersNERPipeline(unittest.TestCase):
 
         test_ner(texts=self.get_texts(),
                  ner_ppl_items=ppl_items,
-                 prefix="dp-ner")
+                 collection_name="dp-ner")

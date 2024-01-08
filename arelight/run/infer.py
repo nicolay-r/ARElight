@@ -17,12 +17,12 @@ from arekit.contrib.utils.data.readers.sqlite import SQliteReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.contrib.utils.pipelines.items.text.translator import MLTextTranslatorPipelineItem
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
+from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.doc_provider import CachedFilesDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
@@ -109,6 +109,8 @@ if __name__ == '__main__':
 
     collection_name = setup_collection_name(args.collection_name)
 
+    collection_target_func = lambda data_type: join(output_dir, "-".join([collection_name, data_type.name.lower()]))
+
     sampling_engines_setup = {
         None: {},
         "arekit": {
@@ -118,10 +120,9 @@ if __name__ == '__main__':
                 label_scaler=SingleLabelScaler(NoLabel()),
                 entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
                 crop_window=terms_per_context),
-            "samples_io": SamplesIO(target_dir=output_dir,
-                                    prefix=collection_name,
-                                    reader=SQliteReader(table_name="contents"),
-                                    writer=SQliteWriter(table_name="contents")),
+            "samples_io": CustomSamplesIO(create_target_func=collection_target_func,
+                                          reader=SQliteReader(table_name="contents"),
+                                          writer=SQliteWriter(table_name="contents")),
             "storage": RowCacheStorage(
                 force_collect_columns=[const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND]),
             "save_labels_func": lambda data_type: data_type != DataType.Test
@@ -300,7 +301,7 @@ if __name__ == '__main__':
     settings.append({
         "labels_scaler": labels_scaler,
         # We provide this settings for inference.
-        "predict_filepath": join(output_dir, f"{collection_name}-test{predict_extension[args.inference_writer]}"),
+        "predict_filepath": collection_target_func(DataType.Test),
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
         "predict_reader": predict_readers[args.inference_writer]
     })

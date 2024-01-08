@@ -92,4 +92,3 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
         # Saving graph as the collection name for it.
         pipeline_ctx.update("d3js_graph_a", value=graph)
-        pipeline_ctx.update("d3js_collection_name", value=samples_io.Prefix)
