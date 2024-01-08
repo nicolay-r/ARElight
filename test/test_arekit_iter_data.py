@@ -5,7 +5,6 @@ from os.path import join
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
 from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
-from arekit.contrib.utils.io_utils.samples import SamplesIO
 from arekit.common.data.rows_fmt import create_base_column_fmt
 from arekit.common.data.rows_parser import ParsedSampleRow
 from arekit.common.pipeline.base import BasePipelineLauncher
@@ -24,8 +23,8 @@ class TestAREkitIterData(unittest.TestCase):
         utils.TEST_DATA_DIR, "-".join(["arekit-iter-data", data_type.name.lower()]))
 
     def test(self):
-        samples_io = SamplesIO(create_target_func=TestAREkitIterData.samples_target_func,
-                               reader=PandasCsvReader(sep=',', compression=None, custom_extension=".csv"))
+        samples_io = CustomSamplesIO(create_target_func=TestAREkitIterData.samples_target_func,
+                                     reader=PandasCsvReader(sep=',', compression=None, custom_extension=".csv"))
         samples_filepath = samples_io.create_target(data_type=DataType.Test)
         samples = samples_io.Reader.read(samples_filepath)
         assert(isinstance(samples, BaseRowsStorage))
