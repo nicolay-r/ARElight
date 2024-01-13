@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from os.path import dirname, realpath, join
 
 from arekit.common.data.doc_provider import DocumentProvider
@@ -23,12 +24,14 @@ class InMemoryDocProvider(DocumentProvider):
         return len(self.__docs)
 
 
-def input_to_docs(texts):
-    assert(isinstance(texts, list))
+def input_to_docs(texts_iter, sent_tokenizer=ru_sent_tokenize):
+    assert(isinstance(texts_iter, Iterable) and not isinstance(texts_iter, str))
+
     docs = []
-    for doc_id, contents in enumerate(texts):
-        sentences = ru_sent_tokenize(contents)
+    for doc_id, contents in enumerate(texts_iter):
+        sentences = sent_tokenizer(contents)
         sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
         doc = Document(doc_id=doc_id, sentences=sentences)
         docs.append(doc)
+
     return docs
