@@ -52,7 +52,8 @@ class DocumentParsingBenchmark(unittest.TestCase):
         pd = DocumentParsers.parse_batch(doc=doc_provider.by_id(0),
                                          pipeline_items=text_parser_pipeline,
                                          parent_ppl_ctx=PipelineContext(d={IDLE_MODE: None}),
-                                         batch_size=16)
+                                         batch_size=16,
+                                         show_progress=True)
 
         for s in pd:
             assert(isinstance(s, BaseParsedText))
