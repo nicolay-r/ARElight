@@ -6,4 +6,5 @@ arekit @ git+https://github.com/nicolay-r/AREkit@0.25.0-rc
 open-nre==0.1.1
 nltk==3.8.1
 googletrans==3.1.0a0
+httpcore==0.9.1
 requests
