@@ -27,7 +27,32 @@ class DocumentParsingBenchmark(unittest.TestCase):
         with open(filepath, "r") as f:
             return f.read()
 
-    def test(self):
+    def test_ner(self):
+
+        # Declare text parser.
+        text_parser_pipeline = [
+            BasePipelineItem(src_func=lambda s: s.Text),
+            TransformersNERPipelineItem(id_assigner=IdAssigner(),
+                                        ner_model_name="dslim/bert-base-NER", device="cpu"),
+        ]
+
+        # Composing labels formatter and experiment preparation.
+        text = DocumentParsingBenchmark.read_text("data/book-war-and-peace-test.txt")
+        doc_provider = utils.InMemoryDocProvider(docs=utils.input_to_docs([text]))
+
+        print("Sentences:", doc_provider.by_id(0).SentencesCount)
+        pd = DocumentParsers.parse_batch(doc=doc_provider.by_id(0),
+                                         pipeline_items=text_parser_pipeline,
+                                         parent_ppl_ctx=PipelineContext(d={IDLE_MODE: None}),
+                                         batch_size=16,
+                                         show_progress=True)
+
+        for s in pd:
+            assert(isinstance(s, BaseParsedText))
+            for t in s.iter_terms(TermFormat.Raw):
+                print(t)
+
+    def test_translator(self):
 
         translator = create_translate_model("googletrans")
 
@@ -37,10 +62,7 @@ class DocumentParsingBenchmark(unittest.TestCase):
             MLTextTranslatorPipelineItem(
                 src_func=lambda text: split_by_whitespaces(text),
                 batch_translate_model=lambda content: translator(str_list=content, src="ru", dest="en"),
-                do_translate_entity=False),
-            TransformersNERPipelineItem(id_assigner=IdAssigner(),
-                                        ner_model_name="dslim/bert-base-NER", device="cpu",
-                                        src_func=lambda parts: " ".join(parts)),
+                do_translate_entity=False)
         ]
 
         # Composing labels formatter and experiment preparation.
