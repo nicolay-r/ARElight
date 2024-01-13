@@ -14,9 +14,7 @@ from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt impo
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.common.docs.base import Document
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.docs.sentence import BaseDocumentSentence
 from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
@@ -32,8 +30,6 @@ from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.synonyms import iter_synonym_groups
 from arelight.utils import IdAssigner, get_default_download_dir
-
-from ru_sent_tokenize import ru_sent_tokenize
 
 
 class TestInfer(unittest.TestCase):
@@ -56,17 +52,6 @@ class TestInfer(unittest.TestCase):
         with open(filepath, 'r', encoding='utf-8') as file:
             for data in iter_synonym_groups(file):
                 yield data
-
-    @staticmethod
-    def input_to_docs(texts):
-        assert(isinstance(texts, list))
-        docs = []
-        for doc_id, contents in enumerate(texts):
-            sentences = ru_sent_tokenize(contents)
-            sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
-            doc = Document(doc_id=doc_id, sentences=sentences)
-            docs.append(doc)
-        return docs
 
     def create_sampling_params(self):
 
@@ -111,7 +96,7 @@ class TestInfer(unittest.TestCase):
             synonyms=synonyms,
             dist_in_terms_bound=100,
             dist_in_sentences=0,
-            doc_provider=utils.InMemoryDocProvider(docs=self.input_to_docs(actual_content)),
+            doc_provider=utils.InMemoryDocProvider(docs=utils.input_to_docs(actual_content)),
             terms_per_context=50,
             text_pipeline=text_parser)
 
