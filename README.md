@@ -22,7 +22,7 @@ pip install git+https://github.com/nicolay-r/arelight@v0.24.1
 ```
 
 ## Usage: Inference
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/AREnets/blob/master/arenets_colab_tutorial.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
 
 Infer sentiment attitudes from text file **in English**:
 ```bash
