@@ -11,56 +11,48 @@ class BaseNER(object):
     inner_tag = 'I'
 
     def extract(self, sequences):
-        return self.__extract_objects_core(sequences=sequences)
-
-    def __extract_objects_core(self, sequences):
         assert(isinstance(sequences, list))
-        seqs_tags = self._extract_tags(sequences)
-        assert(len(sequences) == len(seqs_tags))
+        terms, labels = self._forward(sequences)
+        return self.iter_descriptors(terms=terms, labels=labels)
 
-        extracted = []
-        for sequence_ind, sequence in enumerate(sequences):
-            seq_tags = seqs_tags[sequence_ind]
-            objs_len = [len(entry) for entry in self.__merge(sequence, seq_tags)]
-            objs_type = [self.__tag_type(tag) for tag in seq_tags if self.__tag_part(tag) == self.begin_tag]
-            objs_positions = [j for j, tag in enumerate(seq_tags) if self.__tag_part(tag) == self.begin_tag]
+    def iter_descriptors(self, terms, labels):
+        assert(len(terms) == len(labels))
+        for seq, tags in zip(terms, labels):
+            objs_len = [len(entry) for entry in self.__iter_merged(seq, tags)]
+            objs_type = [self.__tag_type(tag) for tag in tags if self.__tag_part(tag) == self.begin_tag]
+            objs_positions = [j for j, tag in enumerate(tags) if self.__tag_part(tag) == self.begin_tag]
 
-            assert(len(objs_len) == len(objs_type) == len(objs_positions))
+            descriptors = [NerObjectDescriptor(pos=objs_positions[i], length=objs_len[i], obj_type=objs_type[i])
+                           for i in range(len(objs_len))]
+            yield seq, descriptors
 
-            seq_obj_descriptors = [NerObjectDescriptor(pos=objs_positions[i],
-                                                       length=objs_len[i],
-                                                       obj_type=objs_type[i])
-                                   for i in range(len(objs_len))]
-
-            extracted.append(seq_obj_descriptors)
-
-        return extracted
-
-    def _extract_tags(self, seqences):
+    def _forward(self, seqences):
         raise NotImplementedError()
 
     # region private methods
 
-    def __merge(self, terms, tags):
-        merged = []
+    def __iter_merged(self, terms, tags):
+        buffer = None
         for i, tag in enumerate(tags):
             current_tag = self.__tag_part(tag)
             if current_tag == self.begin_tag:
-                merged.append([terms[i]])
-            elif current_tag == self.inner_tag and len(merged) > 0:
-                merged[-1].append(terms[i])
-        return merged
+                if buffer is not None:
+                    yield buffer
+                buffer = [terms[i]]
+            elif current_tag == self.inner_tag and buffer is not None:
+                buffer.append(terms[i])
+
+        if buffer is not None:
+            yield buffer
 
     @staticmethod
     def __tag_part(tag):
         assert(isinstance(tag, str))
-        return tag if BaseNER.separator not in tag \
-            else tag[:tag.index(BaseNER.separator)]
+        return tag if BaseNER.separator not in tag else tag[:tag.index(BaseNER.separator)]
 
     @staticmethod
     def __tag_type(tag):
         assert(isinstance(tag, str))
-        return "" if BaseNER.separator not in tag \
-            else tag[tag.index(BaseNER.separator) + 1:]
+        return "" if BaseNER.separator not in tag else tag[tag.index(BaseNER.separator) + 1:]
 
     # endregion

@@ -16,11 +16,10 @@ class BertOntonotesTest(unittest.TestCase):
 
         ner = DeepPavlovNER(model_name="ner_ontonotes_bert_mult")
         tokens = self.text.split(' ')
-        sequences = ner.extract(sequences=[tokens])
+        it = ner.extract(sequences=[tokens])
 
-        print(len(sequences))
-        for s_objs in sequences:
-            for s_obj in s_objs:
+        for _, desc_list in it:
+            for s_obj in desc_list:
                 assert (isinstance(s_obj, NerObjectDescriptor))
                 print("----")
                 print(s_obj.ObjectType)

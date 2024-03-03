@@ -1,5 +1,3 @@
-from arekit.common.utils import split_by_whitespaces
-
 import utils
 from os.path import join
 
@@ -11,6 +9,7 @@ from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.entities.base import Entity
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.enums import TermFormat
+from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
@@ -41,7 +40,7 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
             text = f.read().rstrip()
 
         # Output parsed text.
-        parsed_doc = DocumentParsers.parse(doc=Document(doc_id=0, sentences=[text]), pipeline_items=pipeline_items)
+        parsed_doc = DocumentParsers.parse_batch(doc=Document(doc_id=0, sentences=[text]), pipeline_items=pipeline_items, batch_size=16)
         for t in parsed_doc.get_sentence(0).iter_terms(TermFormat.Raw):
             print("<{}> ({})".format(t.Value, t.Type) if isinstance(t, Entity) else t)
 
@@ -67,7 +66,7 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
         ]
 
         # Launch pipeline.
-        parsed_doc = DocumentParsers.parse(doc=Document(doc_id=0, sentences=[text]), pipeline_items=pipeline_items)
+        parsed_doc = DocumentParsers.parse_batch(doc=Document(doc_id=0, sentences=[text]), pipeline_items=pipeline_items, batch_size=16)
         for term in parsed_doc.get_sentence(0).iter_terms(TermFormat.Raw):
             if isinstance(term, IndexedEntity):
                 print(term.ID, term.GroupIndex, term.Value)
@@ -91,7 +90,7 @@ class BertOntonotesPipelineItemTest(unittest.TestCase):
             text = f.read().rstrip()
 
         # Output parsed text.
-        parsed_doc = DocumentParsers.parse(doc=Document(doc_id=0, sentences=[text]), pipeline_items=pipeline_items)
+        parsed_doc = DocumentParsers.parse_batch(doc=Document(doc_id=0, sentences=[text]), pipeline_items=pipeline_items, batch_size=16)
         for t in parsed_doc.get_sentence(0).iter_terms(TermFormat.Raw):
             print("<{}> ({})".format(t.Value, t.Type) if isinstance(t, Entity) else t)
 

@@ -8,7 +8,7 @@ from arekit.contrib.utils.pipelines.text_opinion.extraction import text_opinion_
 from arekit.contrib.utils.pipelines.text_opinion.filters.distance_based import DistanceLimitedTextOpinionFilter
 
 
-def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_context,
+def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_context, batch_size,
                                        doc_provider, text_pipeline, dist_in_sentences=0):
 
     nolabel_annotator = AlgorithmBasedTextOpinionAnnotator(
@@ -35,6 +35,7 @@ def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_
         ],
         text_opinion_filters=[
             DistanceLimitedTextOpinionFilter(terms_per_context)
-        ])
+        ],
+        batch_size=batch_size)
 
     return annotation_pipeline

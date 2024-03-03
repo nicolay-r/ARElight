@@ -11,6 +11,7 @@ from arekit.common.docs.parser import DocumentParsers
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.utils.pipelines.items.text.translator import MLTextTranslatorPipelineItem
 
+from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
 from arelight.run.utils import create_translate_model
 from arelight.utils import IdAssigner
@@ -27,7 +28,35 @@ class DocumentParsingBenchmark(unittest.TestCase):
         with open(filepath, "r") as f:
             return f.read()
 
-    def test_ner(self):
+    def test_ner_deeppavlov(self):
+
+        # Declare text parser.
+        text_parser_pipeline = [
+            BasePipelineItem(src_func=lambda s: s.Text),
+            DeepPavlovNERPipelineItem(
+                src_func=lambda text: split_by_whitespaces(text),
+                id_assigner=IdAssigner(),
+                obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                ner_model_name="ner_ontonotes_bert_mult"),
+        ]
+
+        # Composing labels formatter and experiment preparation.
+        text = DocumentParsingBenchmark.read_text("data/book-war-and-peace-test.txt")
+        doc_provider = utils.InMemoryDocProvider(docs=utils.input_to_docs([text]))
+
+        print("Sentences:", doc_provider.by_id(0).SentencesCount)
+        pd = DocumentParsers.parse_batch(doc=doc_provider.by_id(0),
+                                         pipeline_items=text_parser_pipeline,
+                                         parent_ppl_ctx=PipelineContext(d={IDLE_MODE: None}),
+                                         batch_size=16,
+                                         show_progress=True)
+
+        for s in pd:
+            assert (isinstance(s, BaseParsedText))
+            for t in s.iter_terms(TermFormat.Raw):
+                print(t)
+
+    def test_ner_transformers(self):
 
         # Declare text parser.
         text_parser_pipeline = [

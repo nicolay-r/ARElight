@@ -281,7 +281,8 @@ if __name__ == '__main__':
             dist_in_terms_bound=terms_per_context,
             doc_provider=doc_provider,
             terms_per_context=terms_per_context,
-            text_pipeline=text_parser_pipeline)
+            text_pipeline=text_parser_pipeline,
+            batch_size=args.batch_size)
 
         settings.append({
             "data_type_pipelines": {DataType.Test: data_pipeline},
