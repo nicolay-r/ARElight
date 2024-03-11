@@ -98,7 +98,8 @@ class TestInfer(unittest.TestCase):
             dist_in_sentences=0,
             doc_provider=utils.InMemoryDocProvider(docs=utils.input_to_docs(actual_content)),
             terms_per_context=50,
-            text_pipeline=text_parser)
+            text_pipeline=text_parser,
+            batch_size=10)
 
         BasePipelineLauncher.run(pipeline=pipeline,
                                  pipeline_ctx=PipelineContext(d={

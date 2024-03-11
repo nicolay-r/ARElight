@@ -106,7 +106,8 @@ class BertTestSerialization(unittest.TestCase):
                                                            dist_in_sentences=0,
                                                            doc_provider=doc_provider,
                                                            text_pipeline=text_parser_pipeline,
-                                                           terms_per_context=50)
+                                                           terms_per_context=50,
+                                                           batch_size=10)
 
         BasePipelineLauncher.run(pipeline=pipeline,
                                  pipeline_ctx=PipelineContext(d={

@@ -63,7 +63,8 @@ def test_ner(texts, ner_ppl_items, collection_name):
                                                        dist_in_sentences=0,
                                                        doc_provider=doc_provider,
                                                        text_pipeline=text_pipeline_items,
-                                                       terms_per_context=50)
+                                                       terms_per_context=50,
+                                                       batch_size=10)
 
     ctx = PipelineContext({
         "doc_ids": list(range(len(texts))),
