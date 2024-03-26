@@ -131,5 +131,6 @@ if __name__ == '__main__':
             "d3js_graph_a": load_graph(graph_A_file_path),
             "d3js_graph_b": load_graph(graph_B_file_path),
             "d3js_graph_operations": operation,
-            "d3js_collection_name": collection_name
+            "d3js_collection_name": collection_name,
+            "result": None
     }))
