@@ -12,7 +12,9 @@
 </p>
 
 ARElight is an application for a granular view onto sentiments between mentioned named entities 
-in texts.
+in texts. 
+This repository is a part of the **ECIR-2024** demo paper: 
+[ARElight: Context Sampling of Large Texts for Deep Learning Relation Extraction](https://link.springer.com/chapter/10.1007/978-3-031-56069-9_23).
 
 
 # Installation
