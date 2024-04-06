@@ -41,7 +41,8 @@ from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
 
-if __name__ == '__main__':
+
+def create_infer_parser():
 
     parser = argparse.ArgumentParser(description="Text inference example")
 
@@ -76,6 +77,14 @@ if __name__ == '__main__':
     parser.add_argument("--host", dest="d3js_host", default=None, type=str)
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument('-o', dest='output_template', type=str, default="output", nargs='?')
+
+    return parser
+
+
+if __name__ == '__main__':
+
+    # Completing list of arguments.
+    parser = create_infer_parser()
 
     # Parsing arguments.
     args = parser.parse_args()

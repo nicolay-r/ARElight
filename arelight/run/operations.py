@@ -58,12 +58,13 @@ def get_graph_path_interactive(text):
                 print("Invalid input. Please enter a number.")
 
 
-if __name__ == '__main__':
+def create_operations_parser():
 
     op_list = [OP_UNION, OP_INTERSECTION, OP_DIFFERENCE]
 
-    # Providing arguments.
     parser = argparse.ArgumentParser(description="Graph Operations")
+
+    # Providing arguments.
     parser.add_argument("--operation", required=False, choices=op_list,
                         help="Select operation: {ops}".format(ops=",".join(op_list)))
     parser.add_argument("--graph_a_file", required=False,
@@ -79,6 +80,14 @@ if __name__ == '__main__':
     parser.add_argument("--description", required=False, help="Specify description of new graph")
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument("--host", required=False, default=None, help="Server port for launching hosting (optional)")
+
+    return parser
+
+
+if __name__ == '__main__':
+
+    # Completing list of arguments.
+    parser = create_operations_parser()
 
     # Parsing arguments.
     args = parser.parse_args()
