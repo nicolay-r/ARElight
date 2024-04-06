@@ -60,7 +60,7 @@ def create_infer_parser():
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
     parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
-    parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=["googletrans"])
+    parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=[None, "googletrans"])
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)

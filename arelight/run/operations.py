@@ -58,9 +58,7 @@ def get_graph_path_interactive(text):
                 print("Invalid input. Please enter a number.")
 
 
-def create_operations_parser():
-
-    op_list = [OP_UNION, OP_INTERSECTION, OP_DIFFERENCE]
+def create_operations_parser(op_list):
 
     parser = argparse.ArgumentParser(description="Graph Operations")
 
@@ -86,8 +84,10 @@ def create_operations_parser():
 
 if __name__ == '__main__':
 
+    op_list = [OP_UNION, OP_INTERSECTION, OP_DIFFERENCE]
+
     # Completing list of arguments.
-    parser = create_operations_parser()
+    parser = create_operations_parser(op_list)
 
     # Parsing arguments.
     args = parser.parse_args()
