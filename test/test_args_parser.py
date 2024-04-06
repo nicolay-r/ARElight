@@ -9,8 +9,18 @@ from arelight.run.operations import create_operations_parser
 
 class TestArgumentsReader(unittest.TestCase):
 
+    @staticmethod
+    def extract(parser):
+        values = vars(parser.parse_args())
+        json_data = convert_parser_to_json(parser)
+        for k, v in values.items():
+            json_data["schema"][k]["default"] = v
+        return json_data
+
     def test(self):
         infer_parser = create_infer_parser()
-        print(json.dumps(convert_parser_to_json(infer_parser), indent=4))
+        infer_schema = self.extract(infer_parser)
+        print(json.dumps(infer_schema, indent=4))
         operations_parser = create_operations_parser()
-        print(json.dumps(convert_parser_to_json(operations_parser), indent=4))
+        operations_schema = self.extract(operations_parser)
+        print(json.dumps(operations_schema, indent=4))
