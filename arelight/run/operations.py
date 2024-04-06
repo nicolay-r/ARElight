@@ -11,6 +11,7 @@ from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
 from arelight.run.utils import get_binary_choice, get_list_choice, get_int_choice, is_port_number
+from arelight.run.utils_logger import setup_custom_logger
 
 
 def get_input_with_default(prompt, default_value):
@@ -18,7 +19,7 @@ def get_input_with_default(prompt, default_value):
     return user_input.strip() or default_value
 
 
-def get_graph_path(text):
+def get_graph_path_interactive(text):
     while True:
         folder_path = input(text)
 
@@ -76,15 +77,19 @@ if __name__ == '__main__':
     parser.add_argument("--name", required=False, help="Specify name of new graph")
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument("--description", required=False, help="Specify description of new graph")
+    parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument("--host", required=False, default=None, help="Server port for launching hosting (optional)")
 
     # Parsing arguments.
     args = parser.parse_args()
 
+    # Setup logger
+    logger = setup_custom_logger(name="arelight", filepath=args.log_file)
+
     operation = args.operation if args.operation else get_list_choice(op_list)
-    graph_A_file_path = args.graph_a_file if args.graph_a_file else get_graph_path(
+    graph_A_file_path = args.graph_a_file if args.graph_a_file else get_graph_path_interactive(
         "Enter the path to the folder for graph_A: ")
-    graph_B_file_path = args.graph_b_file if args.graph_b_file else get_graph_path(
+    graph_B_file_path = args.graph_b_file if args.graph_b_file else get_graph_path_interactive(
         "Enter the path to the folder for graph_B: ")
     weights = args.weights.lower() == 'y' if args.weights else get_binary_choice("Use weights? (y/n)\n")
     do_host = args.host if is_port_number(args.host) \

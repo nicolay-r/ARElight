@@ -51,12 +51,12 @@ class D3jsGraphOperationsBackendPipelineItem(BasePipelineItem):
                        desc_name=pipeline_ctx.provide_or_none("d3js_collection_description"),
                        desc_labels={label_type.__name__: labels_fmt.label_to_str(label_type())
                                     for label_type in labels_fmt._stol.values()})
-
-        print(f"\nDataset is completed and saved in the following locations:")
+        logger.info(f"\n")
+        logger.info(f"Dataset is completed and saved in the following locations:")
         for subfolder in iter_ui_backend_folders(keep_desc=True, keep_graph=True):
-            print(f"- {os.path.join(target_dir, subfolder, collection_name)}")
+            logger.info(f"- {os.path.join(target_dir, subfolder, collection_name)}")
 
         # Print system info.
         if host_port is not None:
             cmd = f"cd {target_dir} && python -m http.server {host_port}"
-            print(f"To host, launch manually: {cmd}")
+            logger.info(f"To host, launch manually: {cmd}")

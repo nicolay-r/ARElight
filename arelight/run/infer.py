@@ -36,6 +36,7 @@ from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
     create_translate_model, is_port_number, iter_content, OPENNRE_CHECKPOINTS
+from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner
@@ -73,10 +74,15 @@ if __name__ == '__main__':
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument("--host", dest="d3js_host", default=None, type=str)
+    parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument('-o', dest='output_template', type=str, default="output", nargs='?')
 
     # Parsing arguments.
     args = parser.parse_args()
+
+    # Setup logger
+    logger = setup_custom_logger(name="arelight", filepath=args.log_file)
+    tqdm_log_out = TqdmToLogger(logger) if args.log_file is not None else None
 
     # Reading text-related parameters.
     sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
@@ -209,8 +215,8 @@ if __name__ == '__main__':
     }
 
     predict_writers = {
-        "tsv": TsvPredictWriter(),
-        "sqlite3": SQLite3PredictWriter(table_name="open_nre_bert")
+        "tsv": TsvPredictWriter(log_out=tqdm_log_out),
+        "sqlite3": SQLite3PredictWriter(table_name="open_nre_bert", log_out=tqdm_log_out)
     }
 
     predict_readers = {

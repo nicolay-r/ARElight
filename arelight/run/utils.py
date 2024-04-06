@@ -1,4 +1,3 @@
-import logging
 from enum import Enum
 from io import TextIOWrapper
 from zipfile import ZipFile
@@ -9,9 +8,6 @@ from arekit.common.docs.sentence import BaseDocumentSentence
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.synonyms import iter_synonym_groups
 from arelight.utils import auto_import, iter_csv_lines
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
 def create_sentence_parser(framework, language):
