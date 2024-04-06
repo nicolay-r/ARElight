@@ -52,7 +52,7 @@ def test_ner(texts, ner_ppl_items, collection_name):
     pipeline_items = [
         BaseSerializerPipelineItem(
             rows_provider=rows_provider,
-            storage=RowCacheStorage(),
+            storage=RowCacheStorage(log_out=None),
             samples_io=CustomSamplesIO(create_target_func=create_target_func, writer=NativeCsvWriter(delimiter=',')),
             save_labels_func=lambda data_type: data_type != DataType.Test)
     ]

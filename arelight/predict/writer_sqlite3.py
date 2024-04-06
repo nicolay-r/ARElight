@@ -25,7 +25,7 @@ class SQLite3PredictWriter(BasePredictWriter):
             data2col_func=lambda data: data,
             data_it=progress_bar_defined(iterable=map(lambda item: [item[0], item[1:]], contents_it),
                                          desc=f'Writing output (sqlite:{self.__table_name})',
-                                         unit='rows', total=total, log_file=self.__log_out),
+                                         unit='rows', total=total, file=self.__log_out),
             sqlite3_column_types=["INTEGER"] * len(content_header),
             id_column_name=header[0],
             id_column_type="INTEGER")

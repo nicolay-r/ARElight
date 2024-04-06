@@ -130,7 +130,8 @@ if __name__ == '__main__':
                                           reader=SQliteReader(table_name="contents"),
                                           writer=SQliteWriter(table_name="contents")),
             "storage": RowCacheStorage(
-                force_collect_columns=[const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND]),
+                force_collect_columns=[const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND],
+                log_out=tqdm_log_out),
             "save_labels_func": lambda data_type: data_type != DataType.Test
         }
     }
