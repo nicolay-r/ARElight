@@ -58,11 +58,12 @@ def iter_csv_lines(csv_file, column_name, delimiter=","):
             yield row[column_name]
 
 
-def download(dest_file_path, source_url):
+def download(dest_file_path, source_url, logger):
     """ Refered to https://github.com/nicolay-r/ner-bilstm-crf-tensorflow/blob/master/ner/utils.py
         Simple http file downloader
     """
-    logger.info(('Downloading from {src} to {dest}'.format(src=source_url, dest=dest_file_path)))
+    if logger is not None:
+        logger.info(('Downloading from {src} to {dest}'.format(src=source_url, dest=dest_file_path)))
 
     sys.stdout.flush()
     datapath = os.path.dirname(dest_file_path)

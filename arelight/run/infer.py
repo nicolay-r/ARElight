@@ -206,13 +206,14 @@ if __name__ == '__main__':
             "pooler": "cls",
             "predefined_ckpts": OPENNRE_CHECKPOINTS,
             "table_name": "contents",
+            "logger": logger,
             "task_kwargs": {
                 "no_label": str(labels_scaler.label_to_int(NoLabel())),
                 "default_id_column": ID,
                 "index_columns": [S_IND, T_IND],
                 "text_columns": [PairTextProvider.TEXT_A, PairTextProvider.TEXT_B]
             },
-    },
+        },
     }
 
     backend_setups = {

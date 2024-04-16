@@ -20,7 +20,8 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
                  max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True,
-                 table_name="contents", task_kwargs=None, predefined_ckpts=None, **kwargs):
+                 table_name="contents", task_kwargs=None, predefined_ckpts=None, logger=None,
+                 **kwargs):
         assert(isinstance(tokenizers_parallelism, bool))
         super(BertOpenNREInferencePipelineItem, self).__init__(**kwargs)
 
@@ -34,6 +35,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__predefined_ckpts = {} if predefined_ckpts is None else predefined_ckpts
         self.__task_kwargs = task_kwargs
         self.__table_name = table_name
+        self.__logger = logger
 
         # Huggingface/Tokenizers compatibility.
         os.environ['TOKENIZERS_PARALLELISM'] = str(tokenizers_parallelism).lower()
@@ -66,7 +68,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         return rel2id
 
     @staticmethod
-    def try_download_predefined_checkpoint(checkpoint, predefined, dir_to_download):
+    def try_download_predefined_checkpoint(checkpoint, predefined, dir_to_download, logger=None):
         """ This is for the simplicity of using the framework straightaway.
         """
         assert (isinstance(checkpoint, str))
@@ -80,21 +82,23 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             # No need to do anything, file has been already downloaded.
             if not exists(target_checkpoint_path):
                 logger.info("Downloading checkpoint to: {}".format(target_checkpoint_path))
-                download(dest_file_path=target_checkpoint_path, source_url=data["checkpoint"])
+                download(dest_file_path=target_checkpoint_path,
+                         source_url=data["checkpoint"],
+                         logger=logger)
 
             return data["state"], target_checkpoint_path, data["label_scaler"]
 
         return None, None, None
 
     @staticmethod
-    def init_bert_model(pretrain_path, labels_scaler, ckpt_path, device_type, predefined, dir_to_donwload=None,
-                        pooler='cls', max_length=128, mask_entity=True):
+    def init_bert_model(pretrain_path, labels_scaler, ckpt_path, device_type, predefined, logger=None,
+                        dir_to_donwload=None, pooler='cls', max_length=128, mask_entity=True):
         """ This is a main and core method for inference based on OpenNRE framework.
         """
         # Check predefined checkpoints for local downloading.
         predefined_pretrain_path, predefined_ckpt_path, ckpt_label_scaler = \
             BertOpenNREInferencePipelineItem.try_download_predefined_checkpoint(
-                checkpoint=ckpt_path, dir_to_download=dir_to_donwload, predefined=predefined)
+                checkpoint=ckpt_path, dir_to_download=dir_to_donwload, predefined=predefined, logger=logger)
 
         # Update checkpoint and pretrain paths with the predefined.
         ckpt_path = predefined_ckpt_path if predefined_ckpt_path is not None else ckpt_path
@@ -182,6 +186,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                 labels_scaler=labels_scaler,
                 mask_entity=True,
                 predefined=self.__predefined_ckpts,
+                logger=self.__logger,
                 dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 
         iter_infer, total = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)

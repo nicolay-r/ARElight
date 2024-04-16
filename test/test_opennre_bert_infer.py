@@ -1,4 +1,4 @@
-import os
+import logging
 
 import utils
 import torch
@@ -16,6 +16,8 @@ from arelight.run.utils import OPENNRE_CHECKPOINTS
 from arelight.third_party.torch import sentence_re_loader
 from arelight.utils import get_default_download_dir
 
+logger = logging.getLogger(__name__)
+
 
 class TestLoadModel(unittest.TestCase):
 
@@ -23,7 +25,7 @@ class TestLoadModel(unittest.TestCase):
 
     def test_launch_model(self):
         pretrain_path, ckpt_path, label_scaler = BertOpenNREInferencePipelineItem.try_download_predefined_checkpoint(
-            checkpoint=self.CKPT, predefined=OPENNRE_CHECKPOINTS, dir_to_download=utils.TEST_OUT_DIR)
+            checkpoint=self.CKPT, predefined=OPENNRE_CHECKPOINTS, dir_to_download=utils.TEST_OUT_DIR, logger=logger)
         model = BERTEncoder(pretrain_path=pretrain_path, mask_entity=True, max_length=512)
         rel2id = BertOpenNREInferencePipelineItem.scaler_to_rel2id(label_scaler)
         model = SoftmaxNN(model, len(rel2id), rel2id)
@@ -38,13 +40,13 @@ class TestLoadModel(unittest.TestCase):
 
     @staticmethod
     def infer_bert(pretrain_path, labels_scaler, output_file_gzip, predefined, ckpt_path=None, pooler='cls',
-                   batch_size=6, max_length=128, mask_entity=True):
+                   batch_size=6, max_length=128, mask_entity=True, logger=None):
 
         test_data_file = join(utils.TEST_DATA_DIR, "opennre-data-test-predict.sqlite")
 
         model = BertOpenNREInferencePipelineItem.init_bert_model(
             pretrain_path=pretrain_path, labels_scaler=labels_scaler, ckpt_path=ckpt_path,
-            device_type="cpu", max_length=max_length, mask_entity=mask_entity,
+            device_type="cpu", max_length=max_length, mask_entity=mask_entity, logger=logger,
             dir_to_donwload=get_default_download_dir(), pooler=pooler, predefined=predefined)
 
         eval_loader = sentence_re_loader(path=test_data_file,
