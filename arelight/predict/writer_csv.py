@@ -24,7 +24,7 @@ class TsvPredictWriter(BasePredictWriter):
         self.__write(header)
 
         wrapped_it = progress_bar_defined(iterable=contents_it, desc='Writing output (tsv)', unit='rows',
-                                          total=total, log_file=self.__log_out)
+                                          total=total, file=self.__log_out)
 
         for contents in wrapped_it:
             self.__write(contents)
