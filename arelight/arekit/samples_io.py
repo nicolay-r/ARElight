@@ -25,8 +25,6 @@ class CustomSamplesIO(BaseSamplesIO):
         elif reader is not None:
             self.__target_extension = reader.extension()
 
-    # region public methods
-
     @property
     def Reader(self):
         return self.__reader
