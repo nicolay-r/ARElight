@@ -17,6 +17,14 @@ class ParsedSampleRowExtraService(object):
             obj_id=parsed_row[const.T_IND],
             obj_ids=parsed_row[const.ENTITIES],
             obj_values=parsed_row[const.ENTITY_VALUES]),
+        "SourceType": lambda parsed_row: ParsedSampleRowExtraService.calc_obj_value(
+            obj_id=parsed_row[const.S_IND],
+            obj_ids=parsed_row[const.ENTITIES],
+            obj_values=parsed_row[const.ENTITY_TYPES]),
+        "TargetType": lambda parsed_row: ParsedSampleRowExtraService.calc_obj_value(
+            obj_id=parsed_row[const.T_IND],
+            obj_ids=parsed_row[const.ENTITIES],
+            obj_values=parsed_row[const.ENTITY_TYPES]),
     }
 
     @staticmethod
