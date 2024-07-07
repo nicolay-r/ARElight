@@ -11,9 +11,6 @@ class TestIterSamplesSqliteStorage(unittest.TestCase):
 
     def test(self):
 
-        # Compose joined table.
-
-        # Read joined table.
         data_it = AREkitSamplesService.iter_samples_and_predict_sqlite3(
             sqlite_filepath=join(TEST_DATA_DIR, "samples_and_predict-test"),
             samples_table_name="contents",
