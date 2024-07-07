@@ -1,5 +1,6 @@
 import sqlite3
 
+from arekit.common.data.const import ID
 from arekit.common.data.storages.base import BaseRowsStorage
 
 
@@ -15,7 +16,7 @@ class JoinedSQliteBasedRowsStorage(BaseRowsStorage):
     def _iter_rows(self):
         with sqlite3.connect(self.__path) as conn:
             cursor = conn.execute(f"select * from {self.__table_name_a} inner join {self.__table_name_b}"
-                                  f" on {self.__table_name_a}.id={self.__table_name_b}.id")
+                                  f" on {self.__table_name_a}.{ID}={self.__table_name_b}.{ID}")
             for row_index, row in enumerate(cursor.fetchall()):
                 row_dict = {cursor.description[i][0]: value for i, value in enumerate(row)}
                 yield row_index, row_dict
