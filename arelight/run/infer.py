@@ -319,7 +319,7 @@ if __name__ == '__main__':
     settings.append({
         "labels_scaler": labels_scaler,
         # We provide this settings for inference.
-        "predict_filepath": collection_target_func(DataType.Test),
+        "predict_filepath": collection_target_func(DataType.Test) + predict_extension[args.inference_writer],
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
         "predict_reader": predict_readers[args.inference_writer]
     })
