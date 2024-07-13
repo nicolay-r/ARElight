@@ -6,6 +6,11 @@ OP_UNION = "UNION"
 OP_INTERSECTION = "INTERSECTION"
 OP_DIFFERENCE = "DIFFERENCE"
 
+OPERATION_MAP = {}
+OPERATION_MAP[OP_UNION] = "+"
+OPERATION_MAP[OP_UNION] = "∩"
+OPERATION_MAP[OP_UNION] = "-"
+
 logger = logging.getLogger(__name__)
 
 
@@ -88,7 +93,8 @@ def graphs_operations(graph_A, graph_B, operation=OP_UNION, weights=True):
         used_nodes[t] = used_nodes.get(t, 0) + c
 
     nodes = [{"id": id, "c": c} for id, c in used_nodes.items()]
-    result_graph = {"nodes": nodes, "links": links}
+    basis = "(" + graph_A["basis"] + ")" + OPERATION_MAP[operation] + "(" + graph_B["basis"] + ")"
+    result_graph = {"basis": basis, "nodes": nodes, "links": links}
 
     # Assign weights if not used.
     if not weights:

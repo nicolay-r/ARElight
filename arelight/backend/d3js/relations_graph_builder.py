@@ -1,7 +1,7 @@
 from collections import Counter
 
 
-def make_graph_from_relations_array(relations, entity_values, entity_types, min_links, weights=True):
+def make_graph_from_relations_array(graph_name, relations, entity_values, entity_types, min_links, weights=True):
     """ This is a method composes a dictionary from the relations data between entities.
         (C) Maxim Kolomeets (Originally)
 
@@ -88,4 +88,4 @@ def make_graph_from_relations_array(relations, entity_values, entity_types, min_
     node_max = max(used_nodes.values()) if used_nodes else 0
     nodes = [{"id": id, "c": used_nodes[id]/node_max if weights else 1} for id in used_nodes]
 
-    return {"nodes": nodes, "links": links}
+    return {"basis": graph_name, "nodes": nodes, "links": links}
