@@ -58,6 +58,7 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
 
     def apply_core(self, input_data, pipeline_ctx):
 
+        collection_name = pipeline_ctx.provide("d3js_collection_name")
         predict_filepath = pipeline_ctx.provide("predict_filepath")
         result_reader = pipeline_ctx.provide("predict_reader")
         labels_fmt = pipeline_ctx.provide("labels_formatter")
@@ -81,7 +82,7 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         labels = list(map(lambda item: labels_fmt.label_to_str(labels_scaler.uint_to_label(item)), uint_labels_iter))
 
         graph = make_graph_from_relations_array(
-            graph_name="UNKNOWN_GRAPH_NAME",
+            graph_name=collection_name,
             relations=self.__iter_relations(samples=samples,
                                             labels=labels,
                                             labels_filter_func=self.__graph_label_filter,
