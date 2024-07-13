@@ -86,7 +86,7 @@ class SQLiteSentenceREDataset(data.Dataset):
 
 
 def sentence_re_loader(path, table_name, rel2id, tokenizer, batch_size, shuffle,
-                       task_kwargs, num_workers=8, collate_fn=SQLiteSentenceREDataset.collate_fn, **kwargs):
+                       task_kwargs, num_workers, collate_fn=SQLiteSentenceREDataset.collate_fn, **kwargs):
     dataset = SQLiteSentenceREDataset(path=path, table_name=table_name, rel2id=rel2id,
                                       tokenizer=tokenizer, kwargs=kwargs, task_kwargs=task_kwargs)
     data_loader = data.DataLoader(dataset=dataset,

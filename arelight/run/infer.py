@@ -70,6 +70,7 @@ def create_infer_parser():
     parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
     parser.add_argument("--bert-framework", dest="bert_framework", type=str, default=None, choices=[None, "opennre"])
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
+    parser.add_argument("--torch-num-workers", dest="torch_num_workers", type=int, default=0)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models")
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
@@ -198,6 +199,7 @@ if __name__ == '__main__':
     infer_engines_setup = {
         None: {},
         "opennre": {
+            "data_loader_num_workers": args.torch_num_workers,
             "pretrained_bert": args.pretrained_bert,
             "checkpoint_path": args.bert_torch_checkpoint,
             "device_type": args.device_type,

@@ -36,11 +36,12 @@ class TestLoadModel(unittest.TestCase):
                         ckpt_path=self.CKPT,
                         labels_scaler=None,
                         predefined=OPENNRE_CHECKPOINTS,
-                        output_file_gzip=join(utils.TEST_OUT_DIR, "opennre-data-test.tsv.gz"))
+                        output_file_gzip=join(utils.TEST_OUT_DIR, "opennre-data-test.tsv.gz"),
+                        logger=logging.getLogger(__name__))
 
     @staticmethod
-    def infer_bert(pretrain_path, labels_scaler, output_file_gzip, predefined, ckpt_path=None, pooler='cls',
-                   batch_size=6, max_length=128, mask_entity=True, logger=None):
+    def infer_bert(pretrain_path, labels_scaler, output_file_gzip, predefined, logger, ckpt_path=None,
+                   pooler='cls', batch_size=6, max_length=128, mask_entity=True):
 
         test_data_file = join(utils.TEST_DATA_DIR, "opennre-data-test-predict.sqlite")
 
@@ -60,7 +61,8 @@ class TestLoadModel(unittest.TestCase):
                                             "index_columns": ["s_ind", "t_ind"],
                                             "text_columns": ["text_a", "text_b"]
                                          },
-                                         shuffle=False)
+                                         shuffle=False,
+                                         num_workers=0)
 
         # Open database.
         with eval_loader.dataset as dataset:

@@ -21,7 +21,12 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
                  max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True,
                  table_name="contents", task_kwargs=None, predefined_ckpts=None, logger=None,
-                 **kwargs):
+                 data_loader_num_workers=0, **kwargs):
+        """
+        NOTE: data_loader_num_workers has set to 0 to cope with the following issue #147:
+        https://github.com/nicolay-r/ARElight/issues/147
+        where the most similar
+        """
         assert(isinstance(tokenizers_parallelism, bool))
         super(BertOpenNREInferencePipelineItem, self).__init__(**kwargs)
 
@@ -36,6 +41,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__task_kwargs = task_kwargs
         self.__table_name = table_name
         self.__logger = logger
+        self.__data_loader_num_workers = data_loader_num_workers
 
         # Huggingface/Tokenizers compatibility.
         os.environ['TOKENIZERS_PARALLELISM'] = str(tokenizers_parallelism).lower()
@@ -148,6 +154,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                                            batch_size=batch_size,
                                            table_name=self.__table_name,
                                            task_kwargs=self.__task_kwargs,
+                                           num_workers=self.__data_loader_num_workers,
                                            shuffle=False)
 
         with sentence_eval.dataset as dataset:
