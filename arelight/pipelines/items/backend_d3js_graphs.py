@@ -81,6 +81,7 @@ class D3jsGraphsBackendPipelineItem(BasePipelineItem):
         labels = list(map(lambda item: labels_fmt.label_to_str(labels_scaler.uint_to_label(item)), uint_labels_iter))
 
         graph = make_graph_from_relations_array(
+            graph_name="UNKNOWN_GRAPH_NAME",
             relations=self.__iter_relations(samples=samples,
                                             labels=labels,
                                             labels_filter_func=self.__graph_label_filter,

@@ -46,6 +46,7 @@ class TestBackendD3JS(unittest.TestCase):
             relations.append([source, target, label])
 
         graph = make_graph_from_relations_array(
+            graph_name="UNKNOWN_GRAPH_NAME",
             relations=relations[10:],
             entity_values=[item.split(',') for item in data_single_type["entity_values"]],
             entity_types=[item.split(',') for item in data_single_type["entity_types"]],
@@ -54,6 +55,7 @@ class TestBackendD3JS(unittest.TestCase):
         )
 
         graph2 = make_graph_from_relations_array(
+            graph_name="UNKNOWN_GRAPH_NAME",
             relations=relations[:10],
             entity_values=[item.split(',') for item in data_single_type["entity_values"]],
             entity_types=[item.split(',') for item in data_single_type["entity_types"]],
