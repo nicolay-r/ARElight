@@ -137,7 +137,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                     # Save result
                     batch_size = pred.size(0)
                     for i in range(batch_size):
-                        yield data_ids[l_ind], pred[i].item()
+                        yield data_ids[l_ind], int(pred[i].item())
                         l_ind += 1
 
     def __iter_predict_result(self, samples_filepath, batch_size):
