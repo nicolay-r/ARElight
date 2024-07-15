@@ -108,24 +108,6 @@ To Launch Graph Builder for D3JS and (optional) start DEMO server for collection
 cd output && python -m http.server 8000
 ```
  
-Finally, you may follow the demo page at `http://0.0.0.0:8000/`
-
-[![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
-
-![image](https://github.com/nicolay-r/ARElight/assets/14871187/341f3b51-d639-46b6-83fe-99b542b1751b)
-
-## Layout of the files in output
-```
-output/
-├── description/
-    └── ...         // graph descriptions in JSON.
-├── force/
-    └── ...         // force graphs in JSON.
-├── radial/
-    └── ...         // radial graphs in JSON.
-└── index.html      // main HTML demo page. 
-```
-
 ## Usage: Graph Operations
 
 For graph analysis you can perform several graph operations by this script:
@@ -264,18 +246,3 @@ These weights represent the frequencies of discovered edges, indicating how ofte
 <p float="left">
 <a href="https://github.com/nicolay-r/AREkit"><img src="https://github.com/nicolay-r/ARElight/assets/14871187/01232f7a-970f-416c-b7a4-1cda48506afe"/></a>
 </p>
-
-## How to cite
-Our one and my personal interest is to help you better explore and analyze attitude and relation extraction related tasks with ARElight. 
-A great research is also accompanied with the faithful reference. 
-if you use or extend our work, please cite as follows:
-
-```bibtex
-@inproceedings{rusnachenko2024arelight,
-  title={ARElight: Context Sampling of Large Texts for Deep Learning Relation Extraction},
-  author={Rusnachenko, Nicolay and Liang, Huizhi and Kolomeets, Maxim and Shi, Lei},
-  booktitle={European Conference on Information Retrieval},
-  year={2024},
-  organization={Springer}
-}
-```
