@@ -1,4 +1,4 @@
-# ARElight 0.24.1
+# ARElight 0.25.0
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.25.1-orange.svg)
