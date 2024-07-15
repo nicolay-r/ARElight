@@ -93,8 +93,12 @@ def graphs_operations(graph_A, graph_B, operation=OP_UNION, weights=True):
         used_nodes[t] = used_nodes.get(t, 0) + c
 
     nodes = [{"id": id, "c": c} for id, c in used_nodes.items()]
-    basis = "(" + graph_A["basis"] + ")" + OPERATION_MAP[operation] + "(" + graph_B["basis"] + ")"
-    result_graph = {"basis": basis, "nodes": nodes, "links": links}
+    if operation == OP_DIFFERENCE:
+        basis = list(set(graph_A["basis"])-set(graph_B["basis"]))
+    else:
+        basis = list(set(graph_A["basis"])+set(graph_B["basis"]))
+    equation = "(" + graph_A["equation"] + ")" + OPERATION_MAP[operation] + "(" + graph_B["equation"] + ")"
+    result_graph = {"basis": basis, "equation": equation, "nodes": nodes, "links": links}
 
     # Assign weights if not used.
     if not weights:

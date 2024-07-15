@@ -88,4 +88,4 @@ def make_graph_from_relations_array(graph_name, relations, entity_values, entity
     node_max = max(used_nodes.values()) if used_nodes else 0
     nodes = [{"id": id, "c": used_nodes[id]/node_max if weights else 1} for id in used_nodes]
 
-    return {"basis": graph_name, "nodes": nodes, "links": links}
+    return {"basis": [graph_name], "equation": "["+graph_name+"]", "nodes": nodes, "links": links}
