@@ -82,6 +82,17 @@ def create_infer_parser():
     return parser
 
 
+def to_list(terms):
+    r = []
+    for t in terms:
+        if isinstance(t, str):
+            for i in t.split(' '):
+                r.append(i)
+        else:
+            r.append(t)
+    return r
+
+
 if __name__ == '__main__':
 
     # Completing list of arguments.
@@ -265,23 +276,30 @@ if __name__ == '__main__':
         }
 
         text_translator_setup = {
-            None: lambda: None,
-            "ml-based": lambda: MLTextTranslatorPipelineItem(
-                batch_translate_model=lambda content: translator(
-                    str_list=content,
-                    src=args.translate_text.split(':')[0],
-                    dest=args.translate_text.split(':')[1]),
-                do_translate_entity=False)
+            None: lambda: [],
+            "ml-based": lambda: [
+                MLTextTranslatorPipelineItem(
+                    batch_translate_model=lambda content: translator(
+                        str_list=content,
+                        src=args.translate_text.split(':')[0],
+                        dest=args.translate_text.split(':')[1]),
+                    do_translate_entity=False),
+                BasePipelineItem(src_func=lambda l: to_list(l)),
+            ]
         }
 
         # Create Synonyms Collection.
         synonyms = synonyms_setup["lemmatized" if args.stemmer is not None else None]()
 
+        # Text translator.
+        tt = text_translator_setup["ml-based" if args.translate_text is not None else None]()
+        print(type(tt))
+
         # Setup text parser.
         text_parser_pipeline = [
             BasePipelineItem(src_func=lambda s: s.Text),
-            entity_parsers[ner_framework](),
-            text_translator_setup["ml-based" if args.translate_text is not None else None](),
+            entity_parsers[ner_framework]()]\
+        + tt + [
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
