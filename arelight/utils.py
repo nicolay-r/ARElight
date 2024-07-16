@@ -1,3 +1,4 @@
+import collections
 import csv
 import importlib
 import os
@@ -15,6 +16,17 @@ def auto_import(name):
 
     components = name.split('.')
     return getattr(__get_module(components[:-1]), components[-1])
+
+
+def flatten(xss):
+    l = []
+    for xs in xss:
+        if isinstance(xs, collections.abc.Iterable):
+            for x in xs:
+                l.append(x)
+        else:
+            l.append(xs)
+    return l
 
 
 def get_default_download_dir():

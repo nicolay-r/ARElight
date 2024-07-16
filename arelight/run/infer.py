@@ -23,6 +23,7 @@ from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
 from arelight.arekit.samples_io import CustomSamplesIO
+from arelight.arekit.utils_translator import string_terms_to_list
 from arelight.doc_provider import CachedFilesDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
@@ -39,7 +40,7 @@ from arelight.run.utils import merge_dictionaries, iter_group_values, create_sen
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
-from arelight.utils import IdAssigner
+from arelight.utils import IdAssigner, flatten
 
 
 def create_infer_parser():
@@ -80,17 +81,6 @@ def create_infer_parser():
     parser.add_argument('-o', dest='output_template', type=str, default="output", nargs='?')
 
     return parser
-
-
-def to_list(terms):
-    r = []
-    for t in terms:
-        if isinstance(t, str):
-            for i in t.split(' '):
-                r.append(i)
-        else:
-            r.append(t)
-    return r
 
 
 if __name__ == '__main__':
@@ -276,7 +266,7 @@ if __name__ == '__main__':
         }
 
         text_translator_setup = {
-            None: lambda: [],
+            None: lambda: None,
             "ml-based": lambda: [
                 MLTextTranslatorPipelineItem(
                     batch_translate_model=lambda content: translator(
@@ -284,26 +274,22 @@ if __name__ == '__main__':
                         src=args.translate_text.split(':')[0],
                         dest=args.translate_text.split(':')[1]),
                     do_translate_entity=False),
-                BasePipelineItem(src_func=lambda l: to_list(l)),
+                BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
             ]
         }
 
         # Create Synonyms Collection.
         synonyms = synonyms_setup["lemmatized" if args.stemmer is not None else None]()
 
-        # Text translator.
-        tt = text_translator_setup["ml-based" if args.translate_text is not None else None]()
-        print(type(tt))
-
         # Setup text parser.
-        text_parser_pipeline = [
+        text_parser_pipeline = flatten([
             BasePipelineItem(src_func=lambda s: s.Text),
-            entity_parsers[ner_framework]()]\
-        + tt + [
+            entity_parsers[ner_framework](),
+            text_translator_setup["ml-based" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
-        ]
+        ])
 
         # Reading from the optionally large list of files.
         doc_provider = CachedFilesDocProvider(
