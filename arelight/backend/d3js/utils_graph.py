@@ -36,7 +36,9 @@ def save_graph(graph, out_dir, out_filename, convert_to_radial=True):
     if not exists(out_dir):
         makedirs(out_dir)
 
-    data_filepath = join(out_dir, "{}.json".format(out_filename))
+    # Make sure that we have no extention related to the expected format.
+    no_ext_basename = out_filename.replace(".json", "")
+    target_filepath = join(out_dir, f"{no_ext_basename}.json")
     # Convert to radial graph.
     radial_graph = graph_to_radial(graph) if convert_to_radial else graph
-    save_json(data=radial_graph, file_path=data_filepath)
+    save_json(data=radial_graph, file_path=target_filepath)
