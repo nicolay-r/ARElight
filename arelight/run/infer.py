@@ -36,7 +36,7 @@ from arelight.pipelines.items.entities_ner_transformers import TransformersNERPi
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
-    create_translate_model, is_port_number, iter_content, OPENNRE_CHECKPOINTS
+    create_translate_model, iter_content, OPENNRE_CHECKPOINTS
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
