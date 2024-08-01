@@ -49,7 +49,6 @@ class TestAREkitIterData(unittest.TestCase):
             "labels_scaler": CustomLabelScaler(),
             "labels_formatter": CustomLabelsFormatter(),
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
-            "d3js_host": None,
             "predict_reader": PandasCsvReader(compression='infer')
         })
         ppl_result.update("samples_io", samples_io)

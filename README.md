@@ -101,12 +101,6 @@ Parameters:
 Framework parameters mentioned above as well as their related setups might be ommited.
 
 </details>
-
-To Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
-
-```bash
-cd output && python -m http.server 8000
-```
  
 ## Usage: Graph Operations
 

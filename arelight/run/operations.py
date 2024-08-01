@@ -141,7 +141,6 @@ if __name__ == '__main__':
             "labels_formatter": CustomLabelsFormatter(**labels_fmt),
             "d3js_graph_output_dir": output_dir,
             "d3js_collection_description": description,
-            "d3js_host": str(8000) if do_host else None,
             "d3js_graph_a": load_graph(graph_A_file_path),
             "d3js_graph_b": load_graph(graph_B_file_path),
             "d3js_graph_operations": operation,

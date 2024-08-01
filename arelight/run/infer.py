@@ -76,7 +76,6 @@ def create_infer_parser():
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models")
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
-    parser.add_argument("--host", dest="d3js_host", default=None, type=str)
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument('-o', dest='output_template', type=str, default="output", nargs='?')
 
@@ -105,8 +104,6 @@ if __name__ == '__main__':
     docs_limit = args.docs_limit
     output_template = args.output_template
     output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
-
-    assert(is_port_number(number=args.d3js_host, is_optional=True))
 
     # Classification task label scaler setup.
     labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
@@ -318,8 +315,7 @@ if __name__ == '__main__':
             "labels_formatter": CustomLabelsFormatter(**labels_fmt),
             "d3js_collection_name": collection_name,
             "d3js_collection_description": collection_name,
-            "d3js_graph_output_dir": output_dir,
-            "d3js_host": args.d3js_host,
+            "d3js_graph_output_dir": output_dir
         })
 
     settings.append({
