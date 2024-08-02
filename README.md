@@ -88,7 +88,7 @@ Parameters:
     * `batch-size` -- amount of samples per single inference iteration.
     * `tokens-per-context` -- size of input.
     * `bert-torch-checkpoint` -- fine-tuned state.
-    * `device-type` -- `cpu` or `gpu`.
+    * `device-type` -- `cpu` or `cuda`.
     * `labels-fmt` -- list of the mappings from `label` to integer value; is a `p:1,n:2,u:0` by default, where:
         * `p` -- positive label, which is mapped to `1`.
         * `n` -- negative label, which is mapped to `2`.

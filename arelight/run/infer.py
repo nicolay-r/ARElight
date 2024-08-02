@@ -73,7 +73,7 @@ def create_infer_parser():
     parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str, choices=list(OPENNRE_CHECKPOINTS.keys()))
     parser.add_argument("--torch-num-workers", dest="torch_num_workers", type=int, default=0)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
-    parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models")
+    parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models", choices=['cpu', 'cuda'])
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
