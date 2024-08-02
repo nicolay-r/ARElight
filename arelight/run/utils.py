@@ -10,6 +10,9 @@ from arelight.synonyms import iter_synonym_groups
 from arelight.utils import auto_import, iter_csv_lines
 
 
+NER_TYPES = ["ORG", "PERSON", "LOC", "GPE"]
+
+
 def create_sentence_parser(framework, language):
     if framework == "linesplit":
         return lambda text: [t.strip() for t in text.split('\n')]

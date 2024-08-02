@@ -36,7 +36,7 @@ from arelight.pipelines.items.entities_ner_transformers import TransformersNERPi
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
-    create_translate_model, iter_content, OPENNRE_CHECKPOINTS
+    create_translate_model, iter_content, OPENNRE_CHECKPOINTS, NER_TYPES
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
@@ -49,28 +49,28 @@ def create_infer_parser():
 
     # Providing arguments.
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
-    parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?')
+    parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?', choices=["\t", ',', ';'])
     parser.add_argument('--csv-column', dest='csv_column', type=str, default='text', nargs='?')
     parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
     parser.add_argument('--terms-per-context', dest='terms_per_context', type=int, default=50, nargs='?', help='The max possible length of an input context in terms')
-    parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk:english")
+    parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk:english", choices=["nltk:russian", "nltk:english"])
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov", "transformers"], default="deeppavlov")
-    parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None)
-    parser.add_argument('--ner-types', dest='ner_types', type=str, default="ORG|PERSON|LOC|GPE", help="Filters specific NER types; provide with `|` separator")
+    parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None, choices=["ner_ontonotes_bert_mult", "ner_ontonotes_bert"])
+    parser.add_argument('--ner-types', dest='ner_types', type=str, default= "|".join(NER_TYPES), help="Filters specific NER types; provide with `|` separator")
     parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
     parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=[None, "googletrans"])
-    parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None)
-    parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
+    parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None, choices=[None, "auto:ru"])
+    parser.add_argument('--translate-text', dest='translate_text', type=str, default=None, choices=[None, "auto:ru"])
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument('--text-b-type', dest='text_b_type', type=str, default=None, choices=list(SampleFormattersService.iter_names()))
-    parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None)
+    parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None, choices=["DeepPavlov/rubert-base-cased"])
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
     parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
     parser.add_argument("--bert-framework", dest="bert_framework", type=str, default=None, choices=[None, "opennre"])
-    parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str)
+    parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str, choices=list(OPENNRE_CHECKPOINTS.keys()))
     parser.add_argument("--torch-num-workers", dest="torch_num_workers", type=int, default=0)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models")
