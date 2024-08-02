@@ -77,7 +77,7 @@ def create_infer_parser():
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
-    parser.add_argument('-o', dest='output_template', type=str, default="output", nargs='?')
+    parser.add_argument('-o', '--output-template', dest='output_template', type=str, default="output", nargs='?')
 
     return parser
 
