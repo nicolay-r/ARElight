@@ -1,7 +1,7 @@
 import logging
 
 from arekit.common.utils import progress_bar_defined
-from source_iter.service_sqlite import SQLiteProvider
+from source_iter.service_sqlite import SQLite3Service
 
 from arelight.predict.writer import BasePredictWriter
 
@@ -18,7 +18,7 @@ class SQLite3PredictWriter(BasePredictWriter):
     def write(self, header, contents_it, total=None):
 
         content_header = header[1:]
-        SQLiteProvider.write_missed(
+        SQLite3Service.write_missed(
             columns=content_header,
             target=self._target,
             table_name=self.__table_name,
