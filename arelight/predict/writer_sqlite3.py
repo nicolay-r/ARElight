@@ -1,7 +1,7 @@
 import logging
 
-from arekit.common.service.sqlite import SQLiteProvider
 from arekit.common.utils import progress_bar_defined
+from source_iter.service_sqlite import SQLiteProvider
 
 from arelight.predict.writer import BasePredictWriter
 
@@ -18,11 +18,11 @@ class SQLite3PredictWriter(BasePredictWriter):
     def write(self, header, contents_it, total=None):
 
         content_header = header[1:]
-        SQLiteProvider.write(
+        SQLiteProvider.write_missed(
             columns=content_header,
             target=self._target,
             table_name=self.__table_name,
-            data2col_func=lambda data: data,
+            it_type=None,
             data_it=progress_bar_defined(iterable=map(lambda item: [item[0], item[1:]], contents_it),
                                          desc=f'Writing output (sqlite:{self.__table_name})',
                                          unit='rows', total=total, file=self.__log_out),
