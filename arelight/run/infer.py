@@ -17,7 +17,6 @@ from arekit.contrib.utils.data.readers.sqlite import SQliteReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
-from arekit.contrib.utils.pipelines.items.text.translator import MLTextTranslatorPipelineItem
 from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
@@ -41,6 +40,8 @@ from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.utils import IdAssigner, flatten
+
+from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
 
 def create_infer_parser():

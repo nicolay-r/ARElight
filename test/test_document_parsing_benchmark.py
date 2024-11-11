@@ -1,15 +1,15 @@
+import utils
+import unittest
+
 from arekit.common.data.input.providers.const import IDLE_MODE
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.text.enums import TermFormat
 from arekit.common.text.parsed import BaseParsedText
 from arekit.common.utils import split_by_whitespaces
-
-import utils
-import unittest
-
 from arekit.common.docs.parser import DocumentParsers
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.contrib.utils.pipelines.items.text.translator import MLTextTranslatorPipelineItem
+
+from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
