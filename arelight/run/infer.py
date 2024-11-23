@@ -12,8 +12,6 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
-from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
-from arekit.contrib.utils.data.readers.sqlite import SQliteReader
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
@@ -34,6 +32,8 @@ from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
+from arelight.readers.csv_pd import PandasCsvReader
+from arelight.readers.sqlite import SQliteReader
 from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
     create_translate_model, iter_content, OPENNRE_CHECKPOINTS, NER_TYPES
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger

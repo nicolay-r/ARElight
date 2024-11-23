@@ -9,7 +9,6 @@ import unittest
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
-from arekit.contrib.utils.data.readers.jsonl import JsonlReader
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
@@ -26,6 +25,7 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.predict.writer_csv import TsvPredictWriter
+from arelight.readers.jsonl import JsonlReader
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.synonyms import iter_synonym_groups

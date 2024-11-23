@@ -1,6 +1,7 @@
 from arekit.common.experiment.api.base_samples_io import BaseSamplesIO
-from arekit.contrib.utils.data.readers.base import BaseReader
 from arekit.contrib.utils.data.writers.base import BaseWriter
+
+from arelight.readers.base import BaseReader
 
 
 class CustomSamplesIO(BaseSamplesIO):

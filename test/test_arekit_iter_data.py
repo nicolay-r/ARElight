@@ -4,7 +4,6 @@ from os.path import join
 
 from arekit.common.data.storages.base import BaseRowsStorage
 from arekit.common.experiment.data_type import DataType
-from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 from arekit.common.data.rows_fmt import create_base_column_fmt
 from arekit.common.data.rows_parser import ParsedSampleRow
 from arekit.common.pipeline.base import BasePipelineLauncher
@@ -15,6 +14,7 @@ from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
+from arelight.readers.csv_pd import PandasCsvReader
 
 
 class TestAREkitIterData(unittest.TestCase):

@@ -1,4 +1,4 @@
-from arekit.contrib.utils.data.readers.base import BaseReader
+from arelight.readers.base import BaseReader
 
 
 class CustomSQliteReader(BaseReader):
