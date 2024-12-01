@@ -10,12 +10,12 @@ from arekit.common.entities.base import Entity
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.text.enums import TermFormat
 from arekit.common.utils import split_by_whitespaces
-from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.pipelines.items.entity import IndexedEntity
 from arelight.run.utils import iter_group_values
+from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.utils import IdAssigner
 
 

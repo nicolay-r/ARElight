@@ -38,6 +38,7 @@ from arelight.run.utils import merge_dictionaries, iter_group_values, create_sen
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
+from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.utils import IdAssigner, flatten
 
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
