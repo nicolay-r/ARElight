@@ -8,7 +8,6 @@ import unittest
 
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
-from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
@@ -20,6 +19,7 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
 from arelight.arekit.samples_io import CustomSamplesIO
+from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler

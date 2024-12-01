@@ -13,14 +13,13 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.contrib.utils.data.writers.sqlite_native import SQliteWriter
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
-from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
+from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.doc_provider import CachedFilesDocProvider
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
