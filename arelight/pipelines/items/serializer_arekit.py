@@ -1,4 +1,4 @@
-from arekit.contrib.utils.pipelines.items.sampling.base import BaseSerializerPipelineItem
+from arelight.data.serializer_base import BaseSerializerPipelineItem
 
 
 class AREkitSerializerPipelineItem(BaseSerializerPipelineItem):
