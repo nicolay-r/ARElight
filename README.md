@@ -4,6 +4,7 @@
 ![](https://img.shields.io/badge/AREkit-0.25.1-orange.svg)
 [![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
+[![PyPI downloads](https://img.shields.io/pypi/dm/arelight.svg)](https://pypistats.org/packages/arelight)
 
 ### :point_right: [DEMO](https://guardeec.github.io/arelight_demo/template.html) :point_left:
 
