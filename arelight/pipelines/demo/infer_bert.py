@@ -1,9 +1,9 @@
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
 from arelight.pipelines.items.inference_writer import InferenceWriterPipelineItem
-from arelight.predict_writer_csv import TsvPredictWriter
 
 
-def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, backend_engines=None):
+def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, backend_engines=None,
+                                   inference_writer=None):
     assert(isinstance(sampling_engines, dict) or sampling_engines is None)
     assert(isinstance(infer_engines, dict) or infer_engines is None)
     assert(isinstance(backend_engines, dict) or backend_engines is None)
@@ -16,7 +16,6 @@ def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, ba
     #####################################################################
     # Serialization Items
     #####################################################################
-
     if "arekit" in sampling_engines:
         from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
         pipeline += [AREkitSerializerPipelineItem(**sampling_engines["arekit"])]
@@ -24,9 +23,6 @@ def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, ba
     #####################################################################
     # Inference Items
     #####################################################################
-
-    inference_writer = TsvPredictWriter()
-
     if "opennre" in infer_engines:
         from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInferencePipelineItem
         pipeline += [BertOpenNREInferencePipelineItem(**infer_engines["opennre"]),

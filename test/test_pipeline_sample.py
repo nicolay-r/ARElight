@@ -1,35 +1,31 @@
-from arekit.common.data import const
-from arekit.common.pipeline.context import PipelineContext
-
 import utils
 import unittest
-import ru_sent_tokenize
-from arekit.common.docs.base import Document
-from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.docs.sentence import BaseDocumentSentence
-from ru_sent_tokenize import ru_sent_tokenize
+
 from os.path import join
 
+from arekit.common.utils import split_by_whitespaces
+from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
-from arekit.common.pipeline.base import BasePipeline
+from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
-from arekit.common.text.parser import BaseTextParser
-from arekit.contrib.utils.io_utils.samples import SamplesIO
-from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
-from arekit.contrib.utils.processing.lemmatization.mystem import MystemWrapper
+from arekit.common.data import const
+from arekit.common.pipeline.context import PipelineContext
+from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.contrib.utils.data.writers.csv_native import NativeCsvWriter
-from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
+from arelight.arekit.samples_io import CustomSamplesIO
+from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
+from arelight.stemmers.ru_mystem import MystemWrapper
+from arelight.synonyms import iter_synonym_groups
 from arelight.utils import IdAssigner
 
 
@@ -47,16 +43,6 @@ class BertTestSerialization(unittest.TestCase):
         AREkit might be applied towards data preparation for BERT
         model.
     """
-
-    @staticmethod
-    def input_to_docs(texts):
-        docs = []
-        for doc_id, contents in enumerate(texts):
-            sentences = ru_sent_tokenize(contents)
-            sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
-            doc = Document(doc_id=doc_id, sentences=sentences)
-            docs.append(doc)
-        return docs
 
     @staticmethod
     def iter_groups(filepath):
@@ -85,29 +71,31 @@ class BertTestSerialization(unittest.TestCase):
             is_read_only=False)
 
         # Declare text parser.
-        text_parser = BaseTextParser(pipeline=[
-            TermsSplitterParser(),
-            TextEntitiesParser(id_assigner=IdAssigner()),
-            EntitiesGroupingPipelineItem(lambda value:
-                SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+        text_parser_pipeline = [
+            BasePipelineItem(src_func=lambda s: s.Text),
+            TextEntitiesParser(src_func=lambda s: split_by_whitespaces(s), id_assigner=IdAssigner()),
+            EntitiesGroupingPipelineItem(
+                lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
-        ])
+        ]
 
         # Composing labels formatter and experiment preparation.
-        doc_provider = utils.InMemoryDocProvider(docs=BertTestSerialization.input_to_docs(texts))
-        pipeline = BasePipeline([AREkitSerializerPipelineItem(
-            rows_provider=create_bert_sample_provider(
-                label_scaler=SingleLabelScaler(NoLabel()),
-                provider_type=BertSampleProviderTypes.NLI_M,
-                entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
-                crop_window=50,
-            ),
-            save_labels_func=lambda _: False,
-            samples_io=SamplesIO(target_dir=utils.TEST_OUT_DIR, writer=NativeCsvWriter(delimiter=',')),
-            storage=RowCacheStorage(force_collect_columns=[
-                const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
+        doc_provider = utils.InMemoryDocProvider(docs=utils.input_to_docs(texts))
+        pipeline = [
+            AREkitSerializerPipelineItem(
+                rows_provider=create_bert_sample_provider(
+                    label_scaler=SingleLabelScaler(NoLabel()),
+                    provider_type=BertSampleProviderTypes.NLI_M,
+                    entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                    crop_window=50),
+                save_labels_func=lambda _: False,
+                samples_io=CustomSamplesIO(
+                    create_target_func=lambda data_type: join(utils.TEST_OUT_DIR, "samples", data_type.name.lower()),
+                    writer=SQliteWriter()),
+                storage=RowCacheStorage(force_collect_columns=[
+                    const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND
             ]))
-        ])
+        ]
         synonyms = StemmerBasedSynonymCollection(iter_group_values_lists=[],
                                                  stemmer=MystemWrapper(),
                                                  is_read_only=False)
@@ -117,13 +105,17 @@ class BertTestSerialization(unittest.TestCase):
                                                            dist_in_terms_bound=50,
                                                            dist_in_sentences=0,
                                                            doc_provider=doc_provider,
-                                                           text_parser=text_parser,
-                                                           terms_per_context=50)
+                                                           text_pipeline=text_parser_pipeline,
+                                                           terms_per_context=50,
+                                                           batch_size=10)
 
-        pipeline.run(input_data=PipelineContext(d={
-                         "doc_ids": list(range(len(texts))),
-                         "data_type_pipelines": {DataType.Test: test_pipeline}
-                     }))
+        BasePipelineLauncher.run(pipeline=pipeline,
+                                 pipeline_ctx=PipelineContext(d={
+                                     "doc_ids": list(range(len(texts))),
+                                     "data_type_pipelines": {DataType.Test: test_pipeline}
+                                 }),
+                                 src_key="doc_ids")
+
 
 if __name__ == '__main__':
     unittest.main()

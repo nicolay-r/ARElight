@@ -2,7 +2,7 @@ import argparse
 import os
 from datetime import datetime
 
-from arekit.common.pipeline.base import BasePipeline
+from arekit.common.pipeline.base import BasePipelineLauncher
 
 from arelight.backend.d3js.relations_graph_operations import OP_UNION, OP_DIFFERENCE, OP_INTERSECTION
 from arelight.backend.d3js.ui_web import GRAPH_TYPE_FORCE
@@ -11,6 +11,7 @@ from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
 from arelight.run.utils import get_binary_choice, get_list_choice, get_int_choice, is_port_number
+from arelight.run.utils_logger import setup_custom_logger
 
 
 def get_input_with_default(prompt, default_value):
@@ -18,7 +19,7 @@ def get_input_with_default(prompt, default_value):
     return user_input.strip() or default_value
 
 
-def get_graph_path(text):
+def get_graph_path_interactive(text):
     while True:
         folder_path = input(text)
 
@@ -57,12 +58,11 @@ def get_graph_path(text):
                 print("Invalid input. Please enter a number.")
 
 
-if __name__ == '__main__':
+def create_operations_parser(op_list):
 
-    op_list = [OP_UNION, OP_INTERSECTION, OP_DIFFERENCE]
+    parser = argparse.ArgumentParser(description="Graph Operations")
 
     # Providing arguments.
-    parser = argparse.ArgumentParser(description="Graph Operations")
     parser.add_argument("--operation", required=False, choices=op_list,
                         help="Select operation: {ops}".format(ops=",".join(op_list)))
     parser.add_argument("--graph_a_file", required=False,
@@ -76,15 +76,29 @@ if __name__ == '__main__':
     parser.add_argument("--name", required=False, help="Specify name of new graph")
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument("--description", required=False, help="Specify description of new graph")
+    parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument("--host", required=False, default=None, help="Server port for launching hosting (optional)")
+
+    return parser
+
+
+if __name__ == '__main__':
+
+    op_list = [OP_UNION, OP_INTERSECTION, OP_DIFFERENCE]
+
+    # Completing list of arguments.
+    parser = create_operations_parser(op_list)
 
     # Parsing arguments.
     args = parser.parse_args()
 
+    # Setup logger
+    logger = setup_custom_logger(name="arelight", filepath=args.log_file)
+
     operation = args.operation if args.operation else get_list_choice(op_list)
-    graph_A_file_path = args.graph_a_file if args.graph_a_file else get_graph_path(
+    graph_A_file_path = args.graph_a_file if args.graph_a_file else get_graph_path_interactive(
         "Enter the path to the folder for graph_A: ")
-    graph_B_file_path = args.graph_b_file if args.graph_b_file else get_graph_path(
+    graph_B_file_path = args.graph_b_file if args.graph_b_file else get_graph_path_interactive(
         "Enter the path to the folder for graph_B: ")
     weights = args.weights.lower() == 'y' if args.weights else get_binary_choice("Use weights? (y/n)\n")
     do_host = args.host if is_port_number(args.host) \
@@ -117,21 +131,19 @@ if __name__ == '__main__':
     description = args.description if args.description else \
         get_input_with_default("Specify description of new graph (enter to skip)\n", default_description)
 
-    pipeline = BasePipeline([
-        D3jsGraphOperationsBackendPipelineItem()
-    ])
-
     labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
 
     # Launch application.
-    pipeline.run(input_data=PipelineResult({
-        # We provide this settings for inference.
-        "labels_formatter": CustomLabelsFormatter(**labels_fmt),
-        "d3js_graph_output_dir": output_dir,
-        "d3js_collection_description": description,
-        "d3js_host": str(8000) if do_host else None,
-        "d3js_graph_a": load_graph(graph_A_file_path),
-        "d3js_graph_b": load_graph(graph_B_file_path),
-        "d3js_graph_operations": operation,
-        "d3js_collection_name": collection_name
+    BasePipelineLauncher.run(
+        pipeline=[D3jsGraphOperationsBackendPipelineItem()],
+        pipeline_ctx=PipelineResult({
+            # We provide this settings for inference.
+            "labels_formatter": CustomLabelsFormatter(**labels_fmt),
+            "d3js_graph_output_dir": output_dir,
+            "d3js_collection_description": description,
+            "d3js_graph_a": load_graph(graph_A_file_path),
+            "d3js_graph_b": load_graph(graph_B_file_path),
+            "d3js_graph_operations": operation,
+            "d3js_collection_name": collection_name,
+            "result": None
     }))

@@ -12,12 +12,12 @@ def init_token_classification_model(model_path, device):
     return model, tokenizer
 
 
-def annotate_ner_ppl(model, tokenizer, device, batch_size=4):
+def annotate_ner_ppl(model, tokenizer, device="cpu", batch_size=4):
     return pipeline("ner", model=model, aggregation_strategy='simple', tokenizer=tokenizer,
                     grouped_entities=True, batch_size=batch_size, device=device)
 
 
-def annotate_ner(model, tokenizer, text, device):
+def annotate_ner(model, tokenizer, text, device="cpu"):
     """ This code is related to collection of the annotated objects from texts.
 
         return: list of dict

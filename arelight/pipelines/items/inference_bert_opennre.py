@@ -1,21 +1,17 @@
-import json
-import logging
 import os
 from os.path import exists, join
 
+import logging
 import torch
 
 from arekit.common.experiment.data_type import DataType
-from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.utils import download
 
 from opennre.encoder import BERTEntityEncoder, BERTEncoder
-from opennre.framework import SentenceRELoader
 from opennre.model import SoftmaxNN
 
-from arelight.utils import get_default_download_dir
-
+from arelight.third_party.torch import sentence_re_loader
+from arelight.utils import get_default_download_dir, download
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +20,15 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
 
     def __init__(self, pretrained_bert=None, checkpoint_path=None, device_type='cpu',
                  max_seq_length=128, pooler='cls', batch_size=10, tokenizers_parallelism=True,
-                 predefined_ckpts=None):
+                 table_name="contents", task_kwargs=None, predefined_ckpts=None, logger=None,
+                 data_loader_num_workers=0, **kwargs):
+        """
+        NOTE: data_loader_num_workers has set to 0 to cope with the following issue #147:
+        https://github.com/nicolay-r/ARElight/issues/147
+        where the most similar
+        """
         assert(isinstance(tokenizers_parallelism, bool))
+        super(BertOpenNREInferencePipelineItem, self).__init__(**kwargs)
 
         self.__model = None
         self.__pretrained_bert = pretrained_bert
@@ -35,6 +38,10 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         self.__pooler = pooler
         self.__batch_size = batch_size
         self.__predefined_ckpts = {} if predefined_ckpts is None else predefined_ckpts
+        self.__task_kwargs = task_kwargs
+        self.__table_name = table_name
+        self.__logger = logger
+        self.__data_loader_num_workers = data_loader_num_workers
 
         # Huggingface/Tokenizers compatibility.
         os.environ['TOKENIZERS_PARALLELISM'] = str(tokenizers_parallelism).lower()
@@ -67,7 +74,7 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         return rel2id
 
     @staticmethod
-    def try_download_predefined_checkpoint(checkpoint, predefined, dir_to_download):
+    def try_download_predefined_checkpoint(checkpoint, predefined, dir_to_download, logger=None):
         """ This is for the simplicity of using the framework straightaway.
         """
         assert (isinstance(checkpoint, str))
@@ -81,21 +88,23 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
             # No need to do anything, file has been already downloaded.
             if not exists(target_checkpoint_path):
                 logger.info("Downloading checkpoint to: {}".format(target_checkpoint_path))
-                download(dest_file_path=target_checkpoint_path, source_url=data["checkpoint"])
+                download(dest_file_path=target_checkpoint_path,
+                         source_url=data["checkpoint"],
+                         logger=logger)
 
             return data["state"], target_checkpoint_path, data["label_scaler"]
 
         return None, None, None
 
     @staticmethod
-    def init_bert_model(pretrain_path, labels_scaler, ckpt_path, device_type, predefined, dir_to_donwload=None,
-                        pooler='cls', max_length=128, mask_entity=True):
+    def init_bert_model(pretrain_path, labels_scaler, ckpt_path, device_type, predefined, logger=None,
+                        dir_to_donwload=None, pooler='cls', max_length=128, mask_entity=True):
         """ This is a main and core method for inference based on OpenNRE framework.
         """
         # Check predefined checkpoints for local downloading.
         predefined_pretrain_path, predefined_ckpt_path, ckpt_label_scaler = \
             BertOpenNREInferencePipelineItem.try_download_predefined_checkpoint(
-                checkpoint=ckpt_path, dir_to_download=dir_to_donwload, predefined=predefined)
+                checkpoint=ckpt_path, dir_to_download=dir_to_donwload, predefined=predefined, logger=logger)
 
         # Update checkpoint and pretrain paths with the predefined.
         ckpt_path = predefined_ckpt_path if predefined_ckpt_path is not None else ckpt_path
@@ -112,67 +121,68 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         return model
 
     @staticmethod
-    def extract_ids(data_file):
-        with open(data_file) as input_file:
-            for line_str in input_file.readlines():
-                data = json.loads(line_str)
-                yield data["id_orig"]
-
-    @staticmethod
     def iter_results(parallel_model, eval_loader, data_ids):
-        l_ind = 0
-        with torch.no_grad():
-            for iter, data in enumerate(eval_loader):
-                if torch.cuda.is_available():
-                    for i in range(len(data)):
-                        try:
-                            data[i] = data[i].cuda()
-                        except:
-                            pass
 
-                args = data[1:]
-                logits = parallel_model(*args)
-                score, pred = logits.max(-1)  # (B)
+        # It is important we should open database.
+        with eval_loader.dataset:
 
-                # Save result
-                batch_size = pred.size(0)
-                for i in range(batch_size):
-                    yield data_ids[l_ind], pred[i].item()
-                    l_ind += 1
+            l_ind = 0
+            with torch.no_grad():
+                for iter, data in enumerate(eval_loader):
+                    if torch.cuda.is_available():
+                        for i in range(len(data)):
+                            try:
+                                data[i] = data[i].cuda()
+                            except:
+                                pass
+
+                    args = data[1:]
+                    logits = parallel_model(*args)
+                    score, pred = logits.max(-1)  # (B)
+
+                    # Save result
+                    batch_size = pred.size(0)
+                    for i in range(batch_size):
+                        yield data_ids[l_ind], int(pred[i].item())
+                        l_ind += 1
 
     def __iter_predict_result(self, samples_filepath, batch_size):
         # Compose evaluator.
-        sentence_eval = SentenceRELoader(path=samples_filepath,
-                                         rel2id=self.__model.rel2id,
-                                         tokenizer=self.__model.sentence_encoder.tokenize,
-                                         batch_size=batch_size,
-                                         shuffle=False)
+        sentence_eval = sentence_re_loader(path=samples_filepath,
+                                           rel2id=self.__model.rel2id,
+                                           tokenizer=self.__model.sentence_encoder.tokenize,
+                                           batch_size=batch_size,
+                                           table_name=self.__table_name,
+                                           task_kwargs=self.__task_kwargs,
+                                           num_workers=self.__data_loader_num_workers,
+                                           shuffle=False)
 
-        # Iter output results.
-        results_it = self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
-                                       data_ids=list(self.extract_ids(samples_filepath)),
-                                       eval_loader=sentence_eval)
+        with sentence_eval.dataset as dataset:
 
-        total = len(sentence_eval.dataset)
+            # Iter output results.
+            results_it = self.iter_results(parallel_model=torch.nn.DataParallel(self.__model),
+                                           data_ids=list(dataset.iter_ids()),
+                                           eval_loader=sentence_eval)
+
+            total = len(sentence_eval.dataset)
 
         return results_it, total
 
     def apply_core(self, input_data, pipeline_ctx):
-        assert(isinstance(input_data, PipelineContext))
 
         # Fetching the input data.
-        labels_scaler = input_data.provide("labels_scaler")
+        labels_scaler = pipeline_ctx.provide("labels_scaler")
 
         # Try to obrain from the specific input variable.
-        samples_filepath = input_data.provide_or_none("opennre_samples_filepath")
+        samples_filepath = pipeline_ctx.provide_or_none("opennre_samples_filepath")
         if samples_filepath is None:
-            samples_io = input_data.provide("samples_io")
+            samples_io = pipeline_ctx.provide("samples_io")
             samples_filepath = samples_io.create_target(data_type=DataType.Test)
 
         # Initialize model if the latter has not been yet.
         if self.__model is None:
 
-            ckpt_dir = input_data.provide_or_none("opennre_ckpt_cache_dir")
+            ckpt_dir = pipeline_ctx.provide_or_none("opennre_ckpt_cache_dir")
 
             self.__model = self.init_bert_model(
                 pretrain_path=self.__pretrained_bert,
@@ -183,8 +193,9 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
                 labels_scaler=labels_scaler,
                 mask_entity=True,
                 predefined=self.__predefined_ckpts,
+                logger=self.__logger,
                 dir_to_donwload=get_default_download_dir() if ckpt_dir is None else ckpt_dir)
 
         iter_infer, total = self.__iter_predict_result(samples_filepath=samples_filepath, batch_size=self.__batch_size)
-        input_data.update("iter_infer", iter_infer)
-        input_data.update("iter_total", total)
+        pipeline_ctx.update("iter_infer", iter_infer)
+        pipeline_ctx.update("iter_total", total)

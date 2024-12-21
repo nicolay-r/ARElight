@@ -1,9 +1,17 @@
+import logging
 import warnings
 
 
 OP_UNION = "UNION"
 OP_INTERSECTION = "INTERSECTION"
 OP_DIFFERENCE = "DIFFERENCE"
+
+OPERATION_MAP = {}
+OPERATION_MAP[OP_UNION] = "+"
+OPERATION_MAP[OP_INTERSECTION] = "∩"
+OPERATION_MAP[OP_DIFFERENCE] = "-"
+
+logger = logging.getLogger(__name__)
 
 
 def graphs_operations(graph_A, graph_B, operation=OP_UNION, weights=True):
@@ -22,7 +30,7 @@ def graphs_operations(graph_A, graph_B, operation=OP_UNION, weights=True):
         dict: The resulting graph after performing the operation.
     """
 
-    print(f"\nPerforming {operation} on graphs...")
+    logger.info(f"\nPerforming {operation} on graphs...")
 
     def link_key(link):
         """Generate a key for a link."""
@@ -59,7 +67,7 @@ def graphs_operations(graph_A, graph_B, operation=OP_UNION, weights=True):
         if operation == OP_DIFFERENCE:
             for l, c in links_A.items():
                 if l in links_B and c - links_B[l] > 0:
-                    print("     ", l, c, "=>", l, links_B[l])
+                    logger.info("     ", l, c, "=>", l, links_B[l])
                     links_[l] = c - links_B[l]
                 if l not in links_B:
                     links_[l] = c
@@ -85,7 +93,12 @@ def graphs_operations(graph_A, graph_B, operation=OP_UNION, weights=True):
         used_nodes[t] = used_nodes.get(t, 0) + c
 
     nodes = [{"id": id, "c": c} for id, c in used_nodes.items()]
-    result_graph = {"nodes": nodes, "links": links}
+    if operation == OP_DIFFERENCE:
+        basis = list(set(graph_A["basis"]).difference(graph_B["basis"]))
+    else:
+        basis = list(set(graph_A["basis"]).union(graph_B["basis"]))
+    equation = "(" + graph_A["equation"] + ")" + OPERATION_MAP[operation] + "(" + graph_B["equation"] + ")"
+    result_graph = {"basis": basis, "equation": equation, "nodes": nodes, "links": links}
 
     # Assign weights if not used.
     if not weights:

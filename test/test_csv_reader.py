@@ -10,7 +10,7 @@ from arelight.utils import iter_csv_lines
 class CsvReadingTest(unittest.TestCase):
 
     def test(self):
-        file_path = join(utils.TEST_DATA_DIR, 'arekit-iter-data-test-0.csv')
+        file_path = join(utils.TEST_DATA_DIR, 'arekit-iter-data-test.csv')
         csv_file = open(file_path, mode="r", encoding="utf-8-sig")
         for line in iter_csv_lines(csv_file=csv_file, delimiter=',', column_name="text_a"):
             print(line)

@@ -1,9 +1,10 @@
 import unittest
 
-from arekit.contrib.source.synonyms.utils import iter_synonym_groups
-from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.common.utils import split_by_whitespaces
 
 from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
+from arelight.synonyms import iter_synonym_groups
 from arelight.utils import IdAssigner
 
 from utils_ner import test_ner
@@ -32,11 +33,13 @@ class TestDeepPavlovNERPipeline(unittest.TestCase):
         ]
 
         ner_ppl_items = [
-            TermsSplitterParser(),
-            DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="ner_ontonotes_bert_mult")
+            BasePipelineItem(src_func=lambda s: s.Text),
+            DeepPavlovNERPipelineItem(src_func=lambda text: split_by_whitespaces(text),
+                                      id_assigner=IdAssigner(),
+                                      ner_model_name="ner_ontonotes_bert_mult")
         ]
 
-        test_ner(texts=texts, ner_ppl_items=ner_ppl_items, prefix="dp_ner")
+        test_ner(texts=texts, ner_ppl_items=ner_ppl_items, collection_name="dp_ner")
 
 
 if __name__ == '__main__':

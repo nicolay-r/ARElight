@@ -5,10 +5,10 @@ from arelight.utils import IdAssigner
 
 class TextEntitiesParser(BasePipelineItem):
 
-    def __init__(self, id_assigner, display_value_func=None):
+    def __init__(self, id_assigner, display_value_func=None, **kwargs):
         assert(isinstance(id_assigner, IdAssigner))
         assert(callable(display_value_func) or display_value_func is None)
-        super(TextEntitiesParser, self).__init__()
+        super(TextEntitiesParser, self).__init__(**kwargs)
         self.__id_assigner = id_assigner
         self.__disp_value_func = display_value_func
 

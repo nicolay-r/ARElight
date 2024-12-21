@@ -4,11 +4,9 @@ import utils
 from os.path import join, exists
 import pandas as pd
 
-from arekit.common.pipeline.base import BasePipeline
-from arekit.contrib.utils.data.readers.jsonl import JsonlReader
-from arekit.contrib.utils.io_utils.samples import SamplesIO
+from arekit.common.pipeline.base import BasePipelineLauncher
 
-
+from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.utils_graph import save_graph
@@ -16,6 +14,8 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
+from arelight.readers.csv_pd import PandasCsvReader
+from arelight.readers.jsonl import JsonlReader
 
 
 class TestBackendD3JS(unittest.TestCase):
@@ -46,6 +46,7 @@ class TestBackendD3JS(unittest.TestCase):
             relations.append([source, target, label])
 
         graph = make_graph_from_relations_array(
+            graph_name="UNKNOWN_GRAPH_NAME",
             relations=relations[10:],
             entity_values=[item.split(',') for item in data_single_type["entity_values"]],
             entity_types=[item.split(',') for item in data_single_type["entity_types"]],
@@ -54,6 +55,7 @@ class TestBackendD3JS(unittest.TestCase):
         )
 
         graph2 = make_graph_from_relations_array(
+            graph_name="UNKNOWN_GRAPH_NAME",
             relations=relations[:10],
             entity_values=[item.split(',') for item in data_single_type["entity_values"]],
             entity_types=[item.split(',') for item in data_single_type["entity_types"]],
@@ -86,17 +88,16 @@ class TestBackendD3JS(unittest.TestCase):
                 }
             })
 
-        samples_io = SamplesIO(target_dir=utils.TEST_OUT_DIR,
-                               reader=JsonlReader(),
-                               writer=None)
+        target_func = lambda data_type: join(utils.TEST_OUT_DIR, "-".join(["sample", data_type.name.lower()]))
+        samples_io = CustomSamplesIO(create_target_func=target_func, reader=JsonlReader())
 
-        pipeline = BasePipeline(ppl)
         ppl_result = PipelineResult(extra_params={
             "samples_io": samples_io,
             "labels_scaler": CustomLabelScaler(),
             "d3js_graph_output_dir": utils.TEST_OUT_DIR,
+            "predict_reader": PandasCsvReader(compression='infer'),
         })
         ppl_result.update("predict_filepath", value=join(utils.TEST_OUT_DIR, "predict.tsv.gz"))
         ppl_result.update("labels_formatter", value=CustomLabelsFormatter())
 
-        pipeline.run(input_data=ppl_result)
+        BasePipelineLauncher.run(pipeline=ppl, pipeline_ctx=ppl_result, src_key="samples_io")

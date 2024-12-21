@@ -1,17 +1,16 @@
-import logging
 from enum import Enum
 from io import TextIOWrapper
 from zipfile import ZipFile
 
 from arekit.common.docs.base import Document
 from arekit.common.docs.sentence import BaseDocumentSentence
-from arekit.contrib.source.synonyms.utils import iter_synonym_groups
 
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
+from arelight.synonyms import iter_synonym_groups
 from arelight.utils import auto_import, iter_csv_lines
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+
+NER_TYPES = ["ORG", "PERSON", "LOC", "GPE"]
 
 
 def create_sentence_parser(framework, language):
@@ -182,14 +181,14 @@ def is_port_number(number, is_optional=True):
 
 
 OPENNRE_CHECKPOINTS = {
-    "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar": {
-        "state": "DeepPavlov/rubert-base-cased",
-        "checkpoint": "https://www.dropbox.com/scl/fi/rwjf7ag3w3z90pifeywrd/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar?rlkey=p0mmu81o6c2u6iboe9m20uzqk&dl=1",
-        "label_scaler": CustomLabelScaler(p=1, n=2, u=0)
-    },
     "ra4-rsr1_bert-base-cased_cls.pth.tar": {
         "state": "bert-base-cased",
         "checkpoint": "https://www.dropbox.com/scl/fi/k5arragv1g4wwftgw5xxd/ra-rsr_bert-base-cased_cls.pth.tar?rlkey=8hzavrxunekf0woesxrr0zqys&dl=1",
+        "label_scaler": CustomLabelScaler(p=1, n=2, u=0)
+    },
+    "ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar": {
+        "state": "DeepPavlov/rubert-base-cased",
+        "checkpoint": "https://www.dropbox.com/scl/fi/rwjf7ag3w3z90pifeywrd/ra4-rsr1_DeepPavlov-rubert-base-cased_cls.pth.tar?rlkey=p0mmu81o6c2u6iboe9m20uzqk&dl=1",
         "label_scaler": CustomLabelScaler(p=1, n=2, u=0)
     }
 }

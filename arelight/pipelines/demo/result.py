@@ -1,5 +1,4 @@
 from arekit.common.pipeline.context import PipelineContext
-from arekit.contrib.utils.data.readers.csv_pd import PandasCsvReader
 
 from arelight.run.utils import merge_dictionaries
 
@@ -16,8 +15,6 @@ class PipelineResult(PipelineContext):
             # Inference stage -------------------------
             "iter_infer": None,
             "iter_total": None,
-            # Inference stage -------------------------
-            "predict_reader": PandasCsvReader(compression='infer'),  # The way we can read the predicted results.
         }
 
         super(PipelineResult, self).__init__(

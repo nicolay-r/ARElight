@@ -1,7 +1,7 @@
-# ARElight 0.24.0
+# ARElight 0.25.0
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
-![](https://img.shields.io/badge/AREkit-0.24.0-orange.svg)
+![](https://img.shields.io/badge/AREkit-0.25.1-orange.svg)
 [![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
 
@@ -12,13 +12,15 @@
 </p>
 
 ARElight is an application for a granular view onto sentiments between mentioned named entities 
-in texts.
+in texts. 
+This repository is a part of the **ECIR-2024** demo paper: 
+[ARElight: Context Sampling of Large Texts for Deep Learning Relation Extraction](https://link.springer.com/chapter/10.1007/978-3-031-56069-9_23).
 
 
 # Installation
 
 ```bash
-pip install git+https://github.com/nicolay-r/arelight@v0.24.0
+pip install git+https://github.com/nicolay-r/arelight@v0.24.1
 ```
 
 ## Usage: Inference
@@ -86,7 +88,7 @@ Parameters:
     * `batch-size` -- amount of samples per single inference iteration.
     * `tokens-per-context` -- size of input.
     * `bert-torch-checkpoint` -- fine-tuned state.
-    * `device-type` -- `cpu` or `gpu`.
+    * `device-type` -- `cpu` or `cuda`.
     * `labels-fmt` -- list of the mappings from `label` to integer value; is a `p:1,n:2,u:0` by default, where:
         * `p` -- positive label, which is mapped to `1`.
         * `n` -- negative label, which is mapped to `2`.
@@ -99,31 +101,7 @@ Parameters:
 Framework parameters mentioned above as well as their related setups might be ommited.
 
 </details>
-
-To Launch Graph Builder for D3JS and (optional) start DEMO server for collections in `output` dir:
-
-```bash
-cd output && python -m http.server 8000
-```
  
-Finally, you may follow the demo page at `http://0.0.0.0:8000/`
-
-[![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
-
-![image](https://github.com/nicolay-r/ARElight/assets/14871187/341f3b51-d639-46b6-83fe-99b542b1751b)
-
-## Layout of the files in output
-```
-output/
-├── description/
-    └── ...         // graph descriptions in JSON.
-├── force/
-    └── ...         // force graphs in JSON.
-├── radial/
-    └── ...         // radial graphs in JSON.
-└── index.html      // main HTML demo page. 
-```
-
 ## Usage: Graph Operations
 
 For graph analysis you can perform several graph operations by this script:
