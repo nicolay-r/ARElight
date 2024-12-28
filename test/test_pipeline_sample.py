@@ -27,7 +27,7 @@ from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.synonyms import iter_synonym_groups
-from test.utils_entity_parser import TextEntitiesParser
+from utils_entity_parser import TextEntitiesParser
 
 
 class EntityFilter(object):

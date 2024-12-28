@@ -14,6 +14,7 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
+from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.run.utils import create_translate_model
 from arelight.third_party.dp_130 import DeepPavlovNER
 
@@ -38,6 +39,8 @@ class DocumentParsingBenchmark(unittest.TestCase):
                             src_func=lambda text: split_by_whitespaces(text),
                             model=DeepPavlovNER(model="ner_ontonotes_bert_mult", download=False, install=False),
                             obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                            # It is important to provide the correct type (see AREkit #575)
+                            create_entity_func=lambda value, e_type, entity_id: IndexedEntity(value=value, e_type=e_type, entity_id=entity_id),
                             chunk_limit=128),
         ]
 

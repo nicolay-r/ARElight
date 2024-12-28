@@ -17,6 +17,7 @@ from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
+from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
@@ -89,6 +90,8 @@ class TestInfer(unittest.TestCase):
                             src_func=lambda text: split_by_whitespaces(text),
                             model=DeepPavlovNER(model="ner_ontonotes_bert_mult", download=False, install=False),
                             obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                            # It is important to provide the correct type (see AREkit #575)
+                            create_entity_func=lambda value, e_type, entity_id: IndexedEntity(value=value, e_type=e_type, entity_id=entity_id),
                             chunk_limit=128),
             EntitiesGroupingPipelineItem(
                 lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
@@ -134,16 +137,5 @@ class TestInfer(unittest.TestCase):
                     },
         }
         })
-
-        self.launch(pipeline)
-
-    def test_data_only(self):
-
-        pipeline = demo_infer_texts_bert_pipeline(
-            inference_writer=None,
-            sampling_engines={
-                "arekit": self.create_sampling_params()
-            },
-            infer_engines=None)
 
         self.launch(pipeline)

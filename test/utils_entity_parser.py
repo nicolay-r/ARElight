@@ -1,6 +1,7 @@
 from arekit.common.pipeline.items.base import BasePipelineItem
-from bulk_ner.src.entity_indexed import IndexedEntity
 from bulk_ner.src.utils import IdAssigner
+
+from arelight.arekit.indexed_entity import IndexedEntity
 
 
 class TextEntitiesParser(BasePipelineItem):
