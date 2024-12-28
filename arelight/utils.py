@@ -47,17 +47,6 @@ def get_default_download_dir():
     return os.path.join(homedir, ".arelight")
 
 
-class IdAssigner(object):
-
-    def __init__(self):
-        self.__id = 0
-
-    def get_id(self):
-        curr_id = self.__id
-        self.__id += 1
-        return curr_id
-
-
 def iter_csv_lines(csv_file, column_name, delimiter=","):
 
     with csv_file:

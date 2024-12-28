@@ -16,6 +16,8 @@ from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
+from bulk_ner.src.pipeline.item.ner import NERPipelineItem
+from bulk_ner.src.utils import IdAssigner
 
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
@@ -26,9 +28,6 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
-from arelight.pipelines.items.entities_default import TextEntitiesParser
-from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
@@ -39,7 +38,8 @@ from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.stemmers.ru_mystem import MystemWrapper
-from arelight.utils import IdAssigner, flatten
+from arelight.third_party.dp_130 import DeepPavlovNER
+from arelight.utils import flatten
 
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
@@ -159,40 +159,14 @@ if __name__ == '__main__':
 
     stemmer = stemmer_types[args.stemmer]()
 
-    def __entity_display_value(entity_value):
-        """ This function describes how the result entity is expected to be visualized
-            and passed for further components of the pipeline after serialization.
-        """
-
-        display_value = entity_value
-
-        if stemmer is not None:
-            display_value = stemmer.lemmatize_to_str(display_value)
-
-        if args.translate_entity is not None:
-            src, dest = args.translate_entity.split(':')
-            display_value = translator([display_value], src=src, dest=dest)[0]
-
-        return display_value
-
     entity_parsers = {
-        # Default parser.
-        None: lambda: TextEntitiesParser(id_assigner=IdAssigner(),
-                                         display_value_func=__entity_display_value),
         # Parser based on DeepPavlov backend.
-        "deeppavlov": lambda: DeepPavlovNERPipelineItem(
+        "deeppavlov": lambda: NERPipelineItem(
+            id_assigner=IdAssigner(),
             src_func=lambda text: split_by_whitespaces(text),
+            model=DeepPavlovNER(model=ner_model_name, download=False, install=False),
             obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
-            ner_model_name=ner_model_name,
-            id_assigner=IdAssigner(),
-            display_value_func=__entity_display_value),
-        # Parser based on Transformers backend.
-        "transformers": lambda: TransformersNERPipelineItem(
-            obj_filter=None if ner_object_types is None else lambda entity_group: entity_group in ner_object_types,
-            ner_model_name=ner_model_name,
-            id_assigner=IdAssigner(),
-            display_value_func=__entity_display_value,
-            device=args.device_type),
+            chunk_limit=128)
     }
 
     infer_engines_setup = {

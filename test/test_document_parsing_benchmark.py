@@ -1,6 +1,9 @@
 import utils
 import unittest
 
+from bulk_ner.src.pipeline.item.ner import NERPipelineItem
+from bulk_ner.src.utils import IdAssigner
+
 from arekit.common.data.input.providers.const import IDLE_MODE
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.text.enums import TermFormat
@@ -11,10 +14,8 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
-from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
 from arelight.run.utils import create_translate_model
-from arelight.utils import IdAssigner
+from arelight.third_party.dp_130 import DeepPavlovNER
 
 
 class DocumentParsingBenchmark(unittest.TestCase):
@@ -33,11 +34,11 @@ class DocumentParsingBenchmark(unittest.TestCase):
         # Declare text parser.
         text_parser_pipeline = [
             BasePipelineItem(src_func=lambda s: s.Text),
-            DeepPavlovNERPipelineItem(
-                src_func=lambda text: split_by_whitespaces(text),
-                id_assigner=IdAssigner(),
-                obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
-                ner_model_name="ner_ontonotes_bert_mult"),
+            NERPipelineItem(id_assigner=IdAssigner(),
+                            src_func=lambda text: split_by_whitespaces(text),
+                            model=DeepPavlovNER(model="ner_ontonotes_bert_mult", download=False, install=False),
+                            obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                            chunk_limit=128),
         ]
 
         # Composing labels formatter and experiment preparation.
@@ -54,32 +55,7 @@ class DocumentParsingBenchmark(unittest.TestCase):
         for s in pd:
             assert (isinstance(s, BaseParsedText))
             for t in s.iter_terms(TermFormat.Raw):
-                print(t)
-
-    def test_ner_transformers(self):
-
-        # Declare text parser.
-        text_parser_pipeline = [
-            BasePipelineItem(src_func=lambda s: s.Text),
-            TransformersNERPipelineItem(id_assigner=IdAssigner(),
-                                        ner_model_name="dslim/bert-base-NER", device="cpu"),
-        ]
-
-        # Composing labels formatter and experiment preparation.
-        text = DocumentParsingBenchmark.read_text("data/book-war-and-peace-test.txt")
-        doc_provider = utils.InMemoryDocProvider(docs=utils.input_to_docs([text]))
-
-        print("Sentences:", doc_provider.by_id(0).SentencesCount)
-        pd = DocumentParsers.parse_batch(doc=doc_provider.by_id(0),
-                                         pipeline_items=text_parser_pipeline,
-                                         parent_ppl_ctx=PipelineContext(d={IDLE_MODE: None}),
-                                         batch_size=16,
-                                         show_progress=True)
-
-        for s in pd:
-            assert(isinstance(s, BaseParsedText))
-            for t in s.iter_terms(TermFormat.Raw):
-                print(t)
+                print(t, )
 
     def test_translator(self):
 
@@ -109,7 +85,7 @@ class DocumentParsingBenchmark(unittest.TestCase):
         for s in pd:
             assert(isinstance(s, BaseParsedText))
             for t in s.iter_terms(TermFormat.Raw):
-                print(t)
+                print(t, )
 
 
 if __name__ == '__main__':

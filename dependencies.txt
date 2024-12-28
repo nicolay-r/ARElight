@@ -4,7 +4,8 @@ torch==2.0.1
 pytorch-crf==0.7.2
 source-iter==0.24.2
 arekit==0.25.1
-bulk-translate==0.24.1
+bulk-translate==0.25.1
+bulk-ner==0.25.0
 open-nre==0.1.1
 nltk==3.8.1
 googletrans==3.1.0a0
