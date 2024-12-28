@@ -140,7 +140,7 @@ class TestInfer(unittest.TestCase):
     def test_data_only(self):
 
         pipeline = demo_infer_texts_bert_pipeline(
-            inference_writer=TsvPredictWriter(),
+            inference_writer=None,
             sampling_engines={
                 "arekit": self.create_sampling_params()
             },
