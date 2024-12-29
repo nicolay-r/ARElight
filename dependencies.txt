@@ -3,7 +3,7 @@ transformers==4.24.0
 torch==2.0.1
 pytorch-crf==0.7.2
 source-iter==0.24.2
-arekit==0.25.1
+arekit==0.25.2
 bulk-translate==0.25.1
 bulk-ner==0.25.0
 open-nre==0.1.1
