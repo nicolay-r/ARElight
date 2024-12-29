@@ -33,13 +33,14 @@ from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
 from arelight.readers.sqlite import SQliteReader
-from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
-    create_translate_model, iter_content, OPENNRE_CHECKPOINTS, NER_TYPES
+from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser,\
+    iter_content, OPENNRE_CHECKPOINTS, NER_TYPES
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.third_party.dp_130 import DeepPavlovNER
+from arelight.third_party.gt_310a import GoogleTranslateModel
 from arelight.utils import flatten
 
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
@@ -148,7 +149,7 @@ if __name__ == '__main__':
     
     translate_model = {
         None: lambda: None,
-        "googletrans": lambda: create_translate_model("googletrans")
+        "googletrans": lambda: GoogleTranslateModel()
     }
 
     translator = translate_model[args.translate_framework]()
@@ -244,8 +245,7 @@ if __name__ == '__main__':
             None: lambda: None,
             "ml-based": lambda: [
                 MLTextTranslatorPipelineItem(
-                    batch_translate_model=lambda content: translator(
-                        str_list=content,
+                    batch_translate_model=translator.get_func(
                         src=args.translate_text.split(':')[0],
                         dest=args.translate_text.split(':')[1]),
                     do_translate_entity=False,
