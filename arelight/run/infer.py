@@ -263,8 +263,10 @@ if __name__ == '__main__':
             entity_parsers[ner_framework](),
             text_translator_setup["ml-based" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
-                lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                    synonyms=synonyms, value=value))
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                value_to_group_id_func=lambda value:
+                    SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                        synonyms=synonyms, value=value))
         ])
 
         # Reading from the optionally large list of files.

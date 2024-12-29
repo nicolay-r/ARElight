@@ -7,11 +7,14 @@ from arekit.contrib.utils.pipelines.text_opinion.annot.algo_based import Algorit
 from arekit.contrib.utils.pipelines.text_opinion.extraction import text_opinion_extraction_pipeline
 from arekit.contrib.utils.pipelines.text_opinion.filters.distance_based import DistanceLimitedTextOpinionFilter
 
+from arelight.arekit.indexed_entity import IndexedEntity
+
 
 def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_context, batch_size,
                                        doc_provider, text_pipeline, dist_in_sentences=0):
 
     nolabel_annotator = AlgorithmBasedTextOpinionAnnotator(
+        is_entity_func=lambda term: isinstance(term, IndexedEntity),
         value_to_group_id_func=lambda value:
             SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                 synonyms=synonyms, value=value),
@@ -19,7 +22,9 @@ def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_
             dist_in_sents=dist_in_sentences,
             dist_in_terms_bound=dist_in_terms_bound,
             entity_index_func=lambda indexed_entity: indexed_entity.ID,
-            label_provider=ConstantLabelProvider(NoLabel())),
+            label_provider=ConstantLabelProvider(NoLabel()),
+            is_entity_func=lambda term: isinstance(term, IndexedEntity),
+            entity_value_func=lambda e: e.Value),
         create_empty_collection_func=lambda: OpinionCollection(
             opinions=[],
             synonyms=synonyms,
@@ -30,6 +35,7 @@ def create_neutral_annotation_pipeline(synonyms, dist_in_terms_bound, terms_per_
         entity_index_func=lambda indexed_entity: indexed_entity.ID,
         pipeline_items=text_pipeline,
         get_doc_by_id_func=doc_provider.by_id,
+        is_entity_func=lambda term: isinstance(term, IndexedEntity),
         annotators=[
             nolabel_annotator
         ],

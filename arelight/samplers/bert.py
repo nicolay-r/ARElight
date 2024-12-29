@@ -5,6 +5,7 @@ from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.contrib.bert.input.providers.cropped_sample import CroppedBertSampleRowProvider
 from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
 
+from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.samplers.types import BertSampleProviderTypes
 
 
@@ -44,4 +45,5 @@ def create_bert_sample_provider(provider_type, label_scaler, entity_formatter, c
     return CroppedBertSampleRowProvider(crop_window_size=crop_window,
                                         text_b_template=text_b_prompt,
                                         text_terms_mapper=text_terms_mapper,
+                                        is_entity_func=lambda term: isinstance(term, IndexedEntity),
                                         label_scaler=label_scaler)
