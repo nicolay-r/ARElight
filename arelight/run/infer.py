@@ -248,7 +248,8 @@ if __name__ == '__main__':
                         str_list=content,
                         src=args.translate_text.split(':')[0],
                         dest=args.translate_text.split(':')[1]),
-                    do_translate_entity=False),
+                    do_translate_entity=False,
+                    is_span_func=lambda term: isinstance(term, IndexedEntity)),
                 BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
             ]
         }

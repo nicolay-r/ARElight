@@ -70,6 +70,7 @@ class DocumentParsingBenchmark(unittest.TestCase):
             MLTextTranslatorPipelineItem(
                 src_func=lambda text: split_by_whitespaces(text),
                 batch_translate_model=lambda content: translator(str_list=content, src="ru", dest="en"),
+                is_span_func=lambda term: isinstance(term, IndexedEntity),
                 do_translate_entity=False)
         ]
 
