@@ -136,6 +136,8 @@ if __name__ == '__main__':
                 # We annotate everything with NoLabel.
                 label_scaler=SingleLabelScaler(NoLabel()),
                 entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                entity_group_ind_func=lambda entity: entity.GroupIndex,
                 crop_window=terms_per_context),
             "samples_io": CustomSamplesIO(create_target_func=collection_target_func,
                                           reader=SQliteReader(table_name="contents"),

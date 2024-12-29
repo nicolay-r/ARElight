@@ -66,6 +66,8 @@ class TestInfer(unittest.TestCase):
                 label_scaler=SingleLabelScaler(NoLabel()),
                 provider_type=BertSampleProviderTypes.NLI_M,
                 entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                entity_group_ind_func=lambda entity: entity.GroupIndex,
                 crop_window=50),
             "save_labels_func": lambda _: False,
             "samples_io": CustomSamplesIO(create_target_func=target_func, reader=JsonlReader(), writer=SQliteWriter()),
@@ -94,7 +96,8 @@ class TestInfer(unittest.TestCase):
                             create_entity_func=lambda value, e_type, entity_id: IndexedEntity(value=value, e_type=e_type, entity_id=entity_id),
                             chunk_limit=128),
             EntitiesGroupingPipelineItem(
-                lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                value_to_group_id_func=lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
         ]
 
