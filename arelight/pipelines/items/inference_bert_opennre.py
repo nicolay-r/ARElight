@@ -10,7 +10,7 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from opennre.encoder import BERTEntityEncoder, BERTEncoder
 from opennre.model import SoftmaxNN
 
-from arelight.third_party.torch import sentence_re_loader
+from arelight.third_party.legacy.torch import sentence_re_loader
 from arelight.utils import get_default_download_dir, download
 
 logger = logging.getLogger(__name__)
@@ -120,8 +120,13 @@ class BertOpenNREInferencePipelineItem(BasePipelineItem):
         model.load_state_dict(torch.load(ckpt_path, map_location=torch.device(device_type))['state_dict'])
         return model
 
+    # TODO. This is legacy (see #173).
+    # TODO. This is legacy (see #173).
+    # TODO. This is legacy (see #173).
     @staticmethod
     def iter_results(parallel_model, eval_loader, data_ids):
+        """ NOTE. This method by-passess the predefined inference @ model.infer().
+        """
 
         # It is important we should open database.
         with eval_loader.dataset:
