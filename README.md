@@ -21,8 +21,14 @@ This repository is a part of the **ECIR-2024** demo paper:
 # Installation
 
 ```bash
-pip install git+https://github.com/nicolay-r/arelight@v0.24.1
+pip install git+https://github.com/nicolay-r/arelight@v0.25.0
 ```
+
+# GUI Interface 
+
+Since the version `0.25.0` ARElight has an updated GUI server
+### :point_right: [Server Setup](https://github.com/nicolay-r/ARElight-server) :point_left:
+![image](https://github.com/user-attachments/assets/b7a1189a-b5b0-479f-8413-f8a16801e06b)
 
 ## Usage: Inference
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
