@@ -53,7 +53,7 @@ class SQLiteSentenceREDataset(data.Dataset):
         fetched_row = next(iter_rows)
 
         opennre_item = {
-            "text": " ".join(fetched_row[-len(found_text_columns):]),
+            "token": fetched_row[-len(found_text_columns):],
             "h": {"pos": [fetched_row[0], fetched_row[0] + 1]},
             "t": {"pos": [fetched_row[1], fetched_row[1] + 1]},
         }
