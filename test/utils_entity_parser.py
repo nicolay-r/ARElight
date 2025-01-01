@@ -1,6 +1,7 @@
 from arekit.common.pipeline.items.base import BasePipelineItem
-from arelight.pipelines.items.entity import IndexedEntity
-from arelight.utils import IdAssigner
+from bulk_ner.src.utils import IdAssigner
+
+from arelight.arekit.indexed_entity import IndexedEntity
 
 
 class TextEntitiesParser(BasePipelineItem):
@@ -18,8 +19,7 @@ class TextEntitiesParser(BasePipelineItem):
         # If this is a special word which is related to the [entity] mention.
         if word[0] == "[" and word[-1] == "]":
             value = word[1:-1]
-            entity = IndexedEntity(value=value, e_type="UNDEFINED", entity_id=self.__id_assigner.get_id(),
-                                   display_value=self.__disp_value_func(value) if self.__disp_value_func is not None else None)
+            entity = IndexedEntity(value=value, e_type="UNDEFINED", entity_id=self.__id_assigner.get_id() )
             return entity
 
         return word

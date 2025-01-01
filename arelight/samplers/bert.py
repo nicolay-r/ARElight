@@ -5,6 +5,7 @@ from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.contrib.bert.input.providers.cropped_sample import CroppedBertSampleRowProvider
 from arekit.contrib.bert.terms.mapper import BertDefaultStringTextTermsMapper
 
+from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.samplers.types import BertSampleProviderTypes
 
 
@@ -25,15 +26,14 @@ class BertTextBRussianPrompts(Enum):
     QA = 'Что вы думаете по поводу отношения {subject} к {object} в контексте : << {context} >> ?'
 
 
-def create_bert_sample_provider(provider_type, label_scaler, entity_formatter, crop_window):
+def create_bert_sample_provider(provider_type, label_scaler, crop_window, **mapper_kwargs):
     """ This is a factory method, which allows to instantiate any of the
         supported bert_sample_encoders
     """
     assert(isinstance(provider_type, BertSampleProviderTypes) or provider_type is None)
     assert(isinstance(label_scaler, BaseLabelScaler))
-    assert(isinstance(entity_formatter, StringEntitiesFormatter))
 
-    text_terms_mapper = BertDefaultStringTextTermsMapper(entity_formatter)
+    text_terms_mapper = BertDefaultStringTextTermsMapper(**mapper_kwargs)
 
     text_b_prompt = None
     if provider_type == BertSampleProviderTypes.NLI_M:
@@ -44,4 +44,5 @@ def create_bert_sample_provider(provider_type, label_scaler, entity_formatter, c
     return CroppedBertSampleRowProvider(crop_window_size=crop_window,
                                         text_b_template=text_b_prompt,
                                         text_terms_mapper=text_terms_mapper,
+                                        is_entity_func=lambda term: isinstance(term, IndexedEntity),
                                         label_scaler=label_scaler)

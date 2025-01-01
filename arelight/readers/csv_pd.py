@@ -1,7 +1,6 @@
 import importlib
 
-from arekit.contrib.utils.data.storages.pandas_based import PandasBasedRowsStorage
-
+from arelight.arekit.storages.pandas_based import PandasBasedRowsStorage
 from arelight.readers.base import BaseReader
 
 

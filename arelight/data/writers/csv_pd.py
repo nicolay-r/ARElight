@@ -2,8 +2,9 @@ import logging
 
 from arekit.common.data.input.providers.columns.base import BaseColumnsProvider
 from arekit.common.utils import create_dir_if_not_exists
-from arekit.contrib.utils.data.storages.pandas_based import PandasBasedRowsStorage
 from arekit.contrib.utils.data.writers.base import BaseWriter
+
+from arelight.arekit.storages.pandas_based import PandasBasedRowsStorage
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

@@ -1,7 +1,7 @@
-# ARElight 0.25.0
+# ARElight 0.25.1
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
-![](https://img.shields.io/badge/AREkit-0.25.1-orange.svg)
+![](https://img.shields.io/badge/AREkit-0.25.2-orange.svg)
 [![](https://img.shields.io/badge/demo-0.24.0-purple.svg)](https://guardeec.github.io/arelight_demo/template.html)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
 [![PyPI downloads](https://img.shields.io/pypi/dm/arelight.svg)](https://pypistats.org/packages/arelight)
@@ -21,7 +21,7 @@ This repository is a part of the **ECIR-2024** demo paper:
 # Installation
 
 ```bash
-pip install git+https://github.com/nicolay-r/arelight@v0.25.0
+pip install git+https://github.com/nicolay-r/arelight@v0.25.1
 ```
 
 # GUI Interface 

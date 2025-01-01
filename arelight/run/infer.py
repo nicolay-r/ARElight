@@ -16,7 +16,10 @@ from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
+from bulk_ner.src.pipeline.item.ner import NERPipelineItem
+from bulk_ner.src.utils import IdAssigner
 
+from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
 from arelight.data.writers.sqlite_native import SQliteWriter
@@ -26,20 +29,19 @@ from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
-from arelight.pipelines.items.entities_default import TextEntitiesParser
-from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
-from arelight.pipelines.items.entities_ner_transformers import TransformersNERPipelineItem
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
 from arelight.readers.sqlite import SQliteReader
-from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, \
-    create_translate_model, iter_content, OPENNRE_CHECKPOINTS, NER_TYPES
+from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser,\
+    iter_content, OPENNRE_CHECKPOINTS, NER_TYPES
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import SampleFormattersService
 from arelight.stemmers.ru_mystem import MystemWrapper
-from arelight.utils import IdAssigner, flatten
+from arelight.third_party.dp_130 import DeepPavlovNER
+from arelight.third_party.gt_310a import GoogleTranslateModel
+from arelight.utils import flatten
 
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
@@ -58,7 +60,7 @@ def create_infer_parser():
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
-    parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=[None, "deeppavlov", "transformers"], default="deeppavlov")
+    parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=["deeppavlov"], default="deeppavlov")
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None, choices=["ner_ontonotes_bert", "ner_ontonotes_bert_mult"])
     parser.add_argument('--ner-types', dest='ner_types', type=str, default= "|".join(NER_TYPES), help="Filters specific NER types; provide with `|` separator")
     parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
@@ -134,6 +136,8 @@ if __name__ == '__main__':
                 # We annotate everything with NoLabel.
                 label_scaler=SingleLabelScaler(NoLabel()),
                 entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                entity_group_ind_func=lambda entity: entity.GroupIndex,
                 crop_window=terms_per_context),
             "samples_io": CustomSamplesIO(create_target_func=collection_target_func,
                                           reader=SQliteReader(table_name="contents"),
@@ -147,7 +151,7 @@ if __name__ == '__main__':
     
     translate_model = {
         None: lambda: None,
-        "googletrans": lambda: create_translate_model("googletrans")
+        "googletrans": lambda: GoogleTranslateModel()
     }
 
     translator = translate_model[args.translate_framework]()
@@ -159,40 +163,16 @@ if __name__ == '__main__':
 
     stemmer = stemmer_types[args.stemmer]()
 
-    def __entity_display_value(entity_value):
-        """ This function describes how the result entity is expected to be visualized
-            and passed for further components of the pipeline after serialization.
-        """
-
-        display_value = entity_value
-
-        if stemmer is not None:
-            display_value = stemmer.lemmatize_to_str(display_value)
-
-        if args.translate_entity is not None:
-            src, dest = args.translate_entity.split(':')
-            display_value = translator([display_value], src=src, dest=dest)[0]
-
-        return display_value
-
     entity_parsers = {
-        # Default parser.
-        None: lambda: TextEntitiesParser(id_assigner=IdAssigner(),
-                                         display_value_func=__entity_display_value),
         # Parser based on DeepPavlov backend.
-        "deeppavlov": lambda: DeepPavlovNERPipelineItem(
+        "deeppavlov": lambda: NERPipelineItem(
+            id_assigner=IdAssigner(),
             src_func=lambda text: split_by_whitespaces(text),
+            model=DeepPavlovNER(model=ner_model_name, download=False, install=False),
             obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
-            ner_model_name=ner_model_name,
-            id_assigner=IdAssigner(),
-            display_value_func=__entity_display_value),
-        # Parser based on Transformers backend.
-        "transformers": lambda: TransformersNERPipelineItem(
-            obj_filter=None if ner_object_types is None else lambda entity_group: entity_group in ner_object_types,
-            ner_model_name=ner_model_name,
-            id_assigner=IdAssigner(),
-            display_value_func=__entity_display_value,
-            device=args.device_type),
+            # It is important to provide the correct type (see AREkit #575)
+            create_entity_func=lambda value, e_type, entity_id: IndexedEntity(value=value, e_type=e_type, entity_id=entity_id),
+            chunk_limit=128)
     }
 
     infer_engines_setup = {
@@ -267,11 +247,11 @@ if __name__ == '__main__':
             None: lambda: None,
             "ml-based": lambda: [
                 MLTextTranslatorPipelineItem(
-                    batch_translate_model=lambda content: translator(
-                        str_list=content,
+                    batch_translate_model=translator.get_func(
                         src=args.translate_text.split(':')[0],
                         dest=args.translate_text.split(':')[1]),
-                    do_translate_entity=False),
+                    do_translate_entity=False,
+                    is_span_func=lambda term: isinstance(term, IndexedEntity)),
                 BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
             ]
         }
@@ -285,8 +265,10 @@ if __name__ == '__main__':
             entity_parsers[ner_framework](),
             text_translator_setup["ml-based" if args.translate_text is not None else None](),
             EntitiesGroupingPipelineItem(
-                lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                    synonyms=synonyms, value=value))
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                value_to_group_id_func=lambda value:
+                    SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                        synonyms=synonyms, value=value))
         ])
 
         # Reading from the optionally large list of files.

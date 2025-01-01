@@ -7,6 +7,7 @@ class SQLite3Service(object):
         self.conn = None
 
     def connect(self, sqlite_path):
+        print("SQLITE path ", sqlite_path)
         self.conn = sqlite3.connect(sqlite_path)
 
     def disconnect(self):

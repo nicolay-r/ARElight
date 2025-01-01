@@ -6,6 +6,7 @@ from torch.utils import data
 from arelight.third_party.sqlite3 import SQLite3Service
 
 
+# TODO. This component is legacy (#173)
 class SQLiteSentenceREDataset(data.Dataset):
     """ Sentence-level relation extraction dataset
         This is a original OpenNRE implementation, adapted for SQLite.
@@ -85,6 +86,7 @@ class SQLiteSentenceREDataset(data.Dataset):
         self.sqlite_service.disconnect()
 
 
+# TODO. This component is legacy (#173)
 def sentence_re_loader(path, table_name, rel2id, tokenizer, batch_size, shuffle,
                        task_kwargs, num_workers, collate_fn=SQLiteSentenceREDataset.collate_fn, **kwargs):
     dataset = SQLiteSentenceREDataset(path=path, table_name=table_name, rel2id=rel2id,

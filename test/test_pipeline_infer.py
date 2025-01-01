@@ -1,11 +1,10 @@
-from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.utils import split_by_whitespaces
-
 import utils
 from os.path import join, realpath, dirname
 
 import unittest
 
+from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.common.utils import split_by_whitespaces
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
@@ -18,18 +17,22 @@ from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 
+from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
-from arelight.pipelines.items.entities_ner_dp import DeepPavlovNERPipelineItem
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.readers.jsonl import JsonlReader
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.synonyms import iter_synonym_groups
-from arelight.utils import IdAssigner, get_default_download_dir
+from arelight.third_party.dp_130 import DeepPavlovNER
+from arelight.utils import get_default_download_dir
+
+from bulk_ner.src.pipeline.item.ner import NERPipelineItem
+from bulk_ner.src.utils import IdAssigner
 
 
 class TestInfer(unittest.TestCase):
@@ -53,7 +56,8 @@ class TestInfer(unittest.TestCase):
             for data in iter_synonym_groups(file):
                 yield data
 
-    def create_sampling_params(self):
+    @staticmethod
+    def create_sampling_params():
 
         target_func = lambda data_type: join(utils.TEST_OUT_DIR, "-".join(["samples", data_type.name.lower()]))
 
@@ -62,6 +66,8 @@ class TestInfer(unittest.TestCase):
                 label_scaler=SingleLabelScaler(NoLabel()),
                 provider_type=BertSampleProviderTypes.NLI_M,
                 entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                entity_group_ind_func=lambda entity: entity.GroupIndex,
                 crop_window=50),
             "save_labels_func": lambda _: False,
             "samples_io": CustomSamplesIO(create_target_func=target_func, reader=JsonlReader(), writer=SQliteWriter()),
@@ -82,13 +88,16 @@ class TestInfer(unittest.TestCase):
         # Setup text parsing.
         text_parser = [
             BasePipelineItem(src_func=lambda s: s.Text),
-            DeepPavlovNERPipelineItem(ner_model_name="ner_ontonotes_bert_mult",
-                                      src_func=lambda text: split_by_whitespaces(text),
-                                      id_assigner=id_assigner,
-                                      obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
-                                      chunk_limit=128),
+            NERPipelineItem(id_assigner=id_assigner,
+                            src_func=lambda text: split_by_whitespaces(text),
+                            model=DeepPavlovNER(model="ner_ontonotes_bert_mult", download=False, install=False),
+                            obj_filter=lambda s_obj: s_obj.ObjectType in ["ORG", "PERSON", "LOC", "GPE"],
+                            # It is important to provide the correct type (see AREkit #575)
+                            create_entity_func=lambda value, e_type, entity_id: IndexedEntity(value=value, e_type=e_type, entity_id=entity_id),
+                            chunk_limit=128),
             EntitiesGroupingPipelineItem(
-                lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                value_to_group_id_func=lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
                     synonyms=synonyms, value=value))
         ]
 

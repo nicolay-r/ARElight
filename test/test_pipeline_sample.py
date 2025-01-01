@@ -1,3 +1,5 @@
+from bulk_ner.src.utils import IdAssigner
+
 import utils
 import unittest
 
@@ -17,16 +19,16 @@ from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymColle
 from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 
+from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.items.entities_default import TextEntitiesParser
 from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
 from arelight.samplers.bert import create_bert_sample_provider
 from arelight.samplers.types import BertSampleProviderTypes
 from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.synonyms import iter_synonym_groups
-from arelight.utils import IdAssigner
+from utils_entity_parser import TextEntitiesParser
 
 
 class EntityFilter(object):
@@ -75,8 +77,10 @@ class BertTestSerialization(unittest.TestCase):
             BasePipelineItem(src_func=lambda s: s.Text),
             TextEntitiesParser(src_func=lambda s: split_by_whitespaces(s), id_assigner=IdAssigner()),
             EntitiesGroupingPipelineItem(
-                lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                    synonyms=synonyms, value=value))
+                is_entity_func=lambda term: isinstance(term, IndexedEntity),
+                value_to_group_id_func=lambda value: SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
+                    synonyms=synonyms, value=value)
+            )
         ]
 
         # Composing labels formatter and experiment preparation.
