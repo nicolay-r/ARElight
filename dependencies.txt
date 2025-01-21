@@ -5,7 +5,7 @@ pytorch-crf==0.7.2
 source-iter==0.24.2
 arekit @ git+https://github.com/nicolay-r/AREkit.git@0.25.2-rc
 bulk-translate==0.25.1
-bulk-ner @ git+https://github.com/nicolay-r/bulk-ner@main
+bulk-ner==0.25.1
 open-nre==0.1.1
 nltk==3.8.1
 googletrans==3.1.0a0
