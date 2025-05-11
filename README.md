@@ -10,7 +10,7 @@
     <img src="logo.png"/>
 </p>
 <p align="center">
-  <a href="https://guardeec.github.io/arelight_demo/template.html">👉<b>demo</b>👈</a>
+  <a href="https://guardeec.github.io/arelight_demo/template.html">👉<b>DEMO</b>👈</a>
   <br>
   <a href="https://github.com/nicolay-r/ARElight-server">👉GUI server setup👈</a>
 </p>
