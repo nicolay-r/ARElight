@@ -6,10 +6,13 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
 [![PyPI downloads](https://img.shields.io/pypi/dm/arelight.svg)](https://pypistats.org/packages/arelight)
 
-### :point_right: [DEMO](https://guardeec.github.io/arelight_demo/template.html) :point_left:
-
 <p align="center">
     <img src="logo.png"/>
+</p>
+<p align="center">
+  <a href="https://guardeec.github.io/arelight_demo/template.html">👉<b>demo</b>👈</a>
+  <br>
+  <a href="https://github.com/nicolay-r/ARElight-server">server setup</a>
 </p>
 
 ARElight is an application for a granular view onto sentiments between mentioned named entities 
