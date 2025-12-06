@@ -28,4 +28,5 @@ class InferenceWriterPipelineItem(BasePipelineItem):
             uint_labels=uint_labels)
 
         with self.__writer:
-            self.__writer.write(header=header, contents_it=contents_it)
+            self.__writer.write(header=header, contents_it=contents_it,
+                                total=pipeline_ctx.provide_or_none("iter_total"))

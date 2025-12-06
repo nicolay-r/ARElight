@@ -42,6 +42,11 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
 
         self.__sqlite_service.disconnect()
 
+    def __total(self, samples_filepath):
+        self.__sqlite_service.connect(samples_filepath)
+        return self.__sqlite_service.table_rows_count(table_name=self.__table_name)
+        self.__sqlite_service.disconnect()
+
     def apply_core(self, input_data, pipeline_ctx):
         # Try to obtain from the specific input variable.
         samples_filepath = pipeline_ctx.provide_or_none("bulkchain_samples_filepath")
@@ -52,4 +57,5 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
         assert(self.__model is not None)
 
         pipeline_ctx.update("iter_infer", self.__iter_predict_result(samples_filepath))
+        pipeline_ctx.update("iter_total", self.__total(samples_filepath))
 
