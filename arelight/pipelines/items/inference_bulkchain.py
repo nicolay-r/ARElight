@@ -23,9 +23,9 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
 
     @staticmethod
     def class_to_int(text):
-        if 'positive' in text:
+        if 'positive' in text.lower():
             return 1
-        elif 'negative' in text:
+        elif 'negative' in text.lower():
             return -1 
         return 0 
 
