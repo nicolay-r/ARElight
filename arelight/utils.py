@@ -5,6 +5,8 @@ import os
 import sys
 
 import requests
+from bulk_chain.api import iter_content
+from bulk_chain.core.utils import dynamic_init
 from tqdm import tqdm
 
 
@@ -83,3 +85,18 @@ def download(dest_file_path, source_url, logger):
             if chunk:  # filter out keep-alive new chunks
                 pbar.update(len(chunk))
                 f.write(chunk)
+
+
+def init_llm(class_filepath, api_key, model_name="meta/meta-llama-3-70b-instruct"):
+    return dynamic_init(class_filepath)(
+        api_token=api_key,
+        model_name=model_name)
+
+
+def ask(llm, prompt):
+    c = iter_content(schema=[{"prompt": prompt, "out": "response"}],
+                     llm=llm,
+                     infer_mode="single",
+                     input_dicts_it=[{}])
+    for r in c:
+        return r['response']

@@ -7,7 +7,6 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.utils import split_by_whitespaces
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
-from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
@@ -20,13 +19,13 @@ from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.data.writers.sqlite_native import SQliteWriter
+from arelight.entity import HighligtedEntitiesFormatter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.infer_llm import demo_infer_texts_llm_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.readers.jsonl import JsonlReader
-from arelight.samplers.bert import create_bert_sample_provider
-from arelight.samplers.types import BertSampleProviderTypes
+from arelight.samplers.cropped import create_prompted_sample_provider
 from arelight.synonyms import iter_synonym_groups
 from arelight.third_party.dp_130 import DeepPavlovNER
 from arelight.utils import get_default_download_dir
@@ -62,10 +61,9 @@ class TestInfer(unittest.TestCase):
         target_func = lambda data_type: join(utils.TEST_OUT_DIR, "-".join(["samples", data_type.name.lower()]))
 
         return {
-            "rows_provider": create_bert_sample_provider(
+            "rows_provider": create_prompted_sample_provider(
                 label_scaler=SingleLabelScaler(NoLabel()),
-                provider_type=BertSampleProviderTypes.NLI_M,
-                entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                entity_formatter=HighligtedEntitiesFormatter(),
                 is_entity_func=lambda term: isinstance(term, IndexedEntity),
                 entity_group_ind_func=lambda entity: entity.GroupIndex,
                 crop_window=50),
@@ -121,7 +119,7 @@ class TestInfer(unittest.TestCase):
 
     def test_opennre(self):
 
-        pipeline = demo_infer_texts_bert_pipeline(
+        pipeline = demo_infer_texts_llm_pipeline(
             inference_writer=TsvPredictWriter(),
             sampling_engines={
                 "arekit": self.create_sampling_params()

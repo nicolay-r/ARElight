@@ -1,9 +1,10 @@
+from arelight.const import BULK_CHAIN
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
 from arelight.pipelines.items.inference_writer import InferenceWriterPipelineItem
 
 
-def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, backend_engines=None,
-                                   inference_writer=None):
+def demo_infer_texts_llm_pipeline(sampling_engines=None, infer_engines=None, backend_engines=None,
+                                  inference_writer=None):
     assert(isinstance(sampling_engines, dict) or sampling_engines is None)
     assert(isinstance(infer_engines, dict) or infer_engines is None)
     assert(isinstance(backend_engines, dict) or backend_engines is None)
@@ -23,15 +24,14 @@ def demo_infer_texts_bert_pipeline(sampling_engines=None, infer_engines=None, ba
     #####################################################################
     # Inference Items
     #####################################################################
-    if "opennre" in infer_engines:
-        from arelight.pipelines.items.inference_bert_opennre import BertOpenNREInferencePipelineItem
-        pipeline += [BertOpenNREInferencePipelineItem(**infer_engines["opennre"]),
+    if BULK_CHAIN in infer_engines:
+        from arelight.pipelines.items.inference_bulkchain import InferenceBulkChainPipelineItem
+        pipeline += [InferenceBulkChainPipelineItem(**infer_engines[BULK_CHAIN]),
                      InferenceWriterPipelineItem(inference_writer)]
 
     #####################################################################
     # Backend Items (after inference)
     #####################################################################
-
     if "d3js_graphs" in backend_engines:
         from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
         pipeline += [

@@ -1,0 +1,1 @@
+BULK_CHAIN = 'bulk_chain'

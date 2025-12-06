@@ -16,16 +16,16 @@ from arekit.common.data import const
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
-from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.data.writers.sqlite_native import SQliteWriter
+from arelight.entity import HighligtedEntitiesFormatter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
-from arelight.samplers.bert import create_bert_sample_provider
-from arelight.samplers.types import BertSampleProviderTypes
+
+from arelight.samplers.cropped import create_prompted_sample_provider
 from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.synonyms import iter_synonym_groups
 from utils_entity_parser import TextEntitiesParser
@@ -87,10 +87,11 @@ class BertTestSerialization(unittest.TestCase):
         doc_provider = utils.InMemoryDocProvider(docs=utils.input_to_docs(texts))
         pipeline = [
             AREkitSerializerPipelineItem(
-                rows_provider=create_bert_sample_provider(
+                rows_provider=create_prompted_sample_provider(
                     label_scaler=SingleLabelScaler(NoLabel()),
-                    provider_type=BertSampleProviderTypes.NLI_M,
-                    entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                    entity_formatter=HighligtedEntitiesFormatter(),
+                    entity_group_ind_func=lambda entity: entity.GroupIndex,
+                    is_entity_func=lambda term: isinstance(term, IndexedEntity),
                     crop_window=50),
                 save_labels_func=lambda _: False,
                 samples_io=CustomSamplesIO(

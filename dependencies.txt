@@ -7,7 +7,6 @@ arekit @ git+https://github.com/nicolay-r/AREkit.git@0.25.2-rc
 bulk-translate==0.25.1
 bulk-chain @ git+https://github.com/nicolay-r/bulk-chain@master
 bulk-ner==0.25.1
-open-nre==0.1.1
 nltk==3.8.1
 googletrans==4.0.2
 httpcore==1.0.9

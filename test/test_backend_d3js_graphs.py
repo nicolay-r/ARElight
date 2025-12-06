@@ -10,7 +10,7 @@ from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.backend.d3js.relations_graph_operations import graphs_operations
 from arelight.backend.d3js.utils_graph import save_graph
-from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.infer_llm import demo_infer_texts_llm_pipeline
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
@@ -78,7 +78,7 @@ class TestBackendD3JS(unittest.TestCase):
     def test_pipeline(self):
 
         # TIP: you need to launch test_pipeline_sample.py first!
-        ppl = demo_infer_texts_bert_pipeline(
+        ppl = demo_infer_texts_llm_pipeline(
             sampling_engines=None,
             backend_engines={
                 "d3js_graphs": {

@@ -40,20 +40,20 @@ Since the version `0.25.0` ARElight has an updated GUI server
 
 Infer sentiment attitudes from text file **in English**:
 ```bash
-python3 -m arelight.run.infer  \
-    --sampling-framework "arekit" \
+python3 -m arelight.run.infer \
+	--sampling-framework "arekit" \
     --ner-framework "deeppavlov" \
-    --ner-model-name "ner_ontonotes_bert" \
-    --ner-types "ORG|PERSON|LOC|GPE" \
-    --terms-per-context 50 \
-    --sentence-parser "nltk:english" \
-    --tokens-per-context 128 \
-    --bert-framework "opennre" \
-    --batch-size 10 \
-    --pretrained-bert "bert-base-cased" \
-    --bert-torch-checkpoint "ra4-rsr1_bert-base-cased_cls.pth.tar" \
+	--ner-model-name "ner_ontonotes_bert_mult" \
+	--ner-types "ORG|PERSON|LOC|GPE" \
+	--terms-per-context 50 \
+	--sentence-parser "nltk:russian" \
+	-o "output" \
+	--from-files $1 \
+	--log-file "arelight.log.txt" \
     --backend "d3js_graphs" \
-    --docs-limit 500 \
+    --inference-api "<API>" \
+    --inference-writer "sqlite3" \
+    --stemmer "mystem"
     -o "output" \
     --from-files "<PATH-TO-TEXT-FILE>"
 ```
@@ -94,13 +94,7 @@ Parameters:
       * `translate-framework` -- text translation backend (optional); we support [[googletrans]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L31)
       * `translate-entity` -- (optional) source and target language supported by backend, separated by `:`.
       * `translate-text` -- (optional) source and target language supported by backend, separated by `:`.
-* `bert-framework` -- samples classification framework; we support [[OpenNRE]](https://github.com/thunlp/OpenNRE).
-    * `text-b-type` -- (optional) `NLI` or None [[supported]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/samplers/bert.py#L14).
-    * `pretrained-bert` -- pretrained state name.
-    * `batch-size` -- amount of samples per single inference iteration.
-    * `tokens-per-context` -- size of input.
-    * `bert-torch-checkpoint` -- fine-tuned state.
-    * `device-type` -- `cpu` or `gpu`.
+* `bulk_chain` -- LLM framework, utilized for relations classification) [[bulk-chain]](https://github.com/nicolay-r/bulk-chain)
     * `labels-fmt` -- list of the mappings from `label` to integer value; is a `p:1,n:2,u:0` by default, where:
         * `p` -- positive label, which is mapped to `1`.
         * `n` -- negative label, which is mapped to `2`.
@@ -110,7 +104,7 @@ Parameters:
     * `label-names` -- default mapping is `p:pos,n:neg,u:neu`.
 * `-o` -- output folder for result collections and demo.
 
-Framework parameters mentioned above as well as their related setups might be ommited.
+Framework parameters mentioned above as well as their related setups might be omitted.
 
 </details>
  

@@ -13,7 +13,6 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.contrib.utils.entities.formatters.str_simple_sharp_prefixed_fmt import SharpPrefixedEntitiesSimpleFormatter
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from bulk_ner.src.pipeline.item.ner import NERPipelineItem
@@ -22,10 +21,12 @@ from bulk_ner.src.utils import IdAssigner
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
+from arelight.const import BULK_CHAIN
 from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.doc_provider import CachedFilesDocProvider
+from arelight.entity import HighligtedEntitiesFormatter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.demo.infer_bert import demo_infer_texts_bert_pipeline
+from arelight.pipelines.demo.infer_llm import demo_infer_texts_llm_pipeline
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
@@ -33,11 +34,9 @@ from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
 from arelight.readers.sqlite import SQliteReader
-from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser,\
-    iter_content, OPENNRE_CHECKPOINTS, NER_TYPES
+from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, iter_content, NER_TYPES
 from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
-from arelight.samplers.bert import create_bert_sample_provider
-from arelight.samplers.types import SampleFormattersService
+from arelight.samplers.cropped import create_prompted_sample_provider
 from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.third_party.dp_130 import DeepPavlovNER
 from arelight.third_party.gt_310a import GoogleTranslateModel
@@ -60,21 +59,21 @@ def create_infer_parser():
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
+    parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
+    # NER part.
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=["deeppavlov"], default="deeppavlov")
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None, choices=["ner_ontonotes_bert", "ner_ontonotes_bert_mult"])
     parser.add_argument('--ner-types', dest='ner_types', type=str, default= "|".join(NER_TYPES), help="Filters specific NER types; provide with `|` separator")
-    parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
+    # Translation parameters.
     parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=[None, "googletrans"])
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None, choices=[None, "auto:ru"])
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None, choices=[None, "auto:ru"])
+    # Inference parameters.
+    parser.add_argument("--inference-api", dest="inference_api", type=str, default=None)
+    parser.add_argument("--inference-framework", dest="inference_framework", type=str, default=BULK_CHAIN, choices=[BULK_CHAIN])
+    parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
+    # Common parameters.
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
-    parser.add_argument('--text-b-type', dest='text_b_type', type=str, default=None, choices=list(SampleFormattersService.iter_names()))
-    parser.add_argument('--pretrained-bert', dest='pretrained_bert', type=str, default=None, choices=["DeepPavlov/rubert-base-cased", "google-bert/bert-base-cased"])
-    parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
-    parser.add_argument('--tokens-per-context', dest='tokens_per_context', type=int, default=128, nargs='?')
-    parser.add_argument("--bert-framework", dest="bert_framework", type=str, default=None, choices=[None, "opennre"])
-    parser.add_argument("--bert-torch-checkpoint", dest="bert_torch_checkpoint", type=str, choices=list(OPENNRE_CHECKPOINTS.keys()))
-    parser.add_argument("--torch-num-workers", dest="torch_num_workers", type=int, default=0)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models", choices=['cpu', 'cuda'])
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
@@ -131,11 +130,9 @@ if __name__ == '__main__':
     sampling_engines_setup = {
         None: {},
         "arekit": {
-            "rows_provider": create_bert_sample_provider(
-                provider_type=SampleFormattersService.name_to_type(args.text_b_type) if args.text_b_type is not None else None,
-                # We annotate everything with NoLabel.
+            "rows_provider": create_prompted_sample_provider(
                 label_scaler=SingleLabelScaler(NoLabel()),
-                entity_formatter=SharpPrefixedEntitiesSimpleFormatter(),
+                entity_formatter=HighligtedEntitiesFormatter(),
                 is_entity_func=lambda term: isinstance(term, IndexedEntity),
                 entity_group_ind_func=lambda entity: entity.GroupIndex,
                 crop_window=terms_per_context),
@@ -177,22 +174,18 @@ if __name__ == '__main__':
 
     infer_engines_setup = {
         None: {},
-        "opennre": {
-            "data_loader_num_workers": args.torch_num_workers,
-            "pretrained_bert": args.pretrained_bert,
-            "checkpoint_path": args.bert_torch_checkpoint,
-            "device_type": args.device_type,
-            "max_seq_length": args.tokens_per_context,
-            "batch_size": args.batch_size,
-            "pooler": "cls",
-            "predefined_ckpts": OPENNRE_CHECKPOINTS,
+        BULK_CHAIN: {
+            "class_name": "replicate_104.py",
+            "model_name": "meta/meta-llama-3-70b-instruct",
+            "api_key": args.inference_api,
+            #"batch_size": args.batch_size,
             "table_name": "contents",
             "logger": logger,
             "task_kwargs": {
                 "no_label": str(labels_scaler.label_to_int(NoLabel())),
                 "default_id_column": ID,
                 "index_columns": [S_IND, T_IND],
-                "text_columns": [PairTextProvider.TEXT_A, PairTextProvider.TEXT_B]
+                "text_columns": [PairTextProvider.TEXT_A]
             },
         },
     }
@@ -206,14 +199,16 @@ if __name__ == '__main__':
         }
     }
 
+    table_name = "bulk_chain"
+
     predict_writers = {
         "tsv": TsvPredictWriter(log_out=tqdm_log_out),
-        "sqlite3": SQLite3PredictWriter(table_name="open_nre_bert", log_out=tqdm_log_out)
+        "sqlite3": SQLite3PredictWriter(table_name=table_name, log_out=tqdm_log_out)
     }
 
     predict_readers = {
         "tsv": PandasCsvReader(compression='infer'),
-        "sqlite3": SQliteReader(table_name="open_nre_bert")
+        "sqlite3": SQliteReader(table_name=table_name)
     }
 
     predict_extension = {
@@ -222,9 +217,9 @@ if __name__ == '__main__':
     }
 
     # Setup main pipeline.
-    pipeline = demo_infer_texts_bert_pipeline(
+    pipeline = demo_infer_texts_llm_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in [args.sampling_framework]},
-        infer_engines={key: infer_engines_setup[key] for key in [args.bert_framework]},
+        infer_engines={key: infer_engines_setup[key] for key in [args.inference_framework]},
         backend_engines={key: backend_setups[key] for key in [args.backend]},
         inference_writer=predict_writers[args.inference_writer])
 
@@ -303,7 +298,7 @@ if __name__ == '__main__':
 
     settings.append({
         "labels_scaler": labels_scaler,
-        # We provide this settings for inference.
+        # We provide these settings for inference.
         "predict_filepath": collection_target_func(DataType.Test) + predict_extension[args.inference_writer],
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
         "predict_reader": predict_readers[args.inference_writer]

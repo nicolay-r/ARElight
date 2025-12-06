@@ -14,7 +14,6 @@ class PipelineResult(PipelineContext):
         default_params = {
             # Inference stage -------------------------
             "iter_infer": None,
-            "iter_total": None,
         }
 
         super(PipelineResult, self).__init__(

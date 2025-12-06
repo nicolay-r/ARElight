@@ -13,7 +13,8 @@ class BasePredictProvider(object):
     def __iter_contents(sample_id_with_uint_labels_iter, labels_count, column_extra_funcs):
         assert(isinstance(labels_count, int))
 
-        for sample_id, uint_label in sample_id_with_uint_labels_iter:
+        for data in sample_id_with_uint_labels_iter:
+            sample_id, uint_label = data
             assert(isinstance(uint_label, int))
 
             labels = ['0'] * labels_count
