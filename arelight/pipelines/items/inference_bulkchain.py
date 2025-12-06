@@ -1,10 +1,8 @@
 import logging
 
 from arekit.common.experiment.data_type import DataType
-from arekit.common.labels.base import NoLabel
 from arekit.common.pipeline.items.base import BasePipelineItem
 
-from arelight.pipelines.demo.labels.base import PositiveLabel, NegativeLabel
 from arelight.third_party.sqlite3 import SQLite3Service
 from arelight.utils import init_llm, ask
 
@@ -35,7 +33,7 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
             result = ask(
                 llm=self.__model,
                 prompt=row[self.__task_kwargs['text_columns'][0]] +
-                       f"Classify: "
+                       f"Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
                        f"positive, "
                        f"negative, "
                        f"{self.__task_kwargs['no_label']}"
