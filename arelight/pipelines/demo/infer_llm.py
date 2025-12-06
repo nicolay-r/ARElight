@@ -1,4 +1,4 @@
-from arelight.const import BULK_CHAIN
+from arelight.const import BULK_CHAIN, D3JS_GRAPHS
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
 from arelight.pipelines.items.inference_writer import InferenceWriterPipelineItem
 
@@ -32,10 +32,10 @@ def demo_infer_texts_llm_pipeline(sampling_engines=None, infer_engines=None, bac
     #####################################################################
     # Backend Items (after inference)
     #####################################################################
-    if "d3js_graphs" in backend_engines:
+    if D3JS_GRAPHS in backend_engines:
         from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
         pipeline += [
-            D3jsGraphsBackendPipelineItem(**backend_engines["d3js_graphs"]),
+            D3jsGraphsBackendPipelineItem(**backend_engines[D3JS_GRAPHS]),
             D3jsGraphOperationsBackendPipelineItem()
         ]
 

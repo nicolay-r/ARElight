@@ -21,7 +21,7 @@ from bulk_ner.src.utils import IdAssigner
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
-from arelight.const import BULK_CHAIN
+from arelight.const import BULK_CHAIN, D3JS_GRAPHS
 from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.doc_provider import CachedFilesDocProvider
 from arelight.entity import HighligtedEntitiesFormatter
@@ -76,7 +76,7 @@ def create_infer_parser():
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models", choices=['cpu', 'cuda'])
-    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, "d3js_graphs"])
+    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, D3JS_GRAPHS])
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument('-o', '--output-template', dest='output_template', type=str, default="output", nargs='?')
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     backend_setups = {
         None: {},
-        "d3js_graphs": {
+        D3JS_GRAPHS: {
             "graph_min_links": 1,
             "graph_a_labels": None,
             "weights": True,
