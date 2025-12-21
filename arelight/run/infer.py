@@ -49,6 +49,9 @@ def create_infer_parser():
 
     parser = argparse.ArgumentParser(description="Text inference example")
 
+    # TODO. refactor using the conceprt of declared class of fields.
+    # TODO. From fields we can create arguments.
+
     # Providing arguments.
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
     parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?', choices=["\t", ',', ';'])
@@ -76,8 +79,10 @@ def create_infer_parser():
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models", choices=['cpu', 'cuda'])
+    # Backend parameters.
     parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, D3JS_GRAPHS])
     parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
+    # Logging parameters.
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument('-o', '--output-template', dest='output_template', type=str, default="output", nargs='?')
 
@@ -85,6 +90,15 @@ def create_infer_parser():
 
 
 if __name__ == '__main__':
+
+    # TODO. It should be API alike
+    # 1. text-parser
+    #     ner: MODEL / other parameters
+    #     translate: MODEL
+    #     grouping: MODEL
+    # 2. inference  
+    #     model: bulk-chain MODEL
+
 
     # Completing list of arguments.
     parser = create_infer_parser()
@@ -160,6 +174,7 @@ if __name__ == '__main__':
 
     stemmer = stemmer_types[args.stemmer]()
 
+    # TODO. NERPipelineItem is common, while model is the only parameter that could be changed.
     entity_parsers = {
         # Parser based on DeepPavlov backend.
         "deeppavlov": lambda: NERPipelineItem(
@@ -303,6 +318,9 @@ if __name__ == '__main__':
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
         "predict_reader": predict_readers[args.inference_writer]
     })
+
+    # TODO. We have to separate launch of the pipeline from its construction.
+    # In my opinion, ARElight should be about API for constructing NLP pipelines dedicated for RE with contexts.
 
     # Launch application.
     BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=PipelineResult(merge_dictionaries(settings)),
