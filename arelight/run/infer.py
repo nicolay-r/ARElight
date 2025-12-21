@@ -2,7 +2,7 @@ import argparse
 from os.path import join, dirname, basename
 
 from arekit.common.data import const
-from arekit.common.data.const import S_IND, T_IND, ID
+from arekit.common.data.const import ID
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
@@ -193,14 +193,19 @@ if __name__ == '__main__':
             "class_name": "replicate_104.py",
             "model_name": "meta/meta-llama-3-70b-instruct",
             "api_key": args.inference_api,
-            #"batch_size": args.batch_size,
             "table_name": "contents",
-            "logger": logger,
             "task_kwargs": {
-                "no_label": str(labels_scaler.label_to_int(NoLabel())),
                 "default_id_column": ID,
-                "index_columns": [S_IND, T_IND],
-                "text_columns": [PairTextProvider.TEXT_A]
+                "output_column": "response",
+                "batch_size": args.batch_size,
+                "prompt_schema": [{
+                    "prompt": f"Given text: {{{PairTextProvider.TEXT_A}}}" +
+                               f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
+                               f"positive, "
+                               f"negative, "
+                               f"neutral",
+                     "out": "response"
+                }]
             },
         },
     }

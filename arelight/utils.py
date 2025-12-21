@@ -93,10 +93,17 @@ def init_llm(class_filepath, api_key, model_name="meta/meta-llama-3-70b-instruct
         model_name=model_name)
 
 
-def ask(llm, prompt):
-    c = iter_content(schema=[{"prompt": prompt, "out": "response"}],
-                     llm=llm,
-                     infer_mode="single",
-                     input_dicts_it=[{}])
-    for r in c:
-        return r['response']
+def infer_async_batch_it(llm, schema, input_dicts_it, batch_size=1):
+    c = iter_content(schema=schema, llm=llm, infer_mode="batch_async", input_dicts_it=input_dicts_it, batch_size=batch_size)
+    for batch in c:
+        for record in batch:
+            print(record)
+            yield record
+
+
+def batch_iter(arr, block_size):
+    if block_size <= 0:
+        raise ValueError("block_size must be positive")
+
+    for i in range(0, len(arr), block_size):
+        yield arr[i:i + block_size]

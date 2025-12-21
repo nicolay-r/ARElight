@@ -4,12 +4,12 @@ from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.items.base import BasePipelineItem
 
 from arelight.third_party.sqlite3 import SQLite3Service
-from arelight.utils import init_llm, ask
+from arelight.utils import init_llm, infer_async_batch_it
 
 
 class InferenceBulkChainPipelineItem(BasePipelineItem):
 
-    def __init__(self, class_name, model_name, api_key, table_name, logger, task_kwargs, **kwargs):
+    def __init__(self, class_name, model_name, api_key, table_name, task_kwargs, **kwargs):
         super(InferenceBulkChainPipelineItem, self).__init__(**kwargs)
         self.__sqlite_service = SQLite3Service()
         self.__table_name = table_name
@@ -29,16 +29,18 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
 
     def __iter_predict_result(self, samples_filepath):
         self.__sqlite_service.connect(samples_filepath)
-        for row in self.__sqlite_service.iter_rows(table_name=self.__table_name, return_dict=True):
-            result = ask(
-                llm=self.__model,
-                prompt=row[self.__task_kwargs['text_columns'][0]] +
-                       f"Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
-                       f"positive, "
-                       f"negative, "
-                       f"{self.__task_kwargs['no_label']}"
-            )
-            yield [row[self.__task_kwargs['default_id_column']], self.class_to_int(result)]
+
+        data_it = infer_async_batch_it(
+            llm=self.__model,
+            schema=self.__task_kwargs['prompt_schema'],
+            input_dicts_it=self.__sqlite_service.iter_rows(table_name=self.__table_name, return_dict=True),
+            batch_size=self.__task_kwargs['batch_size'])
+
+        for row in data_it:
+            yield [
+                row[self.__task_kwargs['default_id_column']],
+                self.class_to_int(row[self.__task_kwargs['output_column']])
+            ]
 
         self.__sqlite_service.disconnect()
 
