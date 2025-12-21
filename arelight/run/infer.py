@@ -49,10 +49,11 @@ def create_infer_parser():
 
     parser = argparse.ArgumentParser(description="Text inference example")
 
-    # TODO. refactor using the conceprt of declared class of fields.
+    # TODO. refactor using the concept of declared class of fields.
     # TODO. From fields we can create arguments.
 
     # Providing arguments.
+    parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
     parser.add_argument('--from-files', dest='from_files', type=str, default=None, nargs='+')
     parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?', choices=["\t", ',', ';'])
     parser.add_argument('--csv-column', dest='csv_column', type=str, default='text', nargs='?')
@@ -62,7 +63,6 @@ def create_infer_parser():
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
     parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
-    parser.add_argument('--batch-size', dest='batch_size', type=int, default=10, nargs='?')
     # NER part.
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=["deeppavlov"], default="deeppavlov")
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None, choices=["ner_ontonotes_bert", "ner_ontonotes_bert_mult"])
@@ -72,8 +72,10 @@ def create_infer_parser():
     parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None, choices=[None, "auto:ru"])
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None, choices=[None, "auto:ru"])
     # Inference parameters.
-    parser.add_argument("--inference-api", dest="inference_api", type=str, default=None)
     parser.add_argument("--inference-framework", dest="inference_framework", type=str, default=BULK_CHAIN, choices=[BULK_CHAIN])
+    parser.add_argument("--inference-api", dest="inference_api", type=str, default=None)
+    parser.add_argument('--inference-filename', dest="inference_filename", type=str, default=None)
+    parser.add_argument('--inference-model-name', dest="inference_model_name", type=str, default=None)
     parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
     # Common parameters.
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
@@ -199,8 +201,8 @@ if __name__ == '__main__':
     infer_engines_setup = {
         None: {},
         BULK_CHAIN: {
-            "class_name": "replicate_104.py",
-            "model_name": "meta/meta-llama-3-70b-instruct",
+            "class_name": args.inference_filename,
+            "model_name": args.inference_model_name,
             "api_key": args.inference_api,
             "table_name": "contents",
             "task_kwargs": {

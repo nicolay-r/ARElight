@@ -1,4 +1,4 @@
-# ARElight 0.25.1
+# ARElight 0.25.2
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.25.2-orange.svg)
@@ -38,24 +38,27 @@ Since the version `0.25.0` ARElight has an updated GUI server
 ## Usage: Inference
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
 
+**UPDATE for LLM usage**: We support Replicate for Inference.
+
 Infer sentiment attitudes from text file **in English**:
 ```bash
 python3 -m arelight.run.infer \
-	--sampling-framework "arekit" \
+    --batch-size 10 \
+    --from-files "<YOUR-FILES-GOES-HERE>" \
+    --sampling-framework "arekit" \
     --ner-framework "deeppavlov" \
-	--ner-model-name "ner_ontonotes_bert_mult" \
-	--ner-types "ORG|PERSON|LOC|GPE" \
-	--terms-per-context 50 \
-	--sentence-parser "nltk:russian" \
-	-o "output" \
-	--from-files $1 \
-	--log-file "arelight.log.txt" \
+    --ner-model-name "ner_ontonotes_bert_mult" \
+    --ner-types "ORG|PERSON|LOC|GPE" \
+    --terms-per-context 50 \
+    --sentence-parser "nltk:english" \
+    --log-file "arelight.log.txt" \
     --backend "d3js_graphs" \
-    --inference-api "<API>" \
+    --inference-api "<YOUR-API-GOES-HERE>" \
     --inference-writer "sqlite3" \
-    --stemmer "mystem"
-    -o "output" \
-    --from-files "<PATH-TO-TEXT-FILE>"
+    --inference-filename "replicate_104.py" \
+    --inference-model-name "meta/meta-llama-3-70b-instruct" \
+    --stemmer "mystem" \
+    -o "output" 
 ```
 
 > **NOTE:** [Applying ARElight for **non-english texts**](https://github.com/nicolay-r/ARElight/wiki/Language-Specific-Application)
@@ -95,10 +98,14 @@ Parameters:
       * `translate-entity` -- (optional) source and target language supported by backend, separated by `:`.
       * `translate-text` -- (optional) source and target language supported by backend, separated by `:`.
 * `bulk_chain` -- LLM framework, utilized for relations classification) [[bulk-chain]](https://github.com/nicolay-r/bulk-chain)
-    * `labels-fmt` -- list of the mappings from `label` to integer value; is a `p:1,n:2,u:0` by default, where:
-        * `p` -- positive label, which is mapped to `1`.
-        * `n` -- negative label, which is mapped to `2`.
-        * `u` -- undefined label (optional), which is mapped to `0`.
+    * `inference-api` -- API key 
+    * `inference-filename` -- Inference implemenation filename; we use `replicate_104.py` from [nlp-thirdgate](https://github.com/nicolay-r/nlp-thirdgate/blob/master/llm/replicate_104.py) by default
+    * `inference-model-name` -- Name of the model; for the Replicate provider we use: `meta/meta-llama-3-70b-instruct`
+    * `inference-writer` -- How to save the output results; by default we use `sqlite3` for storing classified results.
+* `labels-fmt` -- list of the mappings from `label` to integer value; is a `p:1,n:2,u:0` by default, where:
+    * `p` -- positive label, which is mapped to `1`.
+    * `n` -- negative label, which is mapped to `2`.
+    * `u` -- undefined label (optional), which is mapped to `0`.
 * `backend` -- type of the backend (`d3js_graphs` by default).
     * `host` -- port on which we expect to launch localhost server.
     * `label-names` -- default mapping is `p:pos,n:neg,u:neu`.
