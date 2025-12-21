@@ -38,7 +38,12 @@ Since the version `0.25.0` ARElight has an updated GUI server
 ## Usage: Inference
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ARElight/blob/v0.24.0/ARElight.ipynb)
 
-**UPDATE for LLM usage**: We support Replicate for Inference.
+**UPDATE for LLM usage**: We support [Replicate](https://replicate.com/) for Inference.
+
+> **NOTE:** You have to **download the related file (provider)** to start with usage script below:
+> 
+> https://github.com/nicolay-r/nlp-thirdgate/blob/master/llm/replicate_104.py
+
 
 Infer sentiment attitudes from text file **in English**:
 ```bash
