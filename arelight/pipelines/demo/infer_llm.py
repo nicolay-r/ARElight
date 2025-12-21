@@ -31,6 +31,7 @@ def demo_infer_texts_llm_pipeline(sampling_engines=None, infer_engines=None, bac
 
     #####################################################################
     # Backend Items (after inference)
+    # TODO. The code below should be a part of the D3JS project.
     #####################################################################
     if D3JS_GRAPHS in backend_engines:
         from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
