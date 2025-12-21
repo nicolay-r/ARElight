@@ -187,6 +187,15 @@ if __name__ == '__main__':
             chunk_limit=128)
     }
 
+
+    def class_to_int(text):
+        if 'positive' in text.lower():
+            return 1
+        elif 'negative' in text.lower():
+            return -1 
+        return 0 
+
+
     infer_engines_setup = {
         None: {},
         BULK_CHAIN: {
@@ -196,8 +205,8 @@ if __name__ == '__main__':
             "table_name": "contents",
             "task_kwargs": {
                 "default_id_column": ID,
-                "output_column": "response",
                 "batch_size": args.batch_size,
+                "class_to_int": lambda row: class_to_int(row['response']),
                 "prompt_schema": [{
                     "prompt": f"Given text: {{{PairTextProvider.TEXT_A}}}" +
                                f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "

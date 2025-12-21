@@ -19,14 +19,6 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
         logging.getLogger("httpcore").setLevel(logging.WARNING)
         logging.getLogger("httpcore.http11").setLevel(logging.WARNING)
 
-    @staticmethod
-    def class_to_int(text):
-        if 'positive' in text.lower():
-            return 1
-        elif 'negative' in text.lower():
-            return -1 
-        return 0 
-
     def __iter_predict_result(self, samples_filepath):
         self.__sqlite_service.connect(samples_filepath)
 
@@ -39,7 +31,7 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
         for row in data_it:
             yield [
                 row[self.__task_kwargs['default_id_column']],
-                self.class_to_int(row[self.__task_kwargs['output_column']])
+                self.__task_kwargs['class_to_int'](row)
             ]
 
         self.__sqlite_service.disconnect()
@@ -60,4 +52,3 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
 
         pipeline_ctx.update("iter_infer", self.__iter_predict_result(samples_filepath))
         pipeline_ctx.update("iter_total", self.__total(samples_filepath))
-
