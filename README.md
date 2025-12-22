@@ -51,18 +51,18 @@ python3 -m arelight.run.infer \
     --batch-size 10 \
     --from-files "<YOUR-FILES-GOES-HERE>" \
     --sampling-framework "arekit" \
+    --sentence-parser "nltk:english" \
+    --stemmer "mystem" \
+    --terms-per-context 50 \
     --ner-framework "deeppavlov" \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
-    --terms-per-context 50 \
-    --sentence-parser "nltk:english" \
-    --log-file "arelight.log.txt" \
-    --backend "d3js_graphs" \
     --inference-api "<YOUR-API-GOES-HERE>" \
-    --inference-writer "sqlite3" \
     --inference-filename "replicate_104.py" \
     --inference-model-name "meta/meta-llama-3-70b-instruct" \
-    --stemmer "mystem" \
+    --inference-writer "sqlite3" \
+    --backend "d3js_graphs" \
+    --log-file "arelight.log.txt" \
     -o "output" 
 ```
 
