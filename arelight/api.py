@@ -1,13 +1,12 @@
-from os.path import basename, dirname, join
 from arekit.common.data import const
 from arekit.common.data.const import ID
+from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
 from arekit.common.utils import split_by_whitespaces
-from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
@@ -23,7 +22,6 @@ from arelight.doc_provider import CachedFilesDocProvider
 from arelight.entity import HighligtedEntitiesFormatter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.infer_llm import demo_infer_texts_llm_pipeline
-from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
@@ -38,7 +36,7 @@ from arelight.third_party.gt_310a import GoogleTranslateModel
 from arelight.utils import flatten
 
 
-def create_inference_pipeline(args, collection_name):
+def create_inference_pipeline(args, collection_target_func, predict_table_name):
 
     # Setup logger
     logger = setup_custom_logger(name="arelight", filepath=args.log_file)
@@ -52,13 +50,21 @@ def create_inference_pipeline(args, collection_name):
     ner_object_types = args.ner_types
     terms_per_context = args.terms_per_context
     docs_limit = args.docs_limit
-    output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
 
-    # Classification task label scaler setup.
-    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
-    labels_scaler = CustomLabelScaler(**labels_scl)
+    predict_extension = {
+        "tsv": ".tsv.gz",
+        "sqlite3": ".sqlite"
+    }
 
-    collection_target_func = lambda data_type: join(output_dir, "-".join([collection_name, data_type.name.lower()]))
+    predict_readers = {
+        "tsv": PandasCsvReader(compression='infer'),
+        "sqlite3": SQliteReader(table_name=predict_table_name)
+    }
+
+    predict_writers = {
+        "tsv": TsvPredictWriter(log_out=tqdm_log_out),
+        "sqlite3": SQLite3PredictWriter(table_name=predict_table_name, log_out=tqdm_log_out)
+    }
 
     sampling_engines_setup = {
         None: {},
@@ -106,7 +112,6 @@ def create_inference_pipeline(args, collection_name):
             chunk_limit=128)
     }
 
-
     def class_to_int(text):
         if 'positive' in text.lower():
             return 1
@@ -125,9 +130,10 @@ def create_inference_pipeline(args, collection_name):
             "task_kwargs": {
                 "default_id_column": ID,
                 "batch_size": args.batch_size,
+                # TODO: concept for output structuring func
                 "class_to_int": lambda row: class_to_int(row['response']),
                 "prompt_schema": [{
-                    "prompt": f"Given text: {{{PairTextProvider.TEXT_A}}}" +
+                    "prompt": f"Given text: {{{BaseSingleTextProvider.TEXT_A}}}" +
                                f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
                                f"positive, "
                                f"negative, "
@@ -145,23 +151,6 @@ def create_inference_pipeline(args, collection_name):
             "graph_a_labels": None,
             "weights": True,
         }
-    }
-
-    table_name = "bulk_chain"
-
-    predict_writers = {
-        "tsv": TsvPredictWriter(log_out=tqdm_log_out),
-        "sqlite3": SQLite3PredictWriter(table_name=table_name, log_out=tqdm_log_out)
-    }
-
-    predict_readers = {
-        "tsv": PandasCsvReader(compression='infer'),
-        "sqlite3": SQliteReader(table_name=table_name)
-    }
-
-    predict_extension = {
-        "tsv": ".tsv.gz",
-        "sqlite3": ".sqlite"
     }
 
     # Setup main pipeline.
@@ -235,14 +224,9 @@ def create_inference_pipeline(args, collection_name):
             "doc_ids": list(doc_provider.iter_doc_ids())
         })
 
-    if args.backend == "d3js_graphs":
-        labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
-        settings.append({
-            "labels_formatter": CustomLabelsFormatter(**labels_fmt),
-            "d3js_collection_name": collection_name,
-            "d3js_collection_description": collection_name,
-            "d3js_graph_output_dir": output_dir
-        })
+    # Classification task label scaler setup.
+    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
+    labels_scaler = CustomLabelScaler(**labels_scl)
 
     settings.append({
         "labels_scaler": labels_scaler,

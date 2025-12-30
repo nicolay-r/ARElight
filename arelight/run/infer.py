@@ -1,49 +1,14 @@
 import argparse
-from os.path import join, dirname, basename
+from ntpath import dirname
+from os.path import basename, join
 
-from arekit.common.data import const
-from arekit.common.data.const import ID
-from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.experiment.data_type import DataType
-from arekit.common.labels.base import NoLabel
-from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.pipeline.base import BasePipelineLauncher
-from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
-from arekit.common.utils import split_by_whitespaces
-from arekit.contrib.bert.input.providers.text_pair import PairTextProvider
-from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
-from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
-from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
-from bulk_ner.src.pipeline.item.ner import NERPipelineItem
-from bulk_ner.src.utils import IdAssigner
 
 from arelight.api import create_inference_pipeline
-from arelight.arekit.indexed_entity import IndexedEntity
-from arelight.arekit.samples_io import CustomSamplesIO
-from arelight.arekit.utils_translator import string_terms_to_list
 from arelight.const import BULK_CHAIN, D3JS_GRAPHS
-from arelight.data.writers.sqlite_native import SQliteWriter
-from arelight.doc_provider import CachedFilesDocProvider
-from arelight.entity import HighligtedEntitiesFormatter
-from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.demo.infer_llm import demo_infer_texts_llm_pipeline
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
-from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.demo.result import PipelineResult
-from arelight.predict.writer_csv import TsvPredictWriter
-from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
-from arelight.readers.csv_pd import PandasCsvReader
-from arelight.readers.sqlite import SQliteReader
-from arelight.run.utils import merge_dictionaries, iter_group_values, create_sentence_parser, iter_content, NER_TYPES
-from arelight.run.utils_logger import setup_custom_logger, TqdmToLogger
-from arelight.samplers.cropped import create_prompted_sample_provider
-from arelight.stemmers.ru_mystem import MystemWrapper
-from arelight.third_party.dp_130 import DeepPavlovNER
-from arelight.third_party.gt_310a import GoogleTranslateModel
-from arelight.utils import flatten
-
-from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
+from arelight.run.utils import merge_dictionaries, NER_TYPES
 
 
 def create_infer_parser():
@@ -108,18 +73,34 @@ def setup_collection_name(value):
 
 if __name__ == '__main__':
 
-
     # Completing list of arguments.
     parser = create_infer_parser()
 
     # Parsing arguments.
     args = parser.parse_args()
 
+    # Other parameters.
+    predict_table_name = "bulk_chain"
+    collection_name = setup_collection_name(args.collection_name)
+    output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
+    collection_target_func = lambda data_type: join(output_dir, "-".join([collection_name, data_type.name.lower()]))
+
     # Creating pipeline.
     pipeline, settings = create_inference_pipeline(
         args=args, 
-        collection_name=setup_collection_name(args.collection_name)
+        predict_table_name=predict_table_name,
+        collection_target_func=collection_target_func
     )
+
+    # TODO. This is temporary for supporting legacy backend settings.
+    if args.backend == "d3js_graphs":
+        labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
+        settings.append({
+            "labels_formatter": CustomLabelsFormatter(**labels_fmt),
+            "d3js_collection_name": collection_name,
+            "d3js_collection_description": collection_name,
+            "d3js_graph_output_dir": output_dir
+        })
 
     # Launch application.
     BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=PipelineResult(merge_dictionaries(settings)),
