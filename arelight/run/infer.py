@@ -18,6 +18,7 @@ from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymColle
 from bulk_ner.src.pipeline.item.ner import NERPipelineItem
 from bulk_ner.src.utils import IdAssigner
 
+from arelight.api import create_inference_pipeline
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
@@ -58,11 +59,12 @@ def create_infer_parser():
     parser.add_argument('--csv-sep', dest='csv_sep', type=str, default=',', nargs='?', choices=["\t", ',', ';'])
     parser.add_argument('--csv-column', dest='csv_column', type=str, default='text', nargs='?')
     parser.add_argument('--collection-name', dest='collection_name', type=str, default=None, nargs='+')
+    # AREkit parameters.
+    parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
     parser.add_argument('--terms-per-context', dest='terms_per_context', type=int, default=50, nargs='?', help='The max possible length of an input context in terms')
     parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk:english", choices=["nltk:english", "nltk:russian"])
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     parser.add_argument('--stemmer', dest='stemmer', type=str, default=None, choices=[None, "mystem"])
-    parser.add_argument('--sampling-framework', dest='sampling_framework', type=str, choices=[None, "arekit"], default=None)
     # NER part.
     parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=["deeppavlov"], default="deeppavlov")
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None, choices=["ner_ontonotes_bert", "ner_ontonotes_bert_mult"])
@@ -91,15 +93,20 @@ def create_infer_parser():
     return parser
 
 
-if __name__ == '__main__':
+def setup_collection_name(value):
+    # Considering Predefined name if the latter has been declared.
+    if value is not None:
+        return value
+    # Use the name of the file.
+    if args.from_files is not None:
+        return basename(args.from_files[0]) if len(args.from_files) == 1 else "from-many-files"
+    if args.from_dataframe is not None:
+        return basename(args.from_dataframe[0])
 
-    # TODO. It should be API alike
-    # 1. text-parser
-    #     ner: MODEL / other parameters
-    #     translate: MODEL
-    #     grouping: MODEL
-    # 2. inference  
-    #     model: bulk-chain MODEL
+    return "samples"
+
+
+if __name__ == '__main__':
 
 
     # Completing list of arguments.
@@ -108,235 +115,11 @@ if __name__ == '__main__':
     # Parsing arguments.
     args = parser.parse_args()
 
-    # Setup logger
-    logger = setup_custom_logger(name="arelight", filepath=args.log_file)
-    tqdm_log_out = TqdmToLogger(logger) if args.log_file is not None else None
-
-    # Reading text-related parameters.
-    sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
-                                             language=args.sentence_parser.split(":")[1])
-    ner_framework = args.ner_framework
-    ner_model_name = args.ner_model_name
-    ner_object_types = args.ner_types
-    terms_per_context = args.terms_per_context
-    docs_limit = args.docs_limit
-    output_template = args.output_template
-    output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
-
-    # Classification task label scaler setup.
-    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
-    labels_scaler = CustomLabelScaler(**labels_scl)
-
-    def setup_collection_name(value):
-        # Considering Predefined name if the latter has been declared.
-        if value is not None:
-            return value
-        # Use the name of the file.
-        if args.from_files is not None:
-            return basename(args.from_files[0]) if len(args.from_files) == 1 else "from-many-files"
-        if args.from_dataframe is not None:
-            return basename(args.from_dataframe[0])
-
-        return "samples"
-
-    collection_name = setup_collection_name(args.collection_name)
-
-    collection_target_func = lambda data_type: join(output_dir, "-".join([collection_name, data_type.name.lower()]))
-
-    sampling_engines_setup = {
-        None: {},
-        "arekit": {
-            "rows_provider": create_prompted_sample_provider(
-                label_scaler=SingleLabelScaler(NoLabel()),
-                entity_formatter=HighligtedEntitiesFormatter(),
-                is_entity_func=lambda term: isinstance(term, IndexedEntity),
-                entity_group_ind_func=lambda entity: entity.GroupIndex,
-                crop_window=terms_per_context),
-            "samples_io": CustomSamplesIO(create_target_func=collection_target_func,
-                                          reader=SQliteReader(table_name="contents"),
-                                          writer=SQliteWriter(table_name="contents")),
-            "storage": RowCacheStorage(
-                force_collect_columns=[const.ENTITIES, const.ENTITY_VALUES, const.ENTITY_TYPES, const.SENT_IND],
-                log_out=tqdm_log_out),
-            "save_labels_func": lambda data_type: data_type != DataType.Test
-        }
-    }
-    
-    translate_model = {
-        None: lambda: None,
-        "googletrans": lambda: GoogleTranslateModel()
-    }
-
-    translator = translate_model[args.translate_framework]()
-
-    stemmer_types = {
-        None: lambda: None,
-        "mystem": lambda: MystemWrapper()
-    }
-
-    stemmer = stemmer_types[args.stemmer]()
-
-    # TODO. NERPipelineItem is common, while model is the only parameter that could be changed.
-    entity_parsers = {
-        # Parser based on DeepPavlov backend.
-        "deeppavlov": lambda: NERPipelineItem(
-            id_assigner=IdAssigner(),
-            src_func=lambda text: split_by_whitespaces(text),
-            model=DeepPavlovNER(model=ner_model_name, download=False, install=False),
-            obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
-            # It is important to provide the correct type (see AREkit #575)
-            create_entity_func=lambda value, e_type, entity_id: IndexedEntity(value=value, e_type=e_type, entity_id=entity_id),
-            chunk_limit=128)
-    }
-
-
-    def class_to_int(text):
-        if 'positive' in text.lower():
-            return 1
-        elif 'negative' in text.lower():
-            return -1 
-        return 0 
-
-
-    infer_engines_setup = {
-        None: {},
-        BULK_CHAIN: {
-            "class_name": args.inference_filename,
-            "model_name": args.inference_model_name,
-            "api_key": args.inference_api,
-            "table_name": "contents",
-            "task_kwargs": {
-                "default_id_column": ID,
-                "batch_size": args.batch_size,
-                "class_to_int": lambda row: class_to_int(row['response']),
-                "prompt_schema": [{
-                    "prompt": f"Given text: {{{PairTextProvider.TEXT_A}}}" +
-                               f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
-                               f"positive, "
-                               f"negative, "
-                               f"neutral",
-                     "out": "response"
-                }]
-            },
-        },
-    }
-
-    backend_setups = {
-        None: {},
-        D3JS_GRAPHS: {
-            "graph_min_links": 1,
-            "graph_a_labels": None,
-            "weights": True,
-        }
-    }
-
-    table_name = "bulk_chain"
-
-    predict_writers = {
-        "tsv": TsvPredictWriter(log_out=tqdm_log_out),
-        "sqlite3": SQLite3PredictWriter(table_name=table_name, log_out=tqdm_log_out)
-    }
-
-    predict_readers = {
-        "tsv": PandasCsvReader(compression='infer'),
-        "sqlite3": SQliteReader(table_name=table_name)
-    }
-
-    predict_extension = {
-        "tsv": ".tsv.gz",
-        "sqlite3": ".sqlite"
-    }
-
-    # Setup main pipeline.
-    pipeline = demo_infer_texts_llm_pipeline(
-        sampling_engines={key: sampling_engines_setup[key] for key in [args.sampling_framework]},
-        infer_engines={key: infer_engines_setup[key] for key in [args.inference_framework]},
-        backend_engines={key: backend_setups[key] for key in [args.backend]},
-        inference_writer=predict_writers[args.inference_writer])
-
-    # Settings.
-    settings = []
-
-    if args.sampling_framework == "arekit":
-
-        synonyms_setup = {
-            None: lambda: SimpleSynonymCollection(
-                iter_group_values_lists=iter_group_values(args.synonyms_filepath),
-                is_read_only=False),
-            "lemmatized": lambda: StemmerBasedSynonymCollection(
-                iter_group_values_lists=iter_group_values(args.synonyms_filepath),
-                stemmer=stemmer,
-                is_read_only=False)
-        }
-
-        text_translator_setup = {
-            None: lambda: None,
-            "ml-based": lambda: [
-                MLTextTranslatorPipelineItem(
-                    batch_translate_model=translator.get_func(
-                        src=args.translate_text.split(':')[0],
-                        dest=args.translate_text.split(':')[1]),
-                    do_translate_entity=False,
-                    is_span_func=lambda term: isinstance(term, IndexedEntity)),
-                BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
-            ]
-        }
-
-        # Create Synonyms Collection.
-        synonyms = synonyms_setup["lemmatized" if args.stemmer is not None else None]()
-
-        # Setup text parser.
-        text_parser_pipeline = flatten([
-            BasePipelineItem(src_func=lambda s: s.Text),
-            entity_parsers[ner_framework](),
-            text_translator_setup["ml-based" if args.translate_text is not None else None](),
-            EntitiesGroupingPipelineItem(
-                is_entity_func=lambda term: isinstance(term, IndexedEntity),
-                value_to_group_id_func=lambda value:
-                    SynonymsCollectionValuesGroupingProviders.provide_existed_or_register_missed_value(
-                        synonyms=synonyms, value=value))
-        ])
-
-        # Reading from the optionally large list of files.
-        doc_provider = CachedFilesDocProvider(
-            filepaths=args.from_files,
-            content_provider=lambda filepath: iter_content(
-                filepath=filepath, csv_delimiter=args.csv_sep, csv_column=args.csv_column),
-            content_to_sentences=sentence_parser,
-            docs_limit=docs_limit)
-
-        data_pipeline = create_neutral_annotation_pipeline(
-            synonyms=synonyms,
-            dist_in_terms_bound=terms_per_context,
-            doc_provider=doc_provider,
-            terms_per_context=terms_per_context,
-            text_pipeline=text_parser_pipeline,
-            batch_size=args.batch_size)
-
-        settings.append({
-            "data_type_pipelines": {DataType.Test: data_pipeline},
-            "doc_ids": list(doc_provider.iter_doc_ids())
-        })
-
-    if args.backend == "d3js_graphs":
-        labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
-        settings.append({
-            "labels_formatter": CustomLabelsFormatter(**labels_fmt),
-            "d3js_collection_name": collection_name,
-            "d3js_collection_description": collection_name,
-            "d3js_graph_output_dir": output_dir
-        })
-
-    settings.append({
-        "labels_scaler": labels_scaler,
-        # We provide these settings for inference.
-        "predict_filepath": collection_target_func(DataType.Test) + predict_extension[args.inference_writer],
-        "samples_io": sampling_engines_setup["arekit"]["samples_io"],
-        "predict_reader": predict_readers[args.inference_writer]
-    })
-
-    # TODO. We have to separate launch of the pipeline from its construction.
-    # In my opinion, ARElight should be about API for constructing NLP pipelines dedicated for RE with contexts.
+    # Creating pipeline.
+    pipeline, settings = create_inference_pipeline(
+        args=args, 
+        collection_name=setup_collection_name(args.collection_name)
+    )
 
     # Launch application.
     BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=PipelineResult(merge_dictionaries(settings)),
