@@ -9,7 +9,6 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
-from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from bulk_ner.src.pipeline.item.ner import BasePipelineItem, NERPipelineItem
 from bulk_ner.src.utils import IdAssigner, setup_custom_logger
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
@@ -30,7 +29,7 @@ from arelight.readers.sqlite import SQliteReader
 from arelight.run.utils import create_sentence_parser, iter_content, iter_group_values
 from arelight.run.utils_logger import TqdmToLogger
 from arelight.samplers.cropped import create_prompted_sample_provider
-from arelight.stemmers.ru_mystem import MystemWrapper
+# TODO. These dependencies should be passed as parameters.
 from arelight.third_party.dp_130 import DeepPavlovNER
 from arelight.third_party.gt_310a import GoogleTranslateModel
 from arelight.utils import flatten
@@ -91,13 +90,6 @@ def create_inference_pipeline(args, collection_target_func, predict_table_name):
     }
 
     translator = translate_model[args.translate_framework]()
-
-    stemmer_types = {
-        None: lambda: None,
-        "mystem": lambda: MystemWrapper()
-    }
-
-    stemmer = stemmer_types[args.stemmer]()
 
     # TODO. NERPipelineItem is common, while model is the only parameter that could be changed.
     entity_parsers = {
@@ -168,10 +160,6 @@ def create_inference_pipeline(args, collection_target_func, predict_table_name):
         synonyms_setup = {
             None: lambda: SimpleSynonymCollection(
                 iter_group_values_lists=iter_group_values(args.synonyms_filepath),
-                is_read_only=False),
-            "lemmatized": lambda: StemmerBasedSynonymCollection(
-                iter_group_values_lists=iter_group_values(args.synonyms_filepath),
-                stemmer=stemmer,
                 is_read_only=False)
         }
 
@@ -189,7 +177,7 @@ def create_inference_pipeline(args, collection_target_func, predict_table_name):
         }
 
         # Create Synonyms Collection.
-        synonyms = synonyms_setup["lemmatized" if args.stemmer is not None else None]()
+        synonyms = synonyms_setup[None]()
 
         # Setup text parser.
         text_parser_pipeline = flatten([

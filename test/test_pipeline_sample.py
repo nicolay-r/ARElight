@@ -26,8 +26,8 @@ from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotatio
 from arelight.pipelines.items.serializer_arekit import AREkitSerializerPipelineItem
 
 from arelight.samplers.cropped import create_prompted_sample_provider
-from arelight.stemmers.ru_mystem import MystemWrapper
 from arelight.synonyms import iter_synonym_groups
+from stemmers.ru_mystem import MystemWrapper
 from utils_entity_parser import TextEntitiesParser
 
 
