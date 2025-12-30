@@ -3,7 +3,7 @@ from os.path import join
 
 from tqdm import tqdm
 
-from arelight.arekit.sample_service import AREkitSamplesService
+from sample_service import AREkitSamplesService
 from utils import TEST_DATA_DIR
 
 
