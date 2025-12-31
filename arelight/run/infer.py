@@ -1,6 +1,5 @@
 import argparse
 from ntpath import dirname
-import os
 from os.path import basename, join
 
 from arekit.common.pipeline.base import BasePipelineLauncher
@@ -12,7 +11,6 @@ from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.run.utils import merge_dictionaries, NER_TYPES
 from arelight.run.utils_logger import TqdmToLogger, setup_custom_logger
-from arelight.third_party.gt_310a import GoogleTranslateModel
 
 def create_infer_parser():
 
@@ -37,9 +35,8 @@ def create_infer_parser():
     parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default= "|".join(NER_TYPES), help="Filters specific NER types; provide with `|` separator")
     # Translation parameters.
-    parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=[None, "googletrans"])
-    parser.add_argument('--translate-entity', dest='translate_entity', type=str, default=None, choices=[None, "auto:ru"])
-    parser.add_argument('--translate-text', dest='translate_text', type=str, default=None, choices=[None, "auto:ru"])
+    parser.add_argument('--translate-provider', dest='translate_provider', type=str, default=None)
+    parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
     # Inference parameters.
     parser.add_argument("--inference-framework", dest="inference_framework", type=str, default=BULK_CHAIN, choices=[BULK_CHAIN])
     parser.add_argument("--inference-api", dest="inference_api", type=str, default=None)
@@ -91,14 +88,22 @@ if __name__ == '__main__':
     output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
     collection_target_func = lambda data_type: join(output_dir, "-".join([collection_name, data_type.name.lower()]))
 
+    # Init NER model.
     ner_model_type = dynamic_init(class_filepath=args.ner_provider)
+
+    # Init Translator model.
+    translate_model = dynamic_init(class_filepath=args.translate_provider) if args.translate_provider is not None else None
 
     # Creating pipeline.
     pipeline, settings = create_inference_pipeline(
         args=args, 
         predict_table_name=predict_table_name,
         collection_target_func=collection_target_func,
-        translate_model=GoogleTranslateModel() if args.translate_framework == "googletrans" else None,
+        translator_args={
+            "model": translate_model() if translate_model is not None else None,
+            "src": args.translate_text.split(':')[0],
+            "dest": args.translate_text.split(':')[1],
+        },
         ner_args={
             "model": ner_model_type(model=args.ner_model_name),
             "obj_filter": None if args.ner_types is None else lambda s_obj: s_obj.ObjectType in args.ner_types,

@@ -47,7 +47,7 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
 # TODO. Refactoring. Make API based on AREkit.
 # AREkit is under this hood, so that we expose flat structure of pipeline and sub-pipeline elements:
 # 1. NER, Translator, and Inference.
-def create_inference_pipeline(args, predict_table_name, collection_target_func, translate_model, ner_args, tqdm_log_out=None):
+def create_inference_pipeline(args, predict_table_name, collection_target_func, translator_args, ner_args, tqdm_log_out=None):
 
     # Reading text-related parameters.
     sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
@@ -151,14 +151,16 @@ def create_inference_pipeline(args, predict_table_name, collection_target_func, 
     # Settings.
     settings = []
 
+    translate_model = translator_args.get("model") if translator_args is not None else None
+    translate_from = translator_args.get("src", None)
+    translate_to = translator_args.get("dest", None)
+
     text_translator_setup = {
         None: lambda: None,
         "ml-based": lambda: [
             MLTextTranslatorPipelineItem(
-                batch_translate_model=translate_model.get_func(
-                    src=args.translate_text.split(':')[0],
-                    dest=args.translate_text.split(':')[1]),
-                do_translate_entity=False,
+                batch_translate_model=translate_model.get_func(src=translate_from, dest=translate_to),
+                do_translate_entity=translator_args.get("do_translate_entity", False),
                 is_span_func=lambda term: isinstance(term, IndexedEntity)),
             BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
         ]
