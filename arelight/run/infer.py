@@ -101,8 +101,8 @@ if __name__ == '__main__':
         collection_target_func=collection_target_func,
         translator_args={
             "model": translate_model() if translate_model is not None else None,
-            "src": args.translate_text.split(':')[0],
-            "dest": args.translate_text.split(':')[1],
+            "src": args.translate_text.split(':')[0] if args.translate_text is not None else None,
+            "dest": args.translate_text.split(':')[1] if args.translate_text is not None else None,
         },
         ner_args={
             "model": ner_model_type(model=args.ner_model_name),

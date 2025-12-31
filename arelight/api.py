@@ -27,7 +27,7 @@ from arelight.readers.csv_pd import PandasCsvReader
 from arelight.readers.sqlite import SQliteReader
 from arelight.run.utils import create_sentence_parser, iter_content, iter_group_values
 from arelight.samplers.cropped import create_prompted_sample_provider
-from arelight.utils import flatten
+from arelight.utils import flatten, get_event_loop
 
 
 def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synonyms):
@@ -47,7 +47,10 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
 # TODO. Refactoring. Make API based on AREkit.
 # AREkit is under this hood, so that we expose flat structure of pipeline and sub-pipeline elements:
 # 1. NER, Translator, and Inference.
-def create_inference_pipeline(args, predict_table_name, collection_target_func, translator_args, ner_args, tqdm_log_out=None):
+def create_inference_pipeline(args, predict_table_name, collection_target_func, translator_args,
+                              ner_args, tqdm_log_out=None, event_loop=None):
+
+    event_loop = get_event_loop() if event_loop is None else event_loop
 
     # Reading text-related parameters.
     sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
@@ -118,9 +121,10 @@ def create_inference_pipeline(args, predict_table_name, collection_target_func, 
             "task_kwargs": {
                 "default_id_column": ID,
                 "batch_size": args.batch_size,
+                "event_loop": event_loop,
                 # TODO: concept for output structuring func
                 "class_to_int": lambda row: class_to_int(row['response']),
-                "prompt_schema": [{
+                "schema": [{
                     "prompt": f"Given text: {{{BaseSingleTextProvider.TEXT_A}}}" +
                                f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
                                f"positive, "
@@ -159,7 +163,9 @@ def create_inference_pipeline(args, predict_table_name, collection_target_func, 
         None: lambda: None,
         "ml-based": lambda: [
             MLTextTranslatorPipelineItem(
-                batch_translate_model=translate_model.get_func(src=translate_from, dest=translate_to),
+                batch_translate_model=translate_model.get_func(
+                    src=translate_from, dest=translate_to, event_loop=event_loop
+                ),
                 do_translate_entity=translator_args.get("do_translate_entity", False),
                 is_span_func=lambda term: isinstance(term, IndexedEntity)),
             BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
