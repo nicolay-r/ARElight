@@ -15,8 +15,8 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
 from arelight.arekit.indexed_entity import IndexedEntity
-from arelight.third_party.dp_130 import DeepPavlovNER
 from arelight.third_party.gt_310a import GoogleTranslateModel
+from core.dp_130 import DeepPavlovNER
 
 
 class DocumentParsingBenchmark(unittest.TestCase):

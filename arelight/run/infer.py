@@ -1,15 +1,18 @@
 import argparse
 from ntpath import dirname
+import os
 from os.path import basename, join
 
 from arekit.common.pipeline.base import BasePipelineLauncher
+from bulk_chain.core.utils import dynamic_init
 
 from arelight.api import create_inference_pipeline
 from arelight.const import BULK_CHAIN, D3JS_GRAPHS
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.result import PipelineResult
 from arelight.run.utils import merge_dictionaries, NER_TYPES
-
+from arelight.run.utils_logger import TqdmToLogger, setup_custom_logger
+from arelight.third_party.gt_310a import GoogleTranslateModel
 
 def create_infer_parser():
 
@@ -30,8 +33,8 @@ def create_infer_parser():
     parser.add_argument('--sentence-parser', dest='sentence_parser', type=str, default="nltk:english", choices=["nltk:english", "nltk:russian"])
     parser.add_argument('--synonyms-filepath', dest='synonyms_filepath', type=str, default=None, help="List of synonyms provided in lines of the source text file.")
     # NER part.
-    parser.add_argument("--ner-framework", dest="ner_framework", type=str, choices=["deeppavlov"], default="deeppavlov")
-    parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None, choices=["ner_ontonotes_bert", "ner_ontonotes_bert_mult"])
+    parser.add_argument('--ner-provider', dest='ner_provider', type=str, default=None)
+    parser.add_argument('--ner-model-name', dest='ner_model_name', type=str, default=None)
     parser.add_argument('--ner-types', dest='ner_types', type=str, default= "|".join(NER_TYPES), help="Filters specific NER types; provide with `|` separator")
     # Translation parameters.
     parser.add_argument('--translate-framework', dest='translate_framework', type=str, default=None, choices=[None, "googletrans"])
@@ -78,17 +81,30 @@ if __name__ == '__main__':
     # Parsing arguments.
     args = parser.parse_args()
 
+    # Setup logger
+    logger = setup_custom_logger(name="arelight", filepath=args.log_file)
+    tqdm_log_out = TqdmToLogger(logger) if args.log_file is not None else None
+
     # Other parameters.
     predict_table_name = "bulk_chain"
     collection_name = setup_collection_name(args.collection_name)
     output_dir = dirname(args.output_template) if dirname(args.output_template) != "" else args.output_template
     collection_target_func = lambda data_type: join(output_dir, "-".join([collection_name, data_type.name.lower()]))
 
+    ner_model_type = dynamic_init(class_filepath=args.ner_provider)
+
     # Creating pipeline.
     pipeline, settings = create_inference_pipeline(
         args=args, 
         predict_table_name=predict_table_name,
-        collection_target_func=collection_target_func
+        collection_target_func=collection_target_func,
+        translate_model=GoogleTranslateModel() if args.translate_framework == "googletrans" else None,
+        ner_args={
+            "model": ner_model_type(model=args.ner_model_name),
+            "obj_filter": None if args.ner_types is None else lambda s_obj: s_obj.ObjectType in args.ner_types,
+            "chunk_limit": 128
+        },
+        tqdm_log_out=tqdm_log_out
     )
 
     # TODO. This is temporary for supporting legacy backend settings.

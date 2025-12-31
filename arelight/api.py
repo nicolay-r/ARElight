@@ -9,8 +9,7 @@ from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProv
 from arekit.common.utils import split_by_whitespaces
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
-from bulk_ner.src.pipeline.item.ner import BasePipelineItem, NERPipelineItem
-from bulk_ner.src.utils import IdAssigner, setup_custom_logger
+from bulk_ner.src.pipeline.item.ner import BasePipelineItem, IdAssigner, NERPipelineItem
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
@@ -27,11 +26,7 @@ from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
 from arelight.readers.sqlite import SQliteReader
 from arelight.run.utils import create_sentence_parser, iter_content, iter_group_values
-from arelight.run.utils_logger import TqdmToLogger
 from arelight.samplers.cropped import create_prompted_sample_provider
-# TODO. These dependencies should be passed as parameters. These should be passed via arguments
-from arelight.third_party.dp_130 import DeepPavlovNER
-from arelight.third_party.gt_310a import GoogleTranslateModel
 from arelight.utils import flatten
 
 
@@ -49,18 +44,14 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
     ])
 
 
-def create_inference_pipeline(args, collection_target_func, predict_table_name):
-
-    # Setup logger
-    logger = setup_custom_logger(name="arelight", filepath=args.log_file)
-    tqdm_log_out = TqdmToLogger(logger) if args.log_file is not None else None
+# TODO. Refactoring. Make API based on AREkit.
+# AREkit is under this hood, so that we expose flat structure of pipeline and sub-pipeline elements:
+# 1. NER, Translator, and Inference.
+def create_inference_pipeline(args, predict_table_name, collection_target_func, translate_model, ner_args, tqdm_log_out=None):
 
     # Reading text-related parameters.
     sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
                                              language=args.sentence_parser.split(":")[1])
-    ner_framework = args.ner_framework
-    ner_model_name = args.ner_model_name
-    ner_object_types = args.ner_types
     terms_per_context = args.terms_per_context
     docs_limit = args.docs_limit
 
@@ -97,28 +88,16 @@ def create_inference_pipeline(args, collection_target_func, predict_table_name):
             "save_labels_func": lambda data_type: data_type != DataType.Test
         }
     }
-    
-    translate_model = {
-        None: lambda: None,
-        # TODO. Init this automatically
-        # TODO. Put in API method arguments.
-        "googletrans": lambda: GoogleTranslateModel()
-    }
 
-    translator = translate_model[args.translate_framework]()
-
-    # TODO. NERPipelineItem is common, while model is the only parameter that could be changed.
     entity_parsers = {
         # Parser based on DeepPavlov backend.
-        "deeppavlov": lambda: NERPipelineItem(
+        "bulk-ner": lambda: NERPipelineItem(
             id_assigner=IdAssigner(),
-            src_func=lambda text: split_by_whitespaces(text),
-            # TODO. Use dynamic init.
-            model=DeepPavlovNER(model=ner_model_name, download=False, install=False),
-            obj_filter=None if ner_object_types is None else lambda s_obj: s_obj.ObjectType in ner_object_types,
             # It is important to provide the correct type (see AREkit #575)
             create_entity_func=lambda value, e_type, entity_id: IndexedEntity(value=value, e_type=e_type, entity_id=entity_id),
-            chunk_limit=128)
+            # Pre-processing function for the text.
+            src_func=lambda text: ner_args.get("src_func", split_by_whitespaces)(text),
+            **ner_args)
     }
 
     def class_to_int(text):
@@ -176,7 +155,7 @@ def create_inference_pipeline(args, collection_target_func, predict_table_name):
         None: lambda: None,
         "ml-based": lambda: [
             MLTextTranslatorPipelineItem(
-                batch_translate_model=translator.get_func(
+                batch_translate_model=translate_model.get_func(
                     src=args.translate_text.split(':')[0],
                     dest=args.translate_text.split(':')[1]),
                 do_translate_entity=False,
@@ -197,8 +176,8 @@ def create_inference_pipeline(args, collection_target_func, predict_table_name):
 
         text_parser_pipeline = __setup_text_parser_pipeline(
             synonyms=synonyms,
-            text_translator_func=text_translator_setup["ml-based" if args.translate_text is not None else None],
-            entity_parser_func=entity_parsers[ner_framework])
+            text_translator_func=text_translator_setup["ml-based" if translate_model is not None else None],
+            entity_parser_func=entity_parsers["bulk-ner"])
 
         # Reading from the optionally large list of files.
         doc_provider = CachedFilesDocProvider(
