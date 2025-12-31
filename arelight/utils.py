@@ -1,3 +1,4 @@
+import asyncio
 import collections
 import csv
 import importlib
@@ -93,11 +94,10 @@ def init_llm(class_filepath, api_key, model_name="meta/meta-llama-3-70b-instruct
         model_name=model_name)
 
 
-def infer_async_batch_it(llm, schema, input_dicts_it, batch_size=1):
-    c = iter_content(schema=schema, llm=llm, infer_mode="batch_async", input_dicts_it=input_dicts_it, batch_size=batch_size)
+def infer_async_batch_it(**kwargs):
+    c = iter_content(infer_mode="batch_async", **kwargs)
     for batch in c:
         for record in batch:
-            print(record)
             yield record
 
 
@@ -107,3 +107,16 @@ def batch_iter(arr, block_size):
 
     for i in range(0, len(arr), block_size):
         yield arr[i:i + block_size]
+
+
+def get_event_loop():
+    try:
+        event_loop = asyncio.get_event_loop()
+    except RuntimeError as e:
+        if str(e).startswith('There is no current event loop in thread'):
+            event_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(event_loop)
+        else:
+            raise
+
+    return event_loop

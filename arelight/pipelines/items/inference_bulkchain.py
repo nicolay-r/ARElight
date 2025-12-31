@@ -24,9 +24,8 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
 
         data_it = infer_async_batch_it(
             llm=self.__model,
-            schema=self.__task_kwargs['prompt_schema'],
             input_dicts_it=self.__sqlite_service.iter_rows(table_name=self.__table_name, return_dict=True),
-            batch_size=self.__task_kwargs['batch_size'])
+            **self.__task_kwargs)
 
         for row in data_it:
             yield [
