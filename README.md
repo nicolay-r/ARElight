@@ -43,6 +43,7 @@ Since the version `0.25.0` ARElight has an updated GUI server
 > **NOTE:** You have to **download providers** to start with usage script below:
 > 1. https://github.com/nicolay-r/nlp-thirdgate/blob/master/ner/dp_130.py
 > 2. https://github.com/nicolay-r/nlp-thirdgate/blob/master/llm/replicate_104.py
+> 3. https://github.com/nicolay-r/nlp-thirdgate/blob/master/text-translation/googletrans_402.py
 
 Infer sentiment attitudes from text file **in English**:
 ```bash
@@ -52,6 +53,8 @@ python3 -m arelight.run.infer \
     --sampling-framework "arekit" \
     --sentence-parser "nltk:english" \
     --terms-per-context 50 \
+	--translate-provider "gt_402.py" \
+	--translate-text "auto:en" \
     --ner-provider "dp_130.py" \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
