@@ -1,6 +1,5 @@
 from arekit.common.data import const
 from arekit.common.data.const import ID
-from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
 from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
@@ -19,8 +18,8 @@ from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.doc_provider import CachedFilesDocProvider
 from arelight.entity import HighligtedEntitiesFormatter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
-from arelight.pipelines.demo.infer_llm import demo_infer_texts_llm_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
+from arelight.pipelines.factory import build_pipeline
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
@@ -48,7 +47,7 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
 # AREkit is under this hood, so that we expose flat structure of pipeline and sub-pipeline elements:
 # 1. NER, Translator, and Inference.
 def create_inference_pipeline(args, predict_table_name, collection_target_func, translator_args,
-                              ner_args, tqdm_log_out=None, event_loop=None):
+                              ner_args, inference_args, tqdm_log_out=None, event_loop=None):
 
     event_loop = get_event_loop() if event_loop is None else event_loop
 
@@ -103,35 +102,17 @@ def create_inference_pipeline(args, predict_table_name, collection_target_func, 
             **ner_args)
     }
 
-    def class_to_int(text):
-        if 'positive' in text.lower():
-            return 1
-        elif 'negative' in text.lower():
-            return -1 
-        return 0 
-
-
     infer_engines_setup = {
         None: {},
         BULK_CHAIN: {
-            "class_name": args.inference_filename,
-            "model_name": args.inference_model_name,
-            "api_key": args.inference_api,
+            "model_name": inference_args.get("model", None),
+            "class_name": inference_args.get("class_name", None),
+            "api_key": inference_args.get("api_key", None),
             "table_name": "contents",
-            "task_kwargs": {
+            "task_kwargs": inference_args.get("task_kwargs", {}) | {
                 "default_id_column": ID,
                 "batch_size": args.batch_size,
                 "event_loop": event_loop,
-                # TODO: concept for output structuring func
-                "class_to_int": lambda row: class_to_int(row['response']),
-                "schema": [{
-                    "prompt": f"Given text: {{{BaseSingleTextProvider.TEXT_A}}}" +
-                               f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
-                               f"positive, "
-                               f"negative, "
-                               f"neutral",
-                     "out": "response"
-                }]
             },
         },
     }
@@ -146,7 +127,7 @@ def create_inference_pipeline(args, predict_table_name, collection_target_func, 
     }
 
     # Setup main pipeline.
-    pipeline = demo_infer_texts_llm_pipeline(
+    pipeline = build_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in [args.sampling_framework]},
         infer_engines={key: infer_engines_setup[key] for key in [args.inference_framework]},
         backend_engines={key: backend_setups[key] for key in [args.backend]},

@@ -3,12 +3,13 @@ from ntpath import dirname
 from os.path import basename, join
 
 from arekit.common.pipeline.base import BasePipelineLauncher
+from arekit.contrib.prompt.sample import BaseSingleTextProvider
 from bulk_chain.core.utils import dynamic_init
 
 from arelight.api import create_inference_pipeline
 from arelight.const import BULK_CHAIN, D3JS_GRAPHS
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
-from arelight.pipelines.demo.result import PipelineResult
+from arelight.pipelines.result import PipelineResult
 from arelight.run.utils import merge_dictionaries, NER_TYPES
 from arelight.run.utils_logger import TqdmToLogger, setup_custom_logger
 
@@ -70,6 +71,14 @@ def setup_collection_name(value):
     return "samples"
 
 
+def class_to_int(text):
+    if 'positive' in text.lower():
+        return 1
+    elif 'negative' in text.lower():
+        return -1 
+    return 0 
+
+
 if __name__ == '__main__':
 
     # Completing list of arguments.
@@ -108,6 +117,22 @@ if __name__ == '__main__':
             "model": ner_model_type(model=args.ner_model_name),
             "obj_filter": None if args.ner_types is None else lambda s_obj: s_obj.ObjectType in args.ner_types,
             "chunk_limit": 128
+        },
+        inference_args={
+            "model": args.inference_model_name,
+            "class_name": args.inference_filename,
+            "api_key": args.inference_api,
+            "task_kwargs": {
+                "schema": [{
+                    "prompt": f"Given text: {{{BaseSingleTextProvider.TEXT_A}}}" +
+                              f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
+                              f"positive, "
+                              f"negative, "
+                              f"neutral.",
+                    "out": "response"
+                }],
+                "classify_func": lambda row: class_to_int(row['response']),
+            }
         },
         tqdm_log_out=tqdm_log_out
     )

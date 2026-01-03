@@ -8,8 +8,8 @@ from arelight.backend.d3js.relations_graph_operations import OP_UNION, OP_DIFFER
 from arelight.backend.d3js.ui_web import GRAPH_TYPE_FORCE
 from arelight.backend.d3js.utils_graph import load_graph
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
-from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_operations import D3jsGraphOperationsBackendPipelineItem
+from arelight.pipelines.result import PipelineResult
 from arelight.run.utils import get_binary_choice, get_list_choice, get_int_choice, is_port_number
 from arelight.run.utils_logger import setup_custom_logger
 

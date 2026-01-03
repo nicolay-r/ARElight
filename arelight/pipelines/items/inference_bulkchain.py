@@ -30,7 +30,7 @@ class InferenceBulkChainPipelineItem(BasePipelineItem):
         for row in data_it:
             yield [
                 row[self.__task_kwargs['default_id_column']],
-                self.__task_kwargs['class_to_int'](row)
+                self.__task_kwargs['classify_func'](row) if 'classify_func' in self.__task_kwargs else None
             ]
 
         self.__sqlite_service.disconnect()
