@@ -12,8 +12,8 @@ from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
-from arelight.pipelines.demo.result import PipelineResult
 from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
+from arelight.pipelines.result import PipelineResult
 from arelight.readers.csv_pd import PandasCsvReader
 
 

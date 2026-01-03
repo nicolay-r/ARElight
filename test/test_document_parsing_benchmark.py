@@ -15,8 +15,9 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
 
 from arelight.arekit.indexed_entity import IndexedEntity
+from arelight.utils import get_event_loop
 from core.dp_130 import DeepPavlovNER
-from core.gt_310a import GoogleTranslateModel
+from gt_402 import GoogleTranslateModel
 
 
 class DocumentParsingBenchmark(unittest.TestCase):
@@ -64,12 +65,14 @@ class DocumentParsingBenchmark(unittest.TestCase):
 
         translator = GoogleTranslateModel()
 
+        event_loop = get_event_loop()
+
         # Declare text parser.
         text_parser_pipeline = [
             BasePipelineItem(src_func=lambda s: s.Text),
             MLTextTranslatorPipelineItem(
                 src_func=lambda text: split_by_whitespaces(text),
-                batch_translate_model=translator.get_func(src="ru", dest="en"),
+                batch_translate_model=translator.get_func(src="ru", dest="en", event_loop=event_loop),
                 is_span_func=lambda term: isinstance(term, IndexedEntity),
                 do_translate_entity=False)
         ]
