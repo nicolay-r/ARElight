@@ -1,11 +1,6 @@
-from enum import Enum
 from io import TextIOWrapper
 from zipfile import ZipFile
 
-from arekit.common.docs.base import Document
-from arekit.common.docs.sentence import BaseDocumentSentence
-
-from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.synonyms import iter_synonym_groups
 from arelight.utils import auto_import, iter_csv_lines
 
@@ -61,38 +56,6 @@ def iter_group_values(filepath):
             yield group
 
 
-class EnumConversionService(object):
-
-    _data = None
-
-    @classmethod
-    def is_supported(cls, name):
-        assert(isinstance(cls._data, dict))
-        return name in cls._data
-
-    @classmethod
-    def name_to_type(cls, name):
-        assert(isinstance(cls._data, dict))
-        assert(isinstance(name, str))
-        return cls._data[name]
-
-    @classmethod
-    def iter_names(cls):
-        assert(isinstance(cls._data, dict))
-        return iter(list(cls._data.keys()))
-
-    @classmethod
-    def type_to_name(cls, enum_type):
-        assert(isinstance(cls._data, dict))
-        assert(isinstance(enum_type, Enum))
-
-        for item_name, item_type in cls._data.items():
-            if item_type == enum_type:
-                return item_name
-
-        raise NotImplemented("Formatting type '{}' does not supported".format(enum_type))
-
-
 def merge_dictionaries(dict_iter):
     merged_dict = {}
     for d in dict_iter:
@@ -101,33 +64,6 @@ def merge_dictionaries(dict_iter):
                 raise Exception("Key `{}` is already registred!".format(key))
             merged_dict[key] = value
     return merged_dict
-
-
-def input_to_docs(input_data, sentence_parser, docs_limit=None):
-    """ input_data: list
-        sentence_splitter: object
-            how data is suppose to be separated onto sentences.
-            str -> list(str)
-    """
-    assert(input_data is not None)
-    assert(isinstance(docs_limit, int) or docs_limit is None)
-
-    docs = []
-
-    for doc_ind, contents in enumerate(input_data):
-
-        # setup input data.
-        sentences = sentence_parser(contents)
-        sentences = list(map(lambda text: BaseDocumentSentence(text), sentences))
-
-        # Documents.
-        docs.append(Document(doc_id=doc_ind, sentences=sentences))
-
-        # Optionally checking for the limit.
-        if docs_limit is not None and doc_ind >= docs_limit:
-            break
-
-    return docs
 
 
 def get_list_choice(op_list):
