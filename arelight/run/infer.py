@@ -105,7 +105,8 @@ if __name__ == '__main__':
 
     # Creating pipeline.
     pipeline, settings = create_inference_pipeline(
-        args=args, 
+        args=args,
+        files_iter=args.from_files,
         predict_table_name=predict_table_name,
         collection_target_func=collection_target_func,
         translator_args={

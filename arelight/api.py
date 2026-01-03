@@ -43,11 +43,9 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
     ])
 
 
-# TODO. Refactoring. Make API based on AREkit.
-# AREkit is under this hood, so that we expose flat structure of pipeline and sub-pipeline elements:
-# 1. NER, Translator, and Inference.
-def create_inference_pipeline(args, predict_table_name, collection_target_func, translator_args,
-                              ner_args, inference_args, tqdm_log_out=None, event_loop=None):
+def create_inference_pipeline(args, files_iter, predict_table_name, collection_target_func, translator_args,
+                              ner_args, inference_args, tqdm_log_out=None, 
+                              event_loop=None):
 
     event_loop = get_event_loop() if event_loop is None else event_loop
 
@@ -170,7 +168,7 @@ def create_inference_pipeline(args, predict_table_name, collection_target_func, 
 
         # Reading from the optionally large list of files.
         doc_provider = CachedFilesDocProvider(
-            filepaths=args.from_files,
+            filepaths=list(files_iter),
             content_provider=lambda filepath: iter_content(
                 filepath=filepath, csv_delimiter=args.csv_sep, csv_column=args.csv_column),
             content_to_sentences=sentence_parser,
