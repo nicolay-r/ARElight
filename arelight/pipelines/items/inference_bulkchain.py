@@ -1,8 +1,8 @@
 import logging
 
-from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.items.base import BasePipelineItem
 
+from arelight.arekit.api.data_type import DataType
 from arelight.third_party.sqlite3 import SQLite3Service
 from arelight.utils import init_llm, infer_async_batch_it
 

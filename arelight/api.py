@@ -1,7 +1,6 @@
 from arekit.common.data import const
 from arekit.common.data.const import ID
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.synonyms.grouping import SynonymsCollectionValuesGroupingProviders
@@ -10,6 +9,8 @@ from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 from arekit.contrib.utils.synonyms.simple import SimpleSynonymCollection
 from bulk_ner.src.pipeline.item.ner import BasePipelineItem, IdAssigner, NERPipelineItem
 from bulk_translate.src.pipeline.translator import MLTextTranslatorPipelineItem
+
+from arelight.arekit.api.data_type import DataType
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
@@ -43,6 +44,10 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
     ])
 
 
+# TODO. Core API should be based on rows_iter.
+# TODO. There might be separated / customized iter that provides this service over files.
+# TODO. We can use in-memory provider to support passed lists / dictionaries.
+# TODO. Add sampling args.
 def create_inference_pipeline(args, files_iter, predict_table_name, collection_target_func, translator_args,
                               ner_args, inference_args, tqdm_log_out=None, 
                               event_loop=None):
@@ -50,8 +55,12 @@ def create_inference_pipeline(args, files_iter, predict_table_name, collection_t
     event_loop = get_event_loop() if event_loop is None else event_loop
 
     # Reading text-related parameters.
+    # TODO. Sentence parser -- optional
+    # TODO. Sentence parser: concept of text structuring? / sentence / paragraphs etc.
+    # TODO. We can disable that feature by default / or consider chunking_args (optional).
     sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
                                              language=args.sentence_parser.split(":")[1])
+    # Sampling related parameters.
     terms_per_context = args.terms_per_context
     docs_limit = args.docs_limit
 
@@ -191,6 +200,7 @@ def create_inference_pipeline(args, files_iter, predict_table_name, collection_t
     labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
     labels_scaler = CustomLabelScaler(**labels_scl)
 
+    # TODO. What if I want results in JSON?
     settings.append({
         "labels_scaler": labels_scaler,
         # We provide these settings for inference.

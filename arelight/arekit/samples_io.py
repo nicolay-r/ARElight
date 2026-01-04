@@ -1,6 +1,6 @@
-from arekit.common.experiment.api.base_samples_io import BaseSamplesIO
 from arekit.contrib.utils.data.writers.base import BaseWriter
 
+from arelight.arekit.api.base_samples_io import BaseSamplesIO
 from arelight.readers.base import BaseReader
 
 

@@ -7,7 +7,6 @@ from os.path import join
 
 from arekit.common.utils import split_by_whitespaces
 from arekit.common.docs.entities_grouping import EntitiesGroupingPipelineItem
-from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.base import NoLabel
 from arekit.common.labels.scaler.single import SingleLabelScaler
 from arekit.common.pipeline.base import BasePipelineLauncher
@@ -18,6 +17,7 @@ from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.contrib.utils.synonyms.stemmer_based import StemmerBasedSynonymCollection
 from arekit.contrib.utils.data.storages.row_cache import RowCacheStorage
 
+from arelight.arekit.api.data_type import DataType
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.data.writers.sqlite_native import SQliteWriter

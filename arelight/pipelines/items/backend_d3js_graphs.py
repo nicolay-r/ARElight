@@ -4,11 +4,11 @@ from arekit.common.data import const
 from arekit.common.data.rows_fmt import create_base_column_fmt
 from arekit.common.data.rows_parser import ParsedSampleRow
 from arekit.common.data.storages.base import BaseRowsStorage
-from arekit.common.experiment.data_type import DataType
 from arekit.common.labels.scaler.base import BaseLabelScaler
 from arekit.common.labels.str_fmt import StringLabelsFormatter
 from arekit.common.pipeline.items.base import BasePipelineItem
 
+from arelight.arekit.api.data_type import DataType
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.backend.d3js.relations_graph_builder import make_graph_from_relations_array
 from arelight.predict.provider import BasePredictProvider

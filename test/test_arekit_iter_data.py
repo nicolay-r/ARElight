@@ -3,11 +3,11 @@ import unittest
 from os.path import join
 
 from arekit.common.data.storages.base import BaseRowsStorage
-from arekit.common.experiment.data_type import DataType
 from arekit.common.data.rows_fmt import create_base_column_fmt
 from arekit.common.data.rows_parser import ParsedSampleRow
 from arekit.common.pipeline.base import BasePipelineLauncher
 
+from arelight.arekit.api.data_type import DataType
 from arelight.arekit.parsed_row_service import ParsedSampleRowExtraService
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter

@@ -1,9 +1,9 @@
 from arekit.common.data.input.providers.rows.samples import BaseSampleRowProvider
 from arekit.common.data.storages.base import BaseRowsStorage
-from arekit.common.experiment.api.base_samples_io import BaseSamplesIO
-from arekit.common.experiment.data_type import DataType
 from arekit.common.pipeline.items.base import BasePipelineItem
 
+from arelight.arekit.api.base_samples_io import BaseSamplesIO
+from arelight.arekit.api.data_type import DataType
 from arelight.data.serializer_helper import InputDataSerializationHelper
 
 
