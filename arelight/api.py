@@ -48,21 +48,12 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
 # TODO. There might be separated / customized iter that provides this service over files.
 # TODO. We can use in-memory provider to support passed lists / dictionaries.
 # TODO. Add sampling args.
-def create_inference_pipeline(args, files_iter, predict_table_name, collection_target_func, translator_args,
+def create_inference_pipeline(sampling_args, files_iter, predict_table_name, 
+                              collection_target_func, translator_args,
                               ner_args, inference_args, tqdm_log_out=None, 
-                              event_loop=None):
+                              batch_size=1, event_loop=None):
 
     event_loop = get_event_loop() if event_loop is None else event_loop
-
-    # Reading text-related parameters.
-    # TODO. Sentence parser -- optional
-    # TODO. Sentence parser: concept of text structuring? / sentence / paragraphs etc.
-    # TODO. We can disable that feature by default / or consider chunking_args (optional).
-    sentence_parser = create_sentence_parser(framework=args.sentence_parser.split(":")[0],
-                                             language=args.sentence_parser.split(":")[1])
-    # Sampling related parameters.
-    terms_per_context = args.terms_per_context
-    docs_limit = args.docs_limit
 
     predict_extension = {
         "tsv": ".tsv.gz",
@@ -87,7 +78,7 @@ def create_inference_pipeline(args, files_iter, predict_table_name, collection_t
                 entity_formatter=HighligtedEntitiesFormatter(),
                 is_entity_func=lambda term: isinstance(term, IndexedEntity),
                 entity_group_ind_func=lambda entity: entity.GroupIndex,
-                crop_window=terms_per_context),
+                crop_window=sampling_args.get("terms_per_context", None)),
             "samples_io": CustomSamplesIO(create_target_func=collection_target_func,
                                           reader=SQliteReader(table_name="contents"),
                                           writer=SQliteWriter(table_name="contents")),
@@ -118,7 +109,7 @@ def create_inference_pipeline(args, files_iter, predict_table_name, collection_t
             "table_name": "contents",
             "task_kwargs": inference_args.get("task_kwargs", {}) | {
                 "default_id_column": ID,
-                "batch_size": args.batch_size,
+                "batch_size": batch_size,
                 "event_loop": event_loop,
             },
         },
@@ -135,10 +126,10 @@ def create_inference_pipeline(args, files_iter, predict_table_name, collection_t
 
     # Setup main pipeline.
     pipeline = build_pipeline(
-        sampling_engines={key: sampling_engines_setup[key] for key in [args.sampling_framework]},
-        infer_engines={key: infer_engines_setup[key] for key in [args.inference_framework]},
-        backend_engines={key: backend_setups[key] for key in [args.backend]},
-        inference_writer=predict_writers[args.inference_writer])
+        sampling_engines={key: sampling_engines_setup[key] for key in ["arekit"]},
+        infer_engines={key: infer_engines_setup[key] for key in [BULK_CHAIN]},
+        backend_engines={key: backend_setups[key] for key in [D3JS_GRAPHS]},
+        inference_writer=predict_writers[inference_args.get("writer", "sqlite3")])
 
     # Settings.
     settings = []
@@ -162,11 +153,11 @@ def create_inference_pipeline(args, files_iter, predict_table_name, collection_t
 
     synonyms_setup = {
         None: lambda: SimpleSynonymCollection(
-            iter_group_values_lists=iter_group_values(args.synonyms_filepath),
+            iter_group_values_lists=iter_group_values(sampling_args.get("synonyms_filepath", None)),
             is_read_only=False)
     }
 
-    if args.sampling_framework == "arekit":
+    if sampling_args is not None:
 
         synonyms = synonyms_setup[None]()
 
@@ -175,38 +166,51 @@ def create_inference_pipeline(args, files_iter, predict_table_name, collection_t
             text_translator_func=text_translator_setup["ml-based" if translate_model is not None else None],
             entity_parser_func=entity_parsers["bulk-ner"])
 
+        framework, language = sampling_args.get("sentence_parser", "nltk:english").split(":")
+
+        # Reading text-related parameters.
+        # TODO. Sentence parser -- optional
+        # TODO. Sentence parser: concept of text structuring? / sentence / paragraphs etc.
+        # TODO. We can disable that feature by default / or consider chunking_args (optional).
+        sentence_parser = create_sentence_parser(framework=framework, language=language)
+
         # Reading from the optionally large list of files.
         doc_provider = CachedFilesDocProvider(
             filepaths=list(files_iter),
             content_provider=lambda filepath: iter_content(
-                filepath=filepath, csv_delimiter=args.csv_sep, csv_column=args.csv_column),
+                filepath=filepath, 
+                csv_delimiter=sampling_args.get("csv_sep", ","), 
+                csv_column=sampling_args.get("csv_column", "text")
+            ),
             content_to_sentences=sentence_parser,
-            docs_limit=docs_limit)
+            docs_limit=sampling_args.get("docs_limit", None))
 
         data_pipeline = create_neutral_annotation_pipeline(
             synonyms=synonyms,
-            dist_in_terms_bound=terms_per_context,
+            dist_in_terms_bound=sampling_args.get("dist_in_terms_bound", None),
             doc_provider=doc_provider,
-            terms_per_context=terms_per_context,
+            terms_per_context=sampling_args.get("terms_per_context", None),
             text_pipeline=text_parser_pipeline,
-            batch_size=args.batch_size)
+            batch_size=batch_size)
 
         settings.append({
             "data_type_pipelines": {DataType.Test: data_pipeline},
             "doc_ids": list(doc_provider.iter_doc_ids())
         })
 
+    labels_fmt = inference_args['task_kwargs'].get("labels_fmt", None)
+    inference_writer = inference_args.get("writer", "sqlite3")
+
     # Classification task label scaler setup.
-    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), args.labels_fmt.split(','))}
-    labels_scaler = CustomLabelScaler(**labels_scl)
+    labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), labels_fmt.split(','))}
 
     # TODO. What if I want results in JSON?
     settings.append({
-        "labels_scaler": labels_scaler,
+        "labels_scaler": CustomLabelScaler(**labels_scl),
         # We provide these settings for inference.
-        "predict_filepath": collection_target_func(DataType.Test) + predict_extension[args.inference_writer],
+        "predict_filepath": collection_target_func(DataType.Test) + predict_extension[inference_writer],
         "samples_io": sampling_engines_setup["arekit"]["samples_io"],
-        "predict_reader": predict_readers[args.inference_writer]
+        "predict_reader": predict_readers[inference_writer]
     })
 
     return pipeline, settings

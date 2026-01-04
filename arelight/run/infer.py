@@ -105,7 +105,13 @@ if __name__ == '__main__':
 
     # Creating pipeline.
     pipeline, settings = create_inference_pipeline(
-        args=args,
+        sampling_args={
+            "sentence_parser": args.sentence_parser,
+            "terms_per_context": args.terms_per_context,
+            "docs_limit": args.docs_limit,
+            "csv_sep": args.csv_sep,
+            "csv_column": args.csv_column,
+        },
         files_iter=args.from_files,
         predict_table_name=predict_table_name,
         collection_target_func=collection_target_func,
@@ -133,9 +139,12 @@ if __name__ == '__main__':
                     "out": "response"
                 }],
                 "classify_func": lambda row: class_to_int(row['response']),
-            }
+                "labels_fmt": args.labels_fmt,
+            },
+           "writer": args.inference_writer,
         },
-        tqdm_log_out=tqdm_log_out
+        tqdm_log_out=tqdm_log_out,
+        batch_size=args.batch_size
     )
 
     # TODO. This is temporary for supporting legacy backend settings.
