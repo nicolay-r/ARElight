@@ -3,3 +3,4 @@ venv/
 .idea/
 data/
 output/
+__test/
