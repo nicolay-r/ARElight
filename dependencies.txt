@@ -1,5 +1,5 @@
 source-iter==0.24.2
-arekit @ git+https://github.com/nicolay-r/AREkit.git@0.25.2-rc
+arekit==0.25.2
 bulk-translate==0.25.1
 bulk-chain @ git+https://github.com/nicolay-r/bulk-chain@master
 bulk-ner==0.25.1
