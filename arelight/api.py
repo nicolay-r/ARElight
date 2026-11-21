@@ -14,7 +14,7 @@ from arelight.arekit.api.data_type import DataType
 from arelight.arekit.indexed_entity import IndexedEntity
 from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
-from arelight.const import BULK_CHAIN, D3JS_GRAPHS
+from arelight.const import BULK_CHAIN
 from arelight.data.writers.sqlite_native import SQliteWriter
 from arelight.doc_provider import InMemoryRowsDocProvider
 from arelight.entity import HighligtedEntitiesFormatter
@@ -59,7 +59,7 @@ def _rows_as_dict(rows_iter):
 
 def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
                               collection_target_func, translator_args,
-                              ner_args, inference_args, backend_args=None,
+                              ner_args, inference_args,
                               tqdm_log_out=None, batch_size=1, event_loop=None):
 
 
@@ -125,19 +125,9 @@ def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
         },
     }
 
-    backend_engines = {}
-    if backend_args is not None:
-        backend_engines[D3JS_GRAPHS] = {
-            "graph_min_links": backend_args.get("graph_min_links", 1),
-            "graph_a_labels": backend_args.get("graph_a_labels", None),
-            "weights": backend_args.get("weights", True),
-        }
-
-    # Setup main pipeline. Graphs are produced by D3jsGraphsBackendPipelineItem.
     pipeline = build_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in ["arekit"]},
         infer_engines={key: infer_engines_setup[key] for key in [BULK_CHAIN]},
-        backend_engines=backend_engines,
         inference_writer=predict_writers[inference_args.get("writer", "sqlite3")])
 
     # Settings.
