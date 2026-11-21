@@ -6,7 +6,6 @@ from os.path import dirname, join, realpath
 from arelight.api import _rows_as_dict, create_inference_pipeline
 from arelight.run.infer import iter_rows_from_files
 from arelight.doc_provider import InMemoryRowsDocProvider
-from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
 
 
 DATA_DIR = join(dirname(realpath(__file__)), "data")
@@ -69,7 +68,7 @@ class _FakeNER(object):
 
 class TestPipelineFromRows(unittest.TestCase):
 
-    def test_graph_backend_is_in_the_pipeline(self):
+    def test_pipeline_has_no_graph_backend(self):
         with tempfile.TemporaryDirectory() as folder:
             llm_path = join(folder, "fake_llm.py")
             with open(llm_path, "w") as handle:
@@ -95,14 +94,9 @@ class TestPipelineFromRows(unittest.TestCase):
                     "writer": "sqlite3",
                     "task_kwargs": {"labels_fmt": "u:0,p:1,n:2"},
                 },
-                backend_args={
-                    "collection_name": "sample",
-                    "output_dir": folder,
-                    "label_names": "p:pos,n:neg,u:neu",
-                },
             )
 
-        self.assertTrue(any(isinstance(item, D3jsGraphsBackendPipelineItem) for item in pipeline))
+        self.assertFalse(any(type(item).__name__.startswith("D3js") for item in pipeline))
         merged = {}
         for chunk in settings:
             merged.update(chunk)
