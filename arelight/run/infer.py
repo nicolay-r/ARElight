@@ -3,15 +3,52 @@ from ntpath import dirname
 from os.path import basename, join
 
 from arekit.common.pipeline.base import BasePipelineLauncher
-from arekit.contrib.prompt.sample import BaseSingleTextProvider
 from bulk_chain.core.utils import dynamic_init
 
 from arelight.api import create_inference_pipeline
-from arelight.const import BULK_CHAIN, D3JS_GRAPHS
-from arelight.pipelines.demo.labels.formatter import CustomLabelsFormatter
+from arelight.const import BULK_CHAIN
 from arelight.pipelines.result import PipelineResult
-from arelight.run.utils import merge_dictionaries, NER_TYPES
+from arelight.run.utils import iter_content, merge_dictionaries, NER_TYPES
 from arelight.run.utils_logger import TqdmToLogger, setup_custom_logger
+
+
+def class_to_int(text):
+    lowered = "" if text is None else str(text).lower()
+    if "positive" in lowered:
+        return 1
+    if "negative" in lowered:
+        return -1
+    return 0
+
+
+def attitude_task_kwargs(labels_fmt, classify_func=None):
+    """ Prompt for this command-line attitude example. """
+    from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
+
+    prompt = (
+        f"Given text: {{{BaseSingleTextProvider.TEXT_A}}}"
+        "TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
+        "positive, "
+        "negative, "
+        "neutral."
+    )
+    return {
+        "schema": [{"prompt": prompt, "out": "response"}],
+        "classify_func": class_to_int if classify_func is None else classify_func,
+        "labels_fmt": labels_fmt,
+    }
+
+
+def iter_rows_from_files(files_iter, csv_sep=",", csv_column="text", content_iter=None):
+
+    def _default_content(filepath):
+        return iter_content(filepath=filepath, csv_column=csv_column, csv_delimiter=csv_sep)
+
+    read_content = content_iter if content_iter is not None else _default_content
+    for filepath in files_iter or []:
+        for index, content in enumerate(read_content(filepath)):
+            yield {"id": ":".join([str(filepath), str(index)]), "text": content, "filename": filepath}
+
 
 def create_infer_parser():
 
@@ -48,9 +85,6 @@ def create_infer_parser():
     parser.add_argument("--docs-limit", dest="docs_limit", type=int, default=None)
     parser.add_argument("--labels-fmt", dest="labels_fmt", default="u:0,p:1,n:2", type=str)
     parser.add_argument("--device-type", dest="device_type", type=str, default="cpu", help="Device type applicable for launching machine learning models", choices=['cpu', 'cuda'])
-    # Backend parameters.
-    parser.add_argument("--backend", dest="backend", type=str, default=None, choices=[None, D3JS_GRAPHS])
-    parser.add_argument("--label-names", dest="d3js_label_names", type=str, default="p:pos,n:neg,u:neu")
     # Logging parameters.
     parser.add_argument('--log-file', dest="log_file", default=None, type=str)
     parser.add_argument('-o', '--output-template', dest='output_template', type=str, default="output", nargs='?')
@@ -60,23 +94,15 @@ def create_infer_parser():
 
 def setup_collection_name(value):
     # Considering Predefined name if the latter has been declared.
+    if isinstance(value, list):
+        value = value[0] if len(value) == 1 else "-".join(value)
     if value is not None:
         return value
     # Use the name of the file.
-    if args.from_files is not None:
+    if args.from_files:
         return basename(args.from_files[0]) if len(args.from_files) == 1 else "from-many-files"
-    if args.from_dataframe is not None:
-        return basename(args.from_dataframe[0])
 
-    return "samples"
-
-
-def class_to_int(text):
-    if 'positive' in text.lower():
-        return 1
-    elif 'negative' in text.lower():
-        return -1 
-    return 0 
+    return "samples" 
 
 
 if __name__ == '__main__':
@@ -103,16 +129,20 @@ if __name__ == '__main__':
     # Init Translator model.
     translate_model = dynamic_init(class_filepath=args.translate_provider) if args.translate_provider is not None else None
 
+    ner_types = None if args.ner_types is None else set(args.ner_types.split("|"))
+
     # Creating pipeline.
     pipeline, settings = create_inference_pipeline(
+        rows_iter=iter_rows_from_files(
+            files_iter=args.from_files,
+            csv_sep=args.csv_sep,
+            csv_column=args.csv_column),
         sampling_args={
             "sentence_parser": args.sentence_parser,
             "terms_per_context": args.terms_per_context,
             "docs_limit": args.docs_limit,
-            "csv_sep": args.csv_sep,
-            "csv_column": args.csv_column,
+            "synonyms_filepath": args.synonyms_filepath,
         },
-        files_iter=args.from_files,
         predict_table_name=predict_table_name,
         collection_target_func=collection_target_func,
         translator_args={
@@ -122,40 +152,19 @@ if __name__ == '__main__':
         },
         ner_args={
             "model": ner_model_type(model=args.ner_model_name),
-            "obj_filter": None if args.ner_types is None else lambda s_obj: s_obj.ObjectType in args.ner_types,
+            "obj_filter": None if ner_types is None else lambda s_obj: s_obj.ObjectType in ner_types,
             "chunk_limit": 128
         },
         inference_args={
             "model": args.inference_model_name,
             "class_name": args.inference_filename,
             "api_key": args.inference_api,
-            "task_kwargs": {
-                "schema": [{
-                    "prompt": f"Given text: {{{BaseSingleTextProvider.TEXT_A}}}" +
-                              f"TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
-                              f"positive, "
-                              f"negative, "
-                              f"neutral.",
-                    "out": "response"
-                }],
-                "classify_func": lambda row: class_to_int(row['response']),
-                "labels_fmt": args.labels_fmt,
-            },
-           "writer": args.inference_writer,
+            "task_kwargs": attitude_task_kwargs(args.labels_fmt),
+            "writer": args.inference_writer,
         },
         tqdm_log_out=tqdm_log_out,
         batch_size=args.batch_size
     )
-
-    # TODO. This is temporary for supporting legacy backend settings.
-    if args.backend == "d3js_graphs":
-        labels_fmt = {a: v for a, v in map(lambda item: item.split(":"), args.d3js_label_names.split(','))}
-        settings.append({
-            "labels_formatter": CustomLabelsFormatter(**labels_fmt),
-            "d3js_collection_name": collection_name,
-            "d3js_collection_description": collection_name,
-            "d3js_graph_output_dir": output_dir
-        })
 
     # Launch application.
     BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=PipelineResult(merge_dictionaries(settings)),

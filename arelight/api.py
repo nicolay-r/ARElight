@@ -16,7 +16,7 @@ from arelight.arekit.samples_io import CustomSamplesIO
 from arelight.arekit.utils_translator import string_terms_to_list
 from arelight.const import BULK_CHAIN, D3JS_GRAPHS
 from arelight.data.writers.sqlite_native import SQliteWriter
-from arelight.doc_provider import CachedFilesDocProvider
+from arelight.doc_provider import InMemoryRowsDocProvider
 from arelight.entity import HighligtedEntitiesFormatter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
@@ -25,7 +25,7 @@ from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
 from arelight.readers.sqlite import SQliteReader
-from arelight.run.utils import create_sentence_parser, iter_content, iter_group_values
+from arelight.run.utils import create_sentence_parser, iter_group_values
 from arelight.samplers.cropped import create_prompted_sample_provider
 from arelight.utils import flatten, get_event_loop
 
@@ -44,14 +44,24 @@ def __setup_text_parser_pipeline(text_translator_func, entity_parser_func, synon
     ])
 
 
-# TODO. Core API should be based on rows_iter.
-# TODO. There might be separated / customized iter that provides this service over files.
-# TODO. We can use in-memory provider to support passed lists / dictionaries.
-# TODO. Add sampling args.
-def create_inference_pipeline(sampling_args, files_iter, predict_table_name, 
+def _rows_as_dict(rows_iter):
+    """ Materialize row dicts into the mapping `InMemoryRowsDocProvider` stores.
+
+    A dict is already that mapping. Every other row must include `id`.
+    """
+    if isinstance(rows_iter, dict):
+        return rows_iter
+    rows = {}
+    for value in rows_iter or []:
+        rows[str(value["id"])] = value
+    return rows
+
+
+def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
                               collection_target_func, translator_args,
-                              ner_args, inference_args, tqdm_log_out=None, 
-                              batch_size=1, event_loop=None):
+                              ner_args, inference_args, backend_args=None,
+                              tqdm_log_out=None, batch_size=1, event_loop=None):
+
 
     event_loop = get_event_loop() if event_loop is None else event_loop
 
@@ -115,28 +125,27 @@ def create_inference_pipeline(sampling_args, files_iter, predict_table_name,
         },
     }
 
-    backend_setups = {
-        None: {},
-        D3JS_GRAPHS: {
-            "graph_min_links": 1,
-            "graph_a_labels": None,
-            "weights": True,
+    backend_engines = {}
+    if backend_args is not None:
+        backend_engines[D3JS_GRAPHS] = {
+            "graph_min_links": backend_args.get("graph_min_links", 1),
+            "graph_a_labels": backend_args.get("graph_a_labels", None),
+            "weights": backend_args.get("weights", True),
         }
-    }
 
-    # Setup main pipeline.
+    # Setup main pipeline. Graphs are produced by D3jsGraphsBackendPipelineItem.
     pipeline = build_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in ["arekit"]},
         infer_engines={key: infer_engines_setup[key] for key in [BULK_CHAIN]},
-        backend_engines={key: backend_setups[key] for key in [D3JS_GRAPHS]},
+        backend_engines=backend_engines,
         inference_writer=predict_writers[inference_args.get("writer", "sqlite3")])
 
     # Settings.
     settings = []
 
     translate_model = translator_args.get("model") if translator_args is not None else None
-    translate_from = translator_args.get("src", None)
-    translate_to = translator_args.get("dest", None)
+    translate_from = translator_args.get("src", None) if translator_args is not None else None
+    translate_to = translator_args.get("dest", None) if translator_args is not None else None
 
     text_translator_setup = {
         None: lambda: None,
@@ -174,15 +183,11 @@ def create_inference_pipeline(sampling_args, files_iter, predict_table_name,
         # TODO. We can disable that feature by default / or consider chunking_args (optional).
         sentence_parser = create_sentence_parser(framework=framework, language=language)
 
-        # Reading from the optionally large list of files.
-        doc_provider = CachedFilesDocProvider(
-            filepaths=list(files_iter),
-            content_provider=lambda filepath: iter_content(
-                filepath=filepath, 
-                csv_delimiter=sampling_args.get("csv_sep", ","), 
-                csv_column=sampling_args.get("csv_column", "text")
-            ),
+        # The in-memory provider keeps one dict of document id to text.
+        doc_provider = InMemoryRowsDocProvider(
+            rows=_rows_as_dict(rows_iter),
             content_to_sentences=sentence_parser,
+            text_key=sampling_args.get("text_key", "text"),
             docs_limit=sampling_args.get("docs_limit", None))
 
         data_pipeline = create_neutral_annotation_pipeline(
@@ -204,7 +209,6 @@ def create_inference_pipeline(sampling_args, files_iter, predict_table_name,
     # Classification task label scaler setup.
     labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), labels_fmt.split(','))}
 
-    # TODO. What if I want results in JSON?
     settings.append({
         "labels_scaler": CustomLabelScaler(**labels_scl),
         # We provide these settings for inference.

@@ -44,3 +44,43 @@ class CachedFilesDocProvider(DocumentProvider):
                     break
 
                 yield ":".join([filepath, str(doc_ind)])
+
+
+class InMemoryRowsDocProvider(DocumentProvider):
+    """ Documents kept in memory.
+
+    `rows` is a dict that maps a document id to a string or a dict
+    (text under `text_key`).
+    """
+
+    def __init__(self, rows, content_to_sentences, text_key="text", docs_limit=None):
+        assert(callable(content_to_sentences))
+        assert(isinstance(rows, dict))
+        assert(isinstance(docs_limit, int) or docs_limit is None)
+        self.__sentences = content_to_sentences
+        self.__rows = {}
+        for count, (doc_id, value) in enumerate(rows.items()):
+            if docs_limit is not None and count >= docs_limit:
+                break
+            self.__rows[str(doc_id)] = self.__text_of(value, text_key)
+
+    @staticmethod
+    def __text_of(value, text_key):
+        if isinstance(value, str):
+            return value
+        if isinstance(value, dict):
+            if text_key in value:
+                return value[text_key]
+            if "text" in value:
+                return value["text"]
+            raise KeyError("Row has no text field '{0}'".format(text_key))
+        raise TypeError("Unsupported row type: {0}".format(type(value)))
+
+    def by_id(self, doc_id):
+        assert(isinstance(doc_id, str))
+        text = self.__rows[doc_id]
+        sentences = list(map(lambda sent: BaseDocumentSentence(sent), self.__sentences(text)))
+        return Document(doc_id=doc_id, sentences=sentences)
+
+    def iter_doc_ids(self):
+        return iter(self.__rows)
