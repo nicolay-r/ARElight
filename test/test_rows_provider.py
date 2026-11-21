@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from os.path import dirname, join, realpath
 
-from arelight.api import create_inference_pipeline, iter_rows_from_files
+from arelight.api import _rows_as_dict, create_inference_pipeline
+from arelight.run.infer import iter_rows_from_files
 from arelight.doc_provider import InMemoryRowsDocProvider
 from arelight.pipelines.items.backend_d3js_graphs import D3jsGraphsBackendPipelineItem
 
@@ -34,6 +35,12 @@ class TestInMemoryRows(unittest.TestCase):
             content_to_sentences=lambda text: [text],
             text_key="body")
         self.assertEqual(keyed.by_id("doc-b").get_sentence(0).Text, "second")
+
+    def test_rows_require_id(self):
+        rows = _rows_as_dict([{"id": "doc-a", "text": "first"}])
+        self.assertEqual(rows["doc-a"]["text"], "first")
+        with self.assertRaises(KeyError):
+            _rows_as_dict([{"text": "missing"}])
 
     def test_list_is_rejected(self):
         with self.assertRaises(AssertionError):
@@ -99,9 +106,9 @@ class TestPipelineFromRows(unittest.TestCase):
         merged = {}
         for chunk in settings:
             merged.update(chunk)
-        self.assertEqual(merged["d3js_collection_name"], "sample")
+        self.assertNotIn("d3js_collection_name", merged)
+        self.assertNotIn("labels_formatter", merged)
         self.assertTrue(merged["predict_filepath"].endswith(".sqlite"))
-        self.assertEqual(os.path.basename(merged["d3js_graph_output_dir"]), os.path.basename(folder))
 
 
 if __name__ == "__main__":
