@@ -1,4 +1,4 @@
-# ARElight 0.26.0
+# ARElight 0.26.1
 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.25.2-orange.svg)
@@ -24,7 +24,7 @@ This repository is a part of the **ECIR-2024** demo paper:
 # Installation
 
 ```bash
-pip install git+https://github.com/nicolay-r/arelight@v0.26.0
+pip install git+https://github.com/nicolay-r/arelight@v0.26.1
 ```
 
 Install the demo packages and download the providers:
