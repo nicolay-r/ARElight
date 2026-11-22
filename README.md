@@ -62,7 +62,6 @@ python3 -m arelight.run.infer \
     --inference-filename "replicate_104.py" \
     --inference-model-name "meta/meta-llama-3-70b-instruct" \
     --inference-writer "sqlite3" \
-    --backend "d3js_graphs" \
     --log-file "arelight.log.txt" \
     -o "output" 
 ```
@@ -112,9 +111,6 @@ Parameters:
     * `p` -- positive label, which is mapped to `1`.
     * `n` -- negative label, which is mapped to `2`.
     * `u` -- undefined label (optional), which is mapped to `0`.
-* `backend` -- type of the backend (`d3js_graphs` by default).
-    * `host` -- port on which we expect to launch localhost server.
-    * `label-names` -- default mapping is `p:pos,n:neg,u:neu`.
 * `-o` -- output folder for result collections and demo.
 
 Framework parameters mentioned above as well as their related setups might be omitted.
