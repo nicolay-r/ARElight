@@ -43,6 +43,9 @@ sh demo/download_providers.sh
 Pass in-memory rows to `create_inference_pipeline`. Each row has an `id` and a `text`.
 
 ```python
+import os
+
+from dotenv import load_dotenv
 from arekit.common.pipeline.base import BasePipelineLauncher
 
 from arelight.api import create_inference_pipeline
@@ -50,6 +53,8 @@ from arelight.pipelines.result import PipelineResult
 from arelight.run.utils import merge_dictionaries
 
 from bulk_chain.core.utils import dynamic_init
+
+load_dotenv()
 
 
 def class_to_int(text):
@@ -89,7 +94,7 @@ pipeline, settings = create_inference_pipeline(
     inference_args={
         "model": "meta/meta-llama-3-70b-instruct",
         "class_name": "demo/replicate_104.py",
-        "api_key": "<YOUR-API-GOES-HERE>",
+        "api_key": os.environ.get("API_TOKEN"),
         "task_kwargs": {
             "schema": [{
                 "prompt": "Given text: {text_a}TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: positive, negative, neutral.",
@@ -126,7 +131,6 @@ python3 -m arelight.run.infer \
     --ner-provider "demo/dp_130.py" \
     --ner-model-name "ner_ontonotes_bert_mult" \
     --ner-types "ORG|PERSON|LOC|GPE" \
-    --inference-api "<YOUR-API-GOES-HERE>" \
     --inference-filename "demo/replicate_104.py" \
     --inference-model-name "meta/meta-llama-3-70b-instruct" \
     --inference-writer "sqlite3" \
@@ -171,7 +175,7 @@ Parameters:
       * `translate-entity` -- (optional) source and target language supported by backend, separated by `:`.
       * `translate-text` -- (optional) source and target language supported by backend, separated by `:`.
 * `bulk_chain` -- LLM framework, utilized for relations classification) [[bulk-chain]](https://github.com/nicolay-r/bulk-chain)
-    * `inference-api` -- API key 
+    * `API_TOKEN` in `.env` -- API key, loaded with `python-dotenv`
     * `inference-filename` -- Inference implemenation filename; we use `replicate_104.py` from [nlp-thirdgate](https://github.com/nicolay-r/nlp-thirdgate/blob/master/llm/replicate_104.py) by default
     * `inference-model-name` -- Name of the model; for the Replicate provider we use: `meta/meta-llama-3-70b-instruct`
     * `inference-writer` -- How to save the output results; by default we use `sqlite3` for storing classified results.

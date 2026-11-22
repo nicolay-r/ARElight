@@ -14,7 +14,6 @@ python3 -m arelight.run.infer \
 	--from-files $1 \
 	--log-file "arelight.log.txt" \
     --backend "d3js_graphs" \
-    --inference-api "<YOUR-API-GOES-HERE>" \
     --inference-writer "sqlite3" \
     --inference-filename "replicate_104.py" \
     --inference-model-name "meta/meta-llama-3-70b-instruct"

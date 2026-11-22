@@ -1,3 +1,4 @@
+python-dotenv==1.2.1
 bulk-translate==0.25.1
 bulk-chain @ git+https://github.com/nicolay-r/bulk-chain@master
 bulk-ner==0.25.1

@@ -1,6 +1,9 @@
 import argparse
+import os
 from ntpath import dirname
 from os.path import basename, join
+
+from dotenv import load_dotenv
 
 from arekit.common.pipeline.base import BasePipelineLauncher
 from bulk_chain.core.utils import dynamic_init
@@ -77,7 +80,6 @@ def create_infer_parser():
     parser.add_argument('--translate-text', dest='translate_text', type=str, default=None)
     # Inference parameters.
     parser.add_argument("--inference-framework", dest="inference_framework", type=str, default=BULK_CHAIN, choices=[BULK_CHAIN])
-    parser.add_argument("--inference-api", dest="inference_api", type=str, default=None)
     parser.add_argument('--inference-filename', dest="inference_filename", type=str, default=None)
     parser.add_argument('--inference-model-name', dest="inference_model_name", type=str, default=None)
     parser.add_argument('--inference-writer', dest="inference_writer", type=str, default="sqlite3", choices=["sqlite3", "tsv"])
@@ -106,6 +108,8 @@ def setup_collection_name(value):
 
 
 if __name__ == '__main__':
+
+    load_dotenv()
 
     # Completing list of arguments.
     parser = create_infer_parser()
@@ -158,7 +162,7 @@ if __name__ == '__main__':
         inference_args={
             "model": args.inference_model_name,
             "class_name": args.inference_filename,
-            "api_key": args.inference_api,
+            "api_key": os.environ.get("API_TOKEN"),
             "task_kwargs": attitude_task_kwargs(args.labels_fmt),
             "writer": args.inference_writer,
         },

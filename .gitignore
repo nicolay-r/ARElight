@@ -1,6 +1,8 @@
 __pycache__/
+.env
 venv/
 .idea/
 data/
 output/
 __test/
+_out/
