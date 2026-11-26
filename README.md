@@ -85,7 +85,6 @@ pipeline, settings = create_inference_pipeline(
         "model": dynamic_init("demo/googletrans_402.py")(),
         "src": "auto",
         "dest": "en",
-        "event_loop": event_loop,
     },
     # Find named entities to relate.
     ner_args={
