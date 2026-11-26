@@ -2,7 +2,8 @@ import unittest
 
 from tqdm import tqdm
 from arelight.doc_provider import CachedFilesDocProvider
-from arelight.run.utils import create_sentence_parser, iter_content
+from arelight.run.infer import create_sentence_parser
+from arelight.run.utils import iter_content
 
 
 class TestCachedFiles(unittest.TestCase):

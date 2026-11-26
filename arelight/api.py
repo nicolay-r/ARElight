@@ -25,7 +25,7 @@ from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
 from arelight.readers.sqlite import SQliteReader
-from arelight.run.utils import create_sentence_parser, iter_group_values
+from arelight.run.utils import iter_group_values
 from arelight.samplers.cropped import create_prompted_sample_provider
 from arelight.utils import flatten, get_event_loop
 
@@ -57,10 +57,28 @@ def _rows_as_dict(rows_iter):
     return rows
 
 
+def _whole_text(text):
+    return [text]
+
+
+def __translator_pipeline(translator_args):
+    args = dict(translator_args)
+    model = args.pop("model")
+    do_translate_entity = args.pop("do_translate_entity", False)
+    return [
+        MLTextTranslatorPipelineItem(
+            batch_translate_model=model.get_func(**args),
+            do_translate_entity=do_translate_entity,
+            is_span_func=lambda term: isinstance(term, IndexedEntity)),
+        BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
+    ]
+
+
 def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
                               collection_target_func, translator_args,
                               ner_args, inference_args,
-                              tqdm_log_out=None, batch_size=1, event_loop=None):
+                              tqdm_log_out=None, batch_size=1, event_loop=None,
+                              sentence_parser=None):
 
 
     event_loop = get_event_loop() if event_loop is None else event_loop
@@ -110,44 +128,33 @@ def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
             **ner_args)
     }
 
+    inference_writer = inference_args.get("writer", "sqlite3")
+    chain_args = {key: value for key, value in inference_args.items() if key != "writer"}
+
     infer_engines_setup = {
         None: {},
         BULK_CHAIN: {
-            "model_name": inference_args.get("model", None),
-            "class_name": inference_args.get("class_name", None),
-            "api_key": inference_args.get("api_key", None),
             "table_name": "contents",
-            "task_kwargs": inference_args.get("task_kwargs", {}) | {
+            **chain_args,
+            "task_kwargs": {
                 "default_id_column": ID,
                 "batch_size": batch_size,
                 "event_loop": event_loop,
-            },
+            } | chain_args.get("task_kwargs", {}),
         },
     }
 
     pipeline = build_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in ["arekit"]},
         infer_engines={key: infer_engines_setup[key] for key in [BULK_CHAIN]},
-        inference_writer=predict_writers[inference_args.get("writer", "sqlite3")])
+        inference_writer=predict_writers[inference_writer])
 
     # Settings.
     settings = []
 
-    translate_model = translator_args.get("model") if translator_args is not None else None
-    translate_from = translator_args.get("src", None) if translator_args is not None else None
-    translate_to = translator_args.get("dest", None) if translator_args is not None else None
-
     text_translator_setup = {
-        None: lambda: None,
-        "ml-based": lambda: [
-            MLTextTranslatorPipelineItem(
-                batch_translate_model=translate_model.get_func(
-                    src=translate_from, dest=translate_to, event_loop=event_loop
-                ),
-                do_translate_entity=translator_args.get("do_translate_entity", False),
-                is_span_func=lambda term: isinstance(term, IndexedEntity)),
-            BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
-        ]
+        None: lambda: [],
+        "ml-based": lambda: __translator_pipeline(translator_args),
     }
 
     synonyms_setup = {
@@ -162,21 +169,18 @@ def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
 
         text_parser_pipeline = __setup_text_parser_pipeline(
             synonyms=synonyms,
-            text_translator_func=text_translator_setup["ml-based" if translate_model is not None else None],
+            text_translator_func=text_translator_setup["ml-based" if translator_args else None],
             entity_parser_func=entity_parsers["bulk-ner"])
 
-        framework, language = sampling_args.get("sentence_parser", "nltk:english").split(":")
-
-        # Reading text-related parameters.
-        # TODO. Sentence parser -- optional
+        # Sentence splitting is optional and supplied by the caller.
         # TODO. Sentence parser: concept of text structuring? / sentence / paragraphs etc.
         # TODO. We can disable that feature by default / or consider chunking_args (optional).
-        sentence_parser = create_sentence_parser(framework=framework, language=language)
+        content_to_sentences = _whole_text if sentence_parser is None else sentence_parser
 
         # The in-memory provider keeps one dict of document id to text.
         doc_provider = InMemoryRowsDocProvider(
             rows=_rows_as_dict(rows_iter),
-            content_to_sentences=sentence_parser,
+            content_to_sentences=content_to_sentences,
             text_key=sampling_args.get("text_key", "text"),
             docs_limit=sampling_args.get("docs_limit", None))
 
@@ -194,7 +198,6 @@ def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
         })
 
     labels_fmt = inference_args['task_kwargs'].get("labels_fmt", None)
-    inference_writer = inference_args.get("writer", "sqlite3")
 
     # Classification task label scaler setup.
     labels_scl = {a: int(v) for a, v in map(lambda itm: itm.split(":"), labels_fmt.split(','))}

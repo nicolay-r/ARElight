@@ -79,18 +79,17 @@ class TestPipelineFromRows(unittest.TestCase):
             pipeline, settings = create_inference_pipeline(
                 rows_iter={"sample:0": "Barack Obama met Angela Merkel in Berlin."},
                 sampling_args={
-                    "sentence_parser": "nltk:english",
                     "terms_per_context": 50,
                     "docs_limit": 1,
                 },
+                sentence_parser=lambda text: [text],
                 predict_table_name="bulk_chain",
                 collection_target_func=lambda data_type: join(folder, data_type.name.lower()),
                 translator_args=None,
                 ner_args={"model": _FakeNER(), "obj_filter": None, "chunk_limit": 128},
                 inference_args={
-                    "model": "fake",
+                    "model_name": "fake",
                     "class_name": llm_path,
-                    "api_key": "x",
                     "writer": "sqlite3",
                     "task_kwargs": {"labels_fmt": "u:0,p:1,n:2"},
                 },

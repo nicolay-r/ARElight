@@ -2,9 +2,11 @@ import asyncio
 import collections
 import csv
 import importlib
+import os
 
 from bulk_chain.api import iter_content
 from bulk_chain.core.utils import dynamic_init
+from dotenv import load_dotenv
 
 
 def auto_import(name):
@@ -40,9 +42,11 @@ def iter_csv_lines(csv_file, column_name, delimiter=","):
             yield row[column_name]
 
 
-def init_llm(class_filepath, api_key, model_name="meta/meta-llama-3-70b-instruct"):
+def init_llm(class_filepath, model_name="meta/meta-llama-3-70b-instruct"):
+    """ The provider reads `API_TOKEN` from the environment (`.env`). """
+    load_dotenv()
     return dynamic_init(class_filepath)(
-        api_token=api_key,
+        api_token=os.environ.get("API_TOKEN"),
         model_name=model_name)
 
 

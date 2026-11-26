@@ -43,18 +43,20 @@ sh demo/download_providers.sh
 Pass in-memory rows to `create_inference_pipeline`. Each row has an `id` and a `text`.
 
 ```python
-import os
-
 from dotenv import load_dotenv
 from arekit.common.pipeline.base import BasePipelineLauncher
 
 from arelight.api import create_inference_pipeline
 from arelight.pipelines.result import PipelineResult
+from arelight.run.infer import create_sentence_parser
 from arelight.run.utils import merge_dictionaries
+from arelight.utils import get_event_loop
 
 from bulk_chain.core.utils import dynamic_init
 
-load_dotenv()
+load_dotenv()  # API_TOKEN in .env is read by the inference pipeline
+
+event_loop = get_event_loop()
 
 
 def class_to_int(text):
@@ -72,17 +74,18 @@ pipeline, settings = create_inference_pipeline(
         # ... iterator of texts goes here
     ],
     sampling_args={
-        "sentence_parser": "nltk:english",
         "terms_per_context": 50,
         "docs_limit": 1,
     },
+    sentence_parser=create_sentence_parser(framework="nltk", language="english"),
     predict_table_name="bulk_chain",
     collection_target_func=lambda data_type: f"./output/test_samples-{data_type.name.lower()}",
-    # Translate the document text.
+    # Translate the document text. These kwargs are forwarded to the translator.
     translator_args={
         "model": dynamic_init("demo/googletrans_402.py")(),
         "src": "auto",
         "dest": "en",
+        "event_loop": event_loop,
     },
     # Find named entities to relate.
     ner_args={
@@ -92,9 +95,8 @@ pipeline, settings = create_inference_pipeline(
     },
     # Classify the attitude between those entities.
     inference_args={
-        "model": "meta/meta-llama-3-70b-instruct",
+        "model_name": "meta/meta-llama-3-70b-instruct",
         "class_name": "demo/replicate_104.py",
-        "api_key": os.environ.get("API_TOKEN"),
         "task_kwargs": {
             "schema": [{
                 "prompt": "Given text: {text_a}TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: positive, negative, neutral.",
@@ -105,6 +107,7 @@ pipeline, settings = create_inference_pipeline(
         },
     },
     batch_size=1,
+    event_loop=event_loop,
 )
 
 # Launch Pipeline
@@ -160,7 +163,7 @@ Parameters:
         * `csv-column` -- name of the column in CSV file.
     * `collection-name` -- name of the result files based on sampled documents.
     * `terms-per-context` -- total amount of words for a single sample.
-    * `sentence-parser` -- parser utilized for document split into sentences; list of the [[supported parsers]](https://github.com/nicolay-r/ARElight/blob/a17088a98729e3092de1666bef9ba8327ef30b80/arelight/run/utils.py#L15).
+    * `sentence-parser` -- parser utilized for document split into sentences. `nltk` is provided by [demo/nltk.py](demo/nltk.py) and passed into the pipeline as a callable.
     * `synonyms-filepath` -- text file with listed synonymous entries, grouped by lines. [[example]](https://github.com/nicolay-r/RuSentRel/blob/master/synonyms.txt).
     * `stemmer` -- for words lemmatization (optional); we support [[PyMystem]](https://pypi.org/project/pymystem3/).
     * NER parameters:  
@@ -175,9 +178,9 @@ Parameters:
       * `translate-entity` -- (optional) source and target language supported by backend, separated by `:`.
       * `translate-text` -- (optional) source and target language supported by backend, separated by `:`.
 * `bulk_chain` -- LLM framework, utilized for relations classification) [[bulk-chain]](https://github.com/nicolay-r/bulk-chain)
-    * `API_TOKEN` in `.env` -- API key, loaded with `python-dotenv`
-    * `inference-filename` -- Inference implemenation filename; we use `replicate_104.py` from [nlp-thirdgate](https://github.com/nicolay-r/nlp-thirdgate/blob/master/llm/replicate_104.py) by default
-    * `inference-model-name` -- Name of the model; for the Replicate provider we use: `meta/meta-llama-3-70b-instruct`
+    * `API_TOKEN` in `.env` -- API key, loaded with `python-dotenv` inside the inference pipeline. It is not an `inference_args` field.
+    * `inference-filename` -- Inference implemenation filename; passed through as `class_name`. We use `replicate_104.py` from [nlp-thirdgate](https://github.com/nicolay-r/nlp-thirdgate/blob/master/llm/replicate_104.py) by default
+    * `inference-model-name` -- Name of the model, passed through as `model_name`. For the Replicate provider we use: `meta/meta-llama-3-70b-instruct`
     * `inference-writer` -- How to save the output results; by default we use `sqlite3` for storing classified results.
 * `labels-fmt` -- list of the mappings from `label` to integer value; is a `p:1,n:2,u:0` by default, where:
     * `p` -- positive label, which is mapped to `1`.

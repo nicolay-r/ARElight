@@ -9,11 +9,11 @@ from arelight.utils import init_llm, infer_async_batch_it
 
 class InferenceBulkChainPipelineItem(BasePipelineItem):
 
-    def __init__(self, class_name, model_name, api_key, table_name, task_kwargs, **kwargs):
+    def __init__(self, class_name, model_name, table_name, task_kwargs, **kwargs):
         super(InferenceBulkChainPipelineItem, self).__init__(**kwargs)
         self.__sqlite_service = SQLite3Service()
         self.__table_name = table_name
-        self.__model = init_llm(class_filepath=class_name, model_name=model_name, api_key=api_key)
+        self.__model = init_llm(class_filepath=class_name, model_name=model_name)
         self.__task_kwargs = task_kwargs
 
         logging.getLogger("httpcore").setLevel(logging.WARNING)

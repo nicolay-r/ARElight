@@ -2,22 +2,10 @@ from io import TextIOWrapper
 from zipfile import ZipFile
 
 from arelight.synonyms import iter_synonym_groups
-from arelight.utils import auto_import, iter_csv_lines
+from arelight.utils import iter_csv_lines
 
 
 NER_TYPES = ["ORG", "PERSON", "LOC", "GPE"]
-
-
-def create_sentence_parser(framework, language):
-    if framework == "linesplit":
-        return lambda text: [t.strip() for t in text.split('\n')]
-    elif framework == "nltk":
-        # Using nltk library.
-        tokenizer_func = auto_import("arelight.third_party.nltk.import_tokenizer")
-        tokenizer = tokenizer_func(name=f'tokenizers/punkt/{language}.pickle', resource_name="punkt")
-        return tokenizer.tokenize
-    else:
-        raise Exception("Framework `{}` is not supported".format(framework))
 
 
 def iter_content(filepath, csv_column, csv_delimiter, open_func=None):

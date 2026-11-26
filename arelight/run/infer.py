@@ -1,7 +1,7 @@
 import argparse
-import os
+from importlib.util import module_from_spec, spec_from_file_location
 from ntpath import dirname
-from os.path import basename, join
+from os.path import basename, dirname as path_dirname, join
 
 from dotenv import load_dotenv
 
@@ -13,6 +13,7 @@ from arelight.const import BULK_CHAIN
 from arelight.pipelines.result import PipelineResult
 from arelight.run.utils import iter_content, merge_dictionaries, NER_TYPES
 from arelight.run.utils_logger import TqdmToLogger, setup_custom_logger
+from arelight.utils import get_event_loop
 
 
 def class_to_int(text):
@@ -40,6 +41,19 @@ def attitude_task_kwargs(labels_fmt, classify_func=None):
         "classify_func": class_to_int if classify_func is None else classify_func,
         "labels_fmt": labels_fmt,
     }
+
+
+def create_sentence_parser(framework, language):
+    """ Build a sentence splitter. NLTK lives in `demo/nltk.py`, outside the library. """
+    if framework == "linesplit":
+        return lambda text: [t.strip() for t in text.split('\n')]
+    if framework == "nltk":
+        demo_nltk = join(path_dirname(path_dirname(path_dirname(__file__))), "demo", "nltk.py")
+        spec = spec_from_file_location("arelight_demo_nltk", demo_nltk)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.tokenize(language)
+    raise Exception("Framework `{}` is not supported".format(framework))
 
 
 def iter_rows_from_files(files_iter, csv_sep=",", csv_column="text", content_iter=None):
@@ -134,6 +148,18 @@ if __name__ == '__main__':
     translate_model = dynamic_init(class_filepath=args.translate_provider) if args.translate_provider is not None else None
 
     ner_types = None if args.ner_types is None else set(args.ner_types.split("|"))
+    event_loop = get_event_loop()
+    framework, language = args.sentence_parser.split(":")
+
+    translator_args = None
+    if translate_model is not None:
+        src, dest = (None, None) if args.translate_text is None else args.translate_text.split(":")
+        translator_args = {
+            "model": translate_model(),
+            "src": src,
+            "dest": dest,
+            "event_loop": event_loop,
+        }
 
     # Creating pipeline.
     pipeline, settings = create_inference_pipeline(
@@ -142,32 +168,28 @@ if __name__ == '__main__':
             csv_sep=args.csv_sep,
             csv_column=args.csv_column),
         sampling_args={
-            "sentence_parser": args.sentence_parser,
             "terms_per_context": args.terms_per_context,
             "docs_limit": args.docs_limit,
             "synonyms_filepath": args.synonyms_filepath,
         },
         predict_table_name=predict_table_name,
         collection_target_func=collection_target_func,
-        translator_args={
-            "model": translate_model() if translate_model is not None else None,
-            "src": args.translate_text.split(':')[0] if args.translate_text is not None else None,
-            "dest": args.translate_text.split(':')[1] if args.translate_text is not None else None,
-        },
+        translator_args=translator_args,
         ner_args={
             "model": ner_model_type(model=args.ner_model_name),
             "obj_filter": None if ner_types is None else lambda s_obj: s_obj.ObjectType in ner_types,
             "chunk_limit": 128
         },
         inference_args={
-            "model": args.inference_model_name,
+            "model_name": args.inference_model_name,
             "class_name": args.inference_filename,
-            "api_key": os.environ.get("API_TOKEN"),
             "task_kwargs": attitude_task_kwargs(args.labels_fmt),
             "writer": args.inference_writer,
         },
         tqdm_log_out=tqdm_log_out,
-        batch_size=args.batch_size
+        batch_size=args.batch_size,
+        event_loop=event_loop,
+        sentence_parser=create_sentence_parser(framework=framework, language=language),
     )
 
     # Launch application.
