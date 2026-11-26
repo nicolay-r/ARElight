@@ -61,13 +61,15 @@ def _whole_text(text):
     return [text]
 
 
-def __translator_pipeline(translator_args):
+def __translator_pipeline(translator_args, event_loop):
     args = dict(translator_args)
     model = args.pop("model")
     do_translate_entity = args.pop("do_translate_entity", False)
     return [
         MLTextTranslatorPipelineItem(
-            batch_translate_model=model.get_func(**args),
+            batch_translate_model=model.get_func(
+                **(args | {"event_loop": event_loop})
+            ),
             do_translate_entity=do_translate_entity,
             is_span_func=lambda term: isinstance(term, IndexedEntity)),
         BasePipelineItem(src_func=lambda l: string_terms_to_list(l)),
@@ -154,7 +156,7 @@ def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
 
     text_translator_setup = {
         None: lambda: [],
-        "ml-based": lambda: __translator_pipeline(translator_args),
+        "ml-based": lambda: __translator_pipeline(translator_args, event_loop),
     }
 
     synonyms_setup = {

@@ -158,7 +158,6 @@ if __name__ == '__main__':
             "model": translate_model(),
             "src": src,
             "dest": dest,
-            "event_loop": event_loop,
         }
 
     # Creating pipeline.
