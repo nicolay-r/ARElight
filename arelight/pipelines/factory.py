@@ -2,7 +2,7 @@ from arelight.const import BULK_CHAIN
 from arelight.pipelines.items.inference_writer import InferenceWriterPipelineItem
 
 
-def build_pipeline(sampling_engines=None, infer_engines=None, inference_writer=None):
+def build_pipeline(sampling_engines=None, infer_engines=None, inference_writer=None, predict_provider=None):
     assert(isinstance(sampling_engines, dict) or sampling_engines is None)
     assert(isinstance(infer_engines, dict) or infer_engines is None)
 
@@ -23,6 +23,6 @@ def build_pipeline(sampling_engines=None, infer_engines=None, inference_writer=N
     if BULK_CHAIN in infer_engines:
         from arelight.pipelines.items.inference_bulkchain import InferenceBulkChainPipelineItem
         pipeline += [InferenceBulkChainPipelineItem(**infer_engines[BULK_CHAIN]),
-                     InferenceWriterPipelineItem(inference_writer)]
+                     InferenceWriterPipelineItem(inference_writer, predict_provider)]
 
     return pipeline

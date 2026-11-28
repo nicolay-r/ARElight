@@ -16,29 +16,27 @@ from arelight.run.utils_logger import TqdmToLogger, setup_custom_logger
 from arelight.utils import get_event_loop
 
 
-def class_to_int(text):
-    lowered = "" if text is None else str(text).lower()
-    if "positive" in lowered:
-        return 1
-    if "negative" in lowered:
-        return -1
-    return 0
+_LABEL_NAMES = {"u": "neutral", "p": "positive", "n": "negative"}
 
 
-def attitude_task_kwargs(labels_fmt, classify_func=None):
-    """ Prompt for this command-line attitude example. """
+def attitude_task_kwargs(labels_fmt):
+    """ Prompt for this command-line attitude example.
+
+    The model replies with the integer declared in `labels_fmt`.
+    """
     from arekit.common.data.input.providers.text.single import BaseSingleTextProvider
 
+    choices = ", ".join(
+        f"{value} for {_LABEL_NAMES[name]}"
+        for name, value in (item.split(":") for item in labels_fmt.split(","))
+    )
     prompt = (
         f"Given text: {{{BaseSingleTextProvider.TEXT_A}}}"
-        "TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: "
-        "positive, "
-        "negative, "
-        "neutral."
+        "TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]. "
+        f"Reply with a single integer: {choices}."
     )
     return {
         "schema": [{"prompt": prompt, "out": "response"}],
-        "classify_func": class_to_int if classify_func is None else classify_func,
         "labels_fmt": labels_fmt,
     }
 
@@ -183,6 +181,8 @@ if __name__ == '__main__':
             "model_name": args.inference_model_name,
             "class_name": args.inference_filename,
             "task_kwargs": attitude_task_kwargs(args.labels_fmt),
+        },
+        writer_args={
             "writer": args.inference_writer,
         },
         tqdm_log_out=tqdm_log_out,

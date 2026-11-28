@@ -2,23 +2,20 @@ from collections.abc import Iterable
 
 from arekit.common.data.storages.base import BaseRowsStorage
 
-from arelight.predict.header import PredictHeader
 
-
-class BasePredictProvider(object):
-
-    UINT_TO_STR = lambda uint_label: f"col_{uint_label}"
+class IntPredictProvider(object):
 
     @staticmethod
-    def __iter_contents(sample_id_with_uint_labels_iter, labels_count, column_extra_funcs):
-        assert(isinstance(labels_count, int))
+    def __iter_contents(data_it, uint_labels, column_extra_funcs):
+        assert(isinstance(uint_labels, list))
 
-        for data in sample_id_with_uint_labels_iter:
+        for data in data_it:
             sample_id, uint_label = data
+            uint_label = int(str(uint_label).strip().strip("\"'"))
             assert(isinstance(uint_label, int))
 
-            labels = ['0'] * labels_count
-            labels[uint_label] = '1'
+            labels = ['0'] * len(uint_labels)
+            labels[uint_labels.index(uint_label)] = '1'
 
             # Composing row contents.
             contents = [sample_id]
@@ -33,32 +30,23 @@ class BasePredictProvider(object):
             yield contents
 
     @staticmethod
-    def provide_to_storage(sample_id_with_uint_labels_iter, uint_labels):
-        assert(isinstance(sample_id_with_uint_labels_iter, Iterable))
+    def handle_iter(data_it, uint_labels):
+        assert(isinstance(data_it, Iterable))
 
-        # Provide contents.
-        contents_it = BasePredictProvider.__iter_contents(
-            sample_id_with_uint_labels_iter=sample_id_with_uint_labels_iter,
-            labels_count=len(uint_labels),
+        return IntPredictProvider.__iter_contents(
+            data_it=data_it,
+            uint_labels=list(uint_labels),
             column_extra_funcs=None)
 
-        header = PredictHeader.create_header(uint_labels=uint_labels,
-                                             uint_label_to_str=BasePredictProvider.UINT_TO_STR)
-
-        return header, contents_it
-
     @staticmethod
-    def iter_from_storage(predict_data, uint_labels, keep_ind=True):
+    def iter_from_storage(predict_data, uint_labels, label_columns, keep_ind=True):
         assert (isinstance(predict_data, BaseRowsStorage))
-
-        header = PredictHeader.create_header(uint_labels=uint_labels,
-                                             uint_label_to_str=BasePredictProvider.UINT_TO_STR,
-                                             create_id=False)
+        assert (isinstance(label_columns, list))
 
         for res_ind, row in predict_data:
 
             uint_label = None
-            for label, field_name in zip(uint_labels, header):
+            for label, field_name in zip(uint_labels, label_columns):
                 if row[field_name] > 0:
                     uint_label = label
                     break

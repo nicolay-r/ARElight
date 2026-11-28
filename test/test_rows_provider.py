@@ -90,8 +90,10 @@ class TestPipelineFromRows(unittest.TestCase):
                 inference_args={
                     "model_name": "fake",
                     "class_name": llm_path,
-                    "writer": "sqlite3",
                     "task_kwargs": {"labels_fmt": "u:0,p:1,n:2"},
+                },
+                writer_args={
+                    "writer": "sqlite3",
                 },
             )
 

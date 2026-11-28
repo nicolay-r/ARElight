@@ -47,6 +47,7 @@ from dotenv import load_dotenv
 from arekit.common.pipeline.base import BasePipelineLauncher
 
 from arelight.api import create_inference_pipeline
+from arelight.predict.provider import IntPredictProvider
 from arelight.pipelines.result import PipelineResult
 from arelight.run.infer import create_sentence_parser
 from arelight.run.utils import merge_dictionaries
@@ -57,16 +58,6 @@ from bulk_chain.core.utils import dynamic_init
 load_dotenv()  # API_TOKEN in .env is read by the inference pipeline
 
 event_loop = get_event_loop()
-
-
-def class_to_int(text):
-    lowered = "" if text is None else str(text).lower()
-    if "positive" in lowered:
-        return 1
-    if "negative" in lowered:
-        return -1
-    return 0
-
 
 pipeline, settings = create_inference_pipeline(
     rows_iter=[
@@ -98,12 +89,14 @@ pipeline, settings = create_inference_pipeline(
         "class_name": "demo/replicate_104.py",
         "task_kwargs": {
             "schema": [{
-                "prompt": "Given text: {text_a}TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]: positive, negative, neutral.",
+                "prompt": "Given text: {text_a}TASK: Classify sentiment attitude of [SUBJECT] to [OBJECT]. Reply with a single integer: 0 for neutral, 1 for positive, 2 for negative.",
                 "out": "response",
             }],
-            "classify_func": class_to_int,
             "labels_fmt": "u:0,p:1,n:2",
         },
+    writer_args={
+        "writer": "sqlite3",
+        "provider": IntPredictProvider,
     },
     batch_size=1,
     event_loop=event_loop,

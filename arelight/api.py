@@ -21,6 +21,7 @@ from arelight.entity import HighligtedEntitiesFormatter
 from arelight.pipelines.data.annot_pairs_nolabel import create_neutral_annotation_pipeline
 from arelight.pipelines.demo.labels.scalers import CustomLabelScaler
 from arelight.pipelines.factory import build_pipeline
+from arelight.predict.provider import IntPredictProvider
 from arelight.predict.writer_csv import TsvPredictWriter
 from arelight.predict.writer_sqlite3 import SQLite3PredictWriter
 from arelight.readers.csv_pd import PandasCsvReader
@@ -78,7 +79,7 @@ def __translator_pipeline(translator_args, event_loop):
 
 def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
                               collection_target_func, translator_args,
-                              ner_args, inference_args,
+                              ner_args, inference_args, writer_args=None,
                               tqdm_log_out=None, batch_size=1, event_loop=None,
                               sentence_parser=None):
 
@@ -130,26 +131,27 @@ def create_inference_pipeline(rows_iter, sampling_args, predict_table_name,
             **ner_args)
     }
 
-    inference_writer = inference_args.get("writer", "sqlite3")
-    chain_args = {key: value for key, value in inference_args.items() if key != "writer"}
+    writer_args = {} if writer_args is None else writer_args
+    inference_writer = writer_args.get("writer", "sqlite3")
+    predict_provider = writer_args.get("provider", IntPredictProvider)
 
     infer_engines_setup = {
         None: {},
         BULK_CHAIN: {
-            "table_name": "contents",
-            **chain_args,
+            **inference_args,
             "task_kwargs": {
                 "default_id_column": ID,
                 "batch_size": batch_size,
                 "event_loop": event_loop,
-            } | chain_args.get("task_kwargs", {}),
+            } | inference_args.get("task_kwargs", {}),
         },
     }
 
     pipeline = build_pipeline(
         sampling_engines={key: sampling_engines_setup[key] for key in ["arekit"]},
         infer_engines={key: infer_engines_setup[key] for key in [BULK_CHAIN]},
-        inference_writer=predict_writers[inference_writer])
+        inference_writer=predict_writers[inference_writer],
+        predict_provider=predict_provider)
 
     # Settings.
     settings = []
